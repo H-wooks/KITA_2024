@@ -15,9 +15,14 @@
   - 식별자, 키워드 들에 대한 설명은 1_자료형.ipynb 참고.
     
 ## List [] vs. Tuple () 차이점 정리
+  - 리스트의 경우에는 append와 remove 등과 같이 내부 항목을 추가하거나 제거 가능
+  - 반면, 튜플은 변경, 추가, 삭제를 할 수 없다. count나 index와 같은 내부적으로 조사를 하는 함수만 사용 가능함, 동일한 항목을 그대로 가져와 새로운 리스트에 대입을 한다거나 튜플을 리스트화, 혹은 튜플을 리스트로 변환을 시켜서 새로운 메모리에 할당
   - 
 ## Python Class 공부 & 정리
   - 데이터와 함수를 정의해서 새로운 데이터 타입의 정의; 클래스란 변수와 메소드로 구성된 새로운 데이터 타입
 ![image](https://github.com/hwooks96/KITA_2024/assets/167948347/4c6fd718-6167-486d-ba41-b20b08fda9b5)
+![image](https://github.com/hwooks96/KITA_2024/assets/167948347/dee36dfa-4625-4d6e-b418-a849e1d4d243)
 
-  - 
+  - 함수와 메소드의 차이:
+    메소드는 특정 객체에 종속되어 적용 호출 (클래스 내에 정의된 함수) 되고, 함수는 어떠한 객체와 무관하게 적용 호출 (독립적인 코드)
+    * EX) sort() method와 sorted() function 차이: sort() method는 반환 X, 변환O only for List to List vs. sorted() function는 반환 O, 변환 X , not only for List but for everything, to List
