@@ -13,3 +13,11 @@
      솔라 논문 요약 리뷰: https://dajeblog.co.kr/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0-solar-10-7b-scaling-large-language-models-with-simple-yet-effective-depth-up-scaling/
     Main theme: Depth Up-Scaling (DUS)
   - 식별자, 키워드 들에 대한 설명은 1_자료형.ipynb 참고.
+    
+## List [] vs. Tuple () 차이점 정리
+  - 
+## Python Class 공부 & 정리
+  - 데이터와 함수를 정의해서 새로운 데이터 타입의 정의; 클래스란 변수와 메소드로 구성된 새로운 데이터 타입
+![image](https://github.com/hwooks96/KITA_2024/assets/167948347/4c6fd718-6167-486d-ba41-b20b08fda9b5)
+
+  - 
