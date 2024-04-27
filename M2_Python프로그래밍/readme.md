@@ -36,6 +36,6 @@
 # ASCII code(미국 정보 교환 표준 부호): 영문기준 문자나 character의 mapping table
 ![image](https://github.com/hwooks96/KITA_2024/assets/167948347/43e066a8-1811-459a-b91b-21df74540b64)
 -https://namu.wiki/w/%EC%95%84%EC%8A%A4%ED%82%A4%20%EC%BD%94%EB%93%9C 참고
-- 한국을 UTF-8로 널리 사용
+- 한국(한글) UTF-8로 널리 사용
 
 
