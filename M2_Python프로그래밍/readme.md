@@ -25,17 +25,18 @@
 
   - 함수와 메소드의 차이:
     메소드는 특정 객체에 종속되어 적용 호출 (클래스 내에 정의된 함수) 되고, 함수는 어떠한 객체와 무관하게 적용 호출 (독립적인 코드)
-    * EX) sort() method와 sorted() function 차이: sort() method는 반환 X, 변환O only for List to List vs. sorted() function는 반환 O, 변환 X , not only for List but for everything, to List
+  - sort() method와 sorted() function 차이: sort() method는 반환 X, 변환O only for List to List vs. sorted() function는 반환 O, 변환 X , not only for List but for everything, to List
   - colab에서 !pip install fastai 이렇게 설치해보면 설치된 경로가 나오게 된다. /user/local/lib/python3.10/~에 있어
   - 설치되어 있는 것들은 import xx , 혹은 import xx simple로 불러서 쓰기만 하면 된다.
 
+## 5.1 AI 엑스포 코리아 참관: 참관 신청 완료
 
-# 5.1 AI 엑스포 코리아 참관
-
-
-# ASCII code(미국 정보 교환 표준 부호): 영문기준 문자나 character의 mapping table
+## ASCII code(미국 정보 교환 표준 부호): 영문기준 문자나 character의 mapping table
 ![image](https://github.com/hwooks96/KITA_2024/assets/167948347/43e066a8-1811-459a-b91b-21df74540b64)
 -https://namu.wiki/w/%EC%95%84%EC%8A%A4%ED%82%A4%20%EC%BD%94%EB%93%9C 참고
-- 한국(한글) UTF-8로 널리 사용
+- 한국(한글)의 경우 UTF-8로 사용...
 
-
+## 변수명,함수명,클래스명 정할 때 규칙을 확실히 하자.. 
+- 카멜(Camel) 표기: 두번째 단어부터 첫글자 대문자로 작성, 파스칼(Pascal) 표기: 단어 첫 글자 마다 대문자로 작성, 팟홀(Pothole) 표기: 단어마다 '_'를 넣어 표기
+- 카멜: myNameIsHwook, 파스칼: MyNameIsHwook, 팟홀: my_name_is_apple
+- 앞으로 함수명, 클래스명은 파스칼 타입 (MyNameIsHwook)으로, 그 외 변수들은 팟홀 타입 (my_name_is_apple)으로...
