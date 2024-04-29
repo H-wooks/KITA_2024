@@ -41,3 +41,4 @@
 - 카멜: myNameIsHwook, 파스칼: MyNameIsHwook, 팟홀: my_name_is_apple
 - **앞으로 함수명, 클래스명은 파스칼 타입 (MyNameIsHwook)으로, 그 외 변수들은 팟홀 타입 (my_name_is_apple)으로...**
 - ${\textsf{\color{green}**앞으로 함수명, 클래스명은 파스칼 타입 (MyNameIsHwook)으로, 그 외 변수들은 팟홀 타입 (my_name_is_apple)으로...**}}$
+ ${\textsf{\color{green}앞으로 함수명, 클래스명은 파스칼 타입 (MyNameIsHwook)으로, 그 외 변수들은 팟홀 타입 (my_name_is_apple)으로...}}$
