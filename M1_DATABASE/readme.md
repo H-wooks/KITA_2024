@@ -27,3 +27,10 @@ SQL 기초 무료 강의: https://bit.ly/3srNoZM
      솔라 논문 요약 리뷰: https://dajeblog.co.kr/%EB%85%BC%EB%AC%B8-%EB%A6%AC%EB%B7%B0-solar-10-7b-scaling-large-language-models-with-simple-yet-effective-depth-up-scaling/
     Main theme: Depth Up-Scaling (DUS)
   - 식별자, 키워드 들에 대한 설명은 1_자료형.ipynb 참고.
+
+
+
+# SQL developer
+- 실행은 ctrl + enter
+- 저장은 ctrl + s
+- 주석 CTRL + / 
