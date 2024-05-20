@@ -85,6 +85,16 @@ ALTER TABLE NEWORDERS DROP COLUMN CUSTID;
 ALTER TABLE NEWCUSTOMER DROP COLUMN CUSTID;
 
 ---------------------------------------- SUB QUERY (부속 질의) 추가 예정
+-- Q. ‘대한미디어’에서 출판한 도서를 구매한 고객의 이름을 보이시오.
+-- BOOK 테이블에서 PUBLISHER가 '대한미디어'인 BOOKID 중에 주문 정보에 들어가 있는 것 + 여기서 주문한 CUSTID를 추리고 CUSTOMER
+-- 테이블에서 NAME을 검색
+SELECT NAME FROM CUSTOMER
+WHERE CUSTID IN (SELECT CUSTID FROM ORDERS
+WHERE BOOKID IN (SELECT BOOKID FROM BOOK
+WHERE PUBLISHER = '대한미디어'));
+
+
+
 
 ---------------------------------------- UPDATE 추가 예정
 UPDATE CUSTOMER SET ADDRESS='대한민국 대전' WHERE NAME='박세리';
