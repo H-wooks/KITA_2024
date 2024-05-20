@@ -44,12 +44,31 @@ WHERE BOOKID > 5 GROUP BY CUSTID
 HAVING COUNT(*) > 2;
 
 ---------------------------------------- INNER JOIN 사용
+-- Q. 도서 구매 가격이 20000원인 주문의 고객명, 도서명, 판매 가격 검색
+-- OPTION 1 USING JOIN
 SELECT C.NAME, B.BOOKNAME, O.SALEPRICE
 FROM CUSTOMER C 
 INNER JOIN ORDERS O ON C.CUSTID = O.CUSTID
 INNER JOIN BOOK B ON O.BOOKID = B.BOOKID
 WHERE O.SALEPRICE = 20000;
 
+-- OPTION 2 USING WHERE
+SELECT C.NAME, B.BOOKNAME, O.SALEPRICE
+FROM CUSTOMER C, ORDERS O, BOOK B
+WHERE  C.CUSTID = O.CUSTID AND O.BOOKID = B.BOOKID
+AND O.SALEPRICE = 20000;
+
+-- Q. 대한민국에 거주하는 고객에게 판매한 도서의 총 판매액
+SELECT SUM(O.SALEPRICE) AS "총판매액"
+FROM ORDERS O, CUSTOMER C
+WHERE O.CUSTID=C.CUSTID
+AND C.ADDRESS LIKE '%대한민국%';
+
+-- Q. 대한민국 외에 거주하는 고객에게 판매한 도서의 총 판매액
+SELECT SUM(O.SALEPRICE) AS "총판매액"
+FROM ORDERS O, CUSTOMER C
+WHERE O.CUSTID=C.CUSTID
+AND C.ADDRESS NOT LIKE '%대한민국%';
 ---------------------------------------- OUTER JOIN  (LEFT) 사용
 -- OPTION 1 USING JOIN
 -- LEFT가 기준이 되므로 LEFT (처음 테이블)의 모든 행은 나오는 JOIN형태 (없으면 NULL로...)
@@ -93,7 +112,28 @@ WHERE CUSTID IN (SELECT CUSTID FROM ORDERS
 WHERE BOOKID IN (SELECT BOOKID FROM BOOK
 WHERE PUBLISHER = '대한미디어'));
 
+-- Q. 가장 비싼 책의 정보를 검색 
+SELECT BOOKNAME, PRICE, PUBLISHER FROM BOOK 
+WHERE PRICE = (SELECT MAX(PRICE) FROM BOOK);
 
+-- Q. 평균 주문금액 이하의 주문에 대해서 주문번호와 금액 검색 <== 전체 평균 대비
+SELECT ORDERID, SALEPRICE 
+FROM ORDERS
+WHERE SALEPRICE < (SELECT AVG(SALEPRICE)
+FROM ORDERS);
+
+--Q. 출판사별로 출판사의 평균 도서 가격보다 비싼 도서를 구하시오.<== 출판사별 평균 대비,,,
+-- 이를 위해 B2.PUBLISHER = B1.PUBLISHER 같은 출판사에 대해 AVG 모두 계산하기 위해...
+SELECT B1.PUBLISHER, B1.BOOKNAME, B1.PRICE 
+FROM BOOK B1
+WHERE B1.PRICE > (SELECT AVG(B2.PRICE)
+FROM BOOK B2
+WHERE B2.PUBLISHER = B1.PUBLISHER);
+--GROUP BY PUBLISHER ==> 필요 없어 각각이 도서에 대해서 평균 보다 비싼 개별 도서 이므로 
+
+--Q. 도서를 주문하지 않은 고객의 이름을 보이시오.
+SELECT NAME FROM CUSTOMER WHERE CUSTID NOT IN (
+SELECT CUSTID FROM ORDERS);
 
 
 ---------------------------------------- UPDATE 추가 예정
@@ -102,10 +142,28 @@ UPDATE CUSTOMER SET ADDRESS=(SELECT ADDRESS FROM CUSTOMER WHERE NAME='김연아'
 
 ---------------------------------------- LETTER 추출
 -- SUBSTR(원본문자열 혹은 컬럼, 시작위치, 추출개수)
-SELECT 성, COUNT(성) FROM (SELECT NAME, SUBSTR(NAME, 1, 1) as 성 FROM CUSTOMER) GROUP BY 성;
+SELECT 성, COUNT(성) FROM (SELECT NAME, SUBSTR(NAME, 1, 1) as 성 FROM CUSTOMER) GROUP BY 성 ORDER BY ;
 
 ---------------------------------------- REPLACE 추가 예정
 UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'야구','농구');
 
 ---------------------------------------- 시간 추출 
+
+-- Q. 마당서점은 주문일로부터 10일 후 매출을 확정한다. 각 주문의 확정일자를 구하시오.
+SELECT ORDERDATE AS "주문 일자", TO_DATE(ORDERDATE,'yyyy-mm-dd') + 10 AS "확정 일자" FROM ORDERS;
+
+-- Q. 마당서점이 2020년 7월 7일에 주문받은 도서의 주문번호, 주문일, 고객번호, 도서번호를 모두 보이시오. 
+-- 단 주문일은 ‘yyyy-mm-dd 요일’ 형태로 표시한다.
+SELECT ORDERID, TO_CHAR(ORDERDATE, 'yyyy-mm-dd-DAY') AS "주문일", CUSTID, BOOKID
+FROM ORDERS
+WHERE ORDERDATE = '2020-07-07';
+
+-- ALL PRINT
+SELECT ORDERID, ORDERDATE, CUSTID, BOOKID, TO_CHAR(ORDERDATE, 'day'), TO_CHAR(ORDERDATE, 'yyyy-mm-dd DAY')
+FROM ORDERS
+WHERE ORDERDATE = '2020-07-07';
+
+SELECT ORDERID, ORDERDATE, CUSTID, BOOKID, TO_CHAR(ORDERDATE, 'day'), TO_DATE(ORDERDATE, 'yyyy-mm-dd')
+FROM ORDERS
+WHERE ORDERDATE = '2020-07-07';
 
