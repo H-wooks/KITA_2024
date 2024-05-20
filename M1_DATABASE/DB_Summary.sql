@@ -67,11 +67,35 @@ WHERE C.CUSTID=O.CUSTID(+)
 AND B.BOOKID(+) = O.BOOKID
 ORDER BY C.NAME;
 
+---------------------------------------- FOREIGN KEY
+-- NEWORDERS에 CUSTID를 NEWCUSTOMER 테이블의 CUSTID 키를 REFERENCE로 해서 FOREIGN 키로 설정하면,
+-- 부모인 NEWCUSTOMER 테이블의 CUSTID와 관련된 DATA가 삭제되면 NEWORDERS에서도 삭제
+CREATE TABLE NEWORDERS (
+~
+FOREIGN KEY(CUSTID) REFERENCES NEWCUSTOMER(CUSTID) ON DELETE CASCADE);
+test) 
+-- NEWCUSTOMER에서 PRIMARY KEY인 CUSTID=1인 DATA를 삭제를 하면 NEWORDERS에서 CUSTID=1에 해당하는 ORDERS DATA도 모두 삭제..
+DELETE FROM NEWCUSTOMER WHERE CUSTID=1;
+-- NEWORDERS에서 CUSTID=3인 DATA를 삭제 하면 NEWORDERS에서는 삭제되지만, NEWCUSTOMER에서 CUSTID=3인 DATA들은 삭제 x.. 그대로 존재..
+DELETE FROM NEWORDERS WHERE CUSTID=1;
+-- NEWORDERS에서 CUSTID 컬럼을 삭제하더라도 NEWCUSTOMER에서는 삭제 안되고 그대로 남아 있음
+ALTER TABLE NEWORDERS DROP COLUMN CUSTID;
+-- 반면, NEWCUSTOMER에서는 CUSTID 컬럼은 NEWORDERS에서 FOREIGN 키로 설정되어 있어서 아예 삭제가 안됨
+-- 다만, NEWORDERS에서 FOREIGN 키로 설정되어 있던  CUSTID를 먼저 DROP시키고 나서 NEWCOSTOMER에서 CUSTID COLUMN을 DROP으로 삭제는 가능
+ALTER TABLE NEWCUSTOMER DROP COLUMN CUSTID;
+
 ---------------------------------------- SUB QUERY (부속 질의) 추가 예정
 
 ---------------------------------------- UPDATE 추가 예정
+UPDATE CUSTOMER SET ADDRESS='대한민국 대전' WHERE NAME='박세리';
+UPDATE CUSTOMER SET ADDRESS=(SELECT ADDRESS FROM CUSTOMER WHERE NAME='김연아') WHERE NAME='박세리';
+
+---------------------------------------- LETTER 추출
+-- SUBSTR(원본문자열 혹은 컬럼, 시작위치, 추출개수)
+SELECT 성, COUNT(성) FROM (SELECT NAME, SUBSTR(NAME, 1, 1) as 성 FROM CUSTOMER) GROUP BY 성;
 
 ---------------------------------------- REPLACE 추가 예정
+UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'야구','농구');
 
+---------------------------------------- 시간 추출 
 
-----------------------------------------
