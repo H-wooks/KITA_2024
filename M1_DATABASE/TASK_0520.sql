@@ -59,10 +59,10 @@ UPDATE CUSTOMER SET ADDRESS='대한민국 대전' WHERE NAME='박세리';
 
 
 -- Task3_0520.도서 제목에 ‘야구’가 포함된 도서를 ‘농구’로 변경한 후 도서 목록, 가격을 보이시오.
+SELECT BOOKNAME, PRICE FROM BOOK;
 UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'야구','농구');
-SELECT * FROM BOOK;
--- 원래대로 복구
-UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'농구','야구');
+SELECT BOOKNAME, PRICE FROM BOOK WHERE BOOKNAME LIKE '%농구%';
+
 
 -- Task4_0520. 마당서점의 고객 중에서 같은 성(姓)을 가진 사람이 몇 명이나 되는지 성별 인원수를 구하시오.
 SELECT 성, COUNT(성) FROM (SELECT SUBSTR(NAME, 1, 1) as 성 FROM CUSTOMER)
