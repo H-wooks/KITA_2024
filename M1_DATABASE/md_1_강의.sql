@@ -876,6 +876,8 @@ CREATE TABLE TEACHERS(
     PRIMARY KEY (CLASS_ASSIGNED)
 );
 
+
+DROP TABLE STUDENTS cascade constraints purge;
 CREATE TABLE STUDENTS(
     NAME VARCHAR2(20), -- 학생명
     STDID NUMBER(10), -- 학생 번호
@@ -920,8 +922,6 @@ INSERT INTO TEACHERS VALUES ('박영수', '1998-11-22', 23, '남', '010-2345-6789', 
 INSERT INTO TEACHERS VALUES ('김민수', '1991-06-07', 30, '여', '010-7890-1234', '전남 목포', '과학', '1학년 10반');
 
 SELECT * FROM TEACHERS;
-
-DROP TABLE STUDENTS cascade constraints purge;
 
 
 INSERT INTO STUDENTS VALUES ('김철수', 220634, '2006-03-15', 17, '남', '010-1234-5678', '서울 강남', '영어', '3학년 3반');
@@ -1031,12 +1031,6 @@ INSERT	INTO	SCOREBOARD	VALUES	('정다영',620520,55,33,53,NULL,81,53,51,NULL,9,NUL
 INSERT	INTO	SCOREBOARD	VALUES	('이재현',630606,82,41,25,NULL,40,45,81,NULL,6,NULL);
 INSERT	INTO	SCOREBOARD	VALUES	('김지현',640707,30,57,72,NULL,54,32,96,NULL,6,NULL);
 
-UPDATE SCOREBOARD
-SET SCORE_MATH = ROUND((MATH1 * 0.3 + MATH2 * 0.3 + MATH3 * 0.3) - ABSENCE),
-    SCORE_PHYS = ROUND((PHYS1 * 0.3 + PHYS2 * 0.3 + PHYS3 * 0.3) - ABSENCE);
-    
-SELECT * FROM SCOREBOARD;
-
 DROP TABLE RELOCATEE cascade constraints purge;
 -- 교육부 전근자 명단 테이블 생성
 CREATE TABLE RELOCATEE(
@@ -1057,68 +1051,169 @@ INSERT	INTO	RELOCATEE	VALUES	('장지우', TO_DATE('2024-09-01','YYYY-MM-DD'));
 INSERT	INTO	RELOCATEE	VALUES	('최성민', TO_DATE('2024-09-01','YYYY-MM-DD'));
 
 SELECT * FROM RELOCATEE;
+    
+SELECT * FROM TEACHERS;
+SELECT * FROM STUDENTS;
+SELECT * FROM SCOREBOARD;
+SELECT * FROM RELOCATEE;
 
-
-
-
--- FURTHER WORK
--- TABLE 성적 생성 1차 2차 3차, 평균 내서 (I) 특정 논리에 의해서 GRADE 매기는 거 (2) 특정 수준 이하일 경우 경고 
--- 수학 1차, 2차, 3차 각 시험의 가중치 0.3 + (-결석일수) == 최종 성적
--- 물리 1차, 2차, 3차 각 시험의 가중치 0.3 + (-결석일수) == 최종 성적
--- 각 과목의 0~35: F, 36~45: C, 46~60: B, : B, 90이상: A
--- A: 65이상, B: 64~55, C: 54~45, D: 44~36, F: 35이하 
-
--- Q1. 위와 같은 로직에 따라 수학과 물리의 점수를 그래이딩 하고, 각 과목의 낙제자를 검색
--- Q2. 두 과목 모두에서 낙제한 학생의 담임 선생님을 검색
--- Q3. 
-
--- TABLE 전근갈 선생님 명단 
--- TABLE 교환 학생자 명단 
--- ERD;
-
-
--- Q. 분반 별로 소속된 학생들과 담당 선생님을 검색
+------------------------------ Q.분반 별로 소속된 학생들과 담당 선생님을 검색
 SELECT S.STDID 학번, S.NAME 이름, S.CLASS "학년/반", T.NAME "담임선생님"
 FROM STUDENTS S 
 INNER JOIN TEACHERS T ON S.CLASS = T.CLASS_ASSIGNED
 ORDER BY "학년/반";
---WHERE T.NAME = '정미영' OR T.NAME = '정재원';
 
 
--- Q. 전근갈 교사의 학생들을 가장 학생이 적은 반으로 배정
-UPDATE students
-SET
-    class = (SELECT
-                c.class
-            FROM
-                (SELECT
-                     b.class
-                    , count(b.class) as cnt
-                FROM
-                    teachers a
-                    , students b
-                WHERE
-                    a.class_assigned = b.class
-                    AND b.class like '1%'
-                    AND a.name != '김철호'
-                GROUP BY
-                    b.class
-                ORDER BY
-                    count(b.class), class
-                ) c
-            WHERE
-                rownum = 1)
-WHERE
-    class = (
-        SELECT
-            class_assigned
-        FROM 
-            teachers
-        WHERE   
-            name = '김철호'
-        )
-;
+------------------------------ Q.성적 TABLE에서 수학/물리 각각의 과목에서 1차, 2차, 3차, 시험에 대해 가중치 X 0.3을 적용한 시험
+------------------------------ 합산 점수에 결석일수를 감해서 최종 수학/물리 과목 점수를 SCORE_MATH와 SCORE_PHYS COLUMN에 UPDATE
+UPDATE SCOREBOARD SET
+SCORE_MATH = ROUND((MATH1 * 0.3 + MATH2 * 0.3 + MATH3 * 0.3) - ABSENCE),
+SCORE_PHYS = ROUND((PHYS1 * 0.3 + PHYS2 * 0.3 + PHYS3 * 0.3) - ABSENCE);
+SELECT * FROM SCOREBOARD;
 
+
+
+------------------------------ Q. 수학 물리 과목 모두 1,2,3차 시험과 출결점수로 산출된 합산 점수로부터 
+------------------------------ 65점 이상: A, 64~55점: B, 54~45점 : C, 44~36점 D, 35점 이하: F 학점으로 성적 처리해서 
+------------------------------ GRADE_MATH와 GRADE_PHYS NEW COLUMN 으로 검색 쿼리
+SELECT NAME, STDID, SCORE_MATH,
+CASE
+WHEN SCORE_MATH >= 65 THEN 'A'
+WHEN SCORE_MATH BETWEEN 55 AND 64 THEN 'B'
+WHEN SCORE_MATH BETWEEN 45 AND 54 THEN 'C'
+WHEN SCORE_MATH BETWEEN 36 AND 44 THEN 'D'
+ELSE 'F'
+END AS GRADE_MATH,
+SCORE_PHYS,
+CASE
+WHEN SCORE_PHYS >= 65 THEN 'A'
+WHEN SCORE_PHYS BETWEEN 55 AND 64 THEN 'B'
+WHEN SCORE_PHYS BETWEEN 45 AND 54 THEN 'C'
+WHEN SCORE_PHYS BETWEEN 36 AND 44 THEN 'D'
+ELSE 'F'
+END AS GRADE_PHYS,
+ABSENCE,
+FLUNK
+FROM SCOREBOARD;
+
+------------------------------ Q.위와 같은 로직에 따라 수학과 물리의 점수를 그래이딩 하고, 각 과목의 낙제자를 검색해서 FLUNK 컬럼 UPDATE
+UPDATE SCOREBOARD
+SET FLUNK = CASE
+WHEN TO_NUMBER(SCORE_MATH) <= 35 AND TO_NUMBER(SCORE_PHYS) <= 35 THEN '유급'
+WHEN TO_NUMBER(SCORE_MATH) <= 35 OR TO_NUMBER(SCORE_PHYS) <= 35 THEN '경고'
+ELSE 'PASS'
+END;
+SELECT * FROM SCOREBOARD;
+
+------------------------------ Q.성적이 유급 혹은 잠정 보류에 해당하는 학생과 담임 선생님의 리스트를 쿼리
+SELECT
+    S.NAME AS 학생이름,
+    S.CLASS AS "학년/반",
+    T.NAME AS 담당교사,
+    SB.FLUNK AS 유급여부
+FROM SCOREBOARD SB
+INNER JOIN STUDENTS S ON SB.STDID = S.STDID
+INNER JOIN TEACHERS T ON S.CLASS = T.CLASS_ASSIGNED
+WHERE SB.FLUNK IN ('보류', '유급');
+
+
+------------------------------ Q.STUDENT TABLE에서 학생 명단에 학년을 추출해서 쿼리
+SELECT
+    NAME AS STUDENT_NAME,
+    STDID AS STUDENT_ID,
+    AGE AS STUDENT_AGE,
+    SUBSTR(CLASS, 1, 1) AS GRADE
+FROM STUDENTS
+ORDER BY GRADE;
+
+
+------------------------------ Q.두 과목 모두에서 낙제한 유급 학생과 담임 선생님의 명단 쿼리
+SELECT
+    S.NAME AS 학생이름,
+    S.CLASS AS "학년/반",
+    T.NAME AS "하위 고과 예정 교사"
+FROM SCOREBOARD SB
+INNER JOIN STUDENTS S ON SB.STDID = S.STDID
+INNER JOIN TEACHERS T ON S.CLASS = T.CLASS_ASSIGNED
+WHERE SB.FLUNK IN ('유급');
+
+------------------------------ Q.반별 평균 점수가 가장 높은 반 순서로 정렬 (학년 구분 없이)
+SELECT
+    T.CLASS_ASSIGNED AS CLASS,
+    ROUND(AVG(SB_MATH_SCORE),2) AS AVG_MATH_SCORE,
+    T.NAME AS TEACHER_NAME
+FROM TEACHERS T
+JOIN STUDENTS S ON T.CLASS_ASSIGNED = S.CLASS
+JOIN (SELECT STDID, AVG(TO_NUMBER(SCORE_MATH)) AS SB_MATH_SCORE
+    FROM SCOREBOARD
+    GROUP BY STDID) SB ON S.STDID = SB.STDID
+GROUP BY T.CLASS_ASSIGNED, T.NAME
+ORDER BY AVG_MATH_SCORE DESC, T.CLASS_ASSIGNED;
+--------------------------------------------------- Q.반별 평균 점수가 가장 높은 반 순서로 정렬 (1학년 만)
+SELECT
+    T.CLASS_ASSIGNED AS CLASS,
+    ROUND(AVG(SB_MATH_SCORE), 2) AS AVG_MATH_SCORE,
+    T.NAME AS TEACHER_NAME
+FROM TEACHERS T
+JOIN STUDENTS S ON T.CLASS_ASSIGNED = S.CLASS
+JOIN (SELECT STUDENTS.STDID,AVG(TO_NUMBER(SCORE_MATH)) AS SB_MATH_SCORE
+    FROM SCOREBOARD
+    JOIN STUDENTS ON SCOREBOARD.STDID = STUDENTS.STDID
+    AND SUBSTR(STUDENTS.CLASS, 1, 1) = '1' 
+    GROUP BY STUDENTS.STDID) SB ON S.STDID = SB.STDID
+GROUP BY T.CLASS_ASSIGNED, T.NAME
+ORDER BY AVG_MATH_SCORE DESC;
+
+--------------------------------------------------- Q.반별 평균 점수가 가장 높은 반 순서로 정렬 (3학년 만)
+SELECT
+    T.CLASS_ASSIGNED AS CLASS,
+    ROUND(AVG(SB_MATH_SCORE), 2) AS AVG_MATH_SCORE,
+    T.NAME AS TEACHER_NAME
+FROM TEACHERS T
+JOIN STUDENTS S ON T.CLASS_ASSIGNED = S.CLASS
+JOIN (SELECT STUDENTS.STDID,AVG(TO_NUMBER(SCORE_MATH)) AS SB_MATH_SCORE
+    FROM SCOREBOARD
+    JOIN STUDENTS ON SCOREBOARD.STDID = STUDENTS.STDID
+    AND SUBSTR(STUDENTS.CLASS, 1, 1) = '3' 
+    GROUP BY STUDENTS.STDID) SB ON S.STDID = SB.STDID
+GROUP BY T.CLASS_ASSIGNED, T.NAME
+ORDER BY AVG_MATH_SCORE DESC;
+
+--------------------------------------------------- Q. 학년 별 학생 수와 선생님 수, 선생님 한 명당 학생 수 비율이 높은 순으로 정리
+WITH StudentCount AS (
+    SELECT SUBSTR(CLASS, 1, 1) AS GRADE, COUNT(*) AS NUM_STUDENTS
+    FROM STUDENTS
+    GROUP BY SUBSTR(CLASS, 1, 1)),
+TeacherCount AS ( 
+    SELECT SUBSTR(CLASS_ASSIGNED, 1, 1) AS GRADE, COUNT(*) AS NUM_TEACHERS
+    FROM TEACHERS 
+    GROUP BY SUBSTR(CLASS_ASSIGNED, 1, 1)),
+StudentPerTeacher AS (
+    SELECT S.GRADE, S.NUM_STUDENTS AS STUDENT_COUNT, T.NUM_TEACHERS AS TEACHER_COUNT,
+        ROUND(S.NUM_STUDENTS / T.NUM_TEACHERS, 2) AS STUDENT_PER_TEACHER
+    FROM StudentCount S
+    JOIN TeacherCount T ON S.GRADE = T.GRADE)
+SELECT SPT.GRADE, SPT.STUDENT_COUNT, SPT.TEACHER_COUNT, SPT.STUDENT_PER_TEACHER
+FROM StudentPerTeacher SPT
+ORDER BY
+    SPT.STUDENT_PER_TEACHER DESC;
+
+
+--------------------------------------------------- Q. 전근갈 교사의 학생들을 가장 학생이 적은 반으로 배정
+UPDATE STUDENTS
+SET CLASS = (SELECT  C.CLASS
+            FROM (SELECT B.CLASS, COUNT(B.CLASS) AS CNT
+                  FROM TEACHERS A, STUDENTS B
+                  WHERE A.CLASS_ASSIGNED = B.CLASS AND B.CLASS LIKE '1%' AND A.NAME != '김철호'
+                  GROUP BY B.CLASS
+                  ORDER BY COUNT(B.CLASS), CLASS) C
+            WHERE ROWNUM = 1)
+WHERE CLASS = (SELECT CLASS_ASSIGNED
+            FROM TEACHERS
+            WHERE NAME = '김철호');
+
+
+ROLLBACK;
 DELETE FROM teachers WHERE name = '김철호';
 
 
