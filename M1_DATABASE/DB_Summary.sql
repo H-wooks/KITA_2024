@@ -11,6 +11,9 @@ ORDERDATE DATE,
 PRIMARY KEY(ORDERID),
 FOREIGN KEY(CUSTID) REFERENCES NEWCUSTOMER(CUSTID) ON DELETE CASCADE);
 
+ALTER TABLE TEACHERS DROP COLUMN SUBJECT;
+ALTER TABLE TEACHERS MODIFY (CLASS_ASSIGNED VARCHAR2(15));
+
 ---------------------------------------- TABLE에 DATA VALUE 넣기
 INSERT INTO NEWORDERS VALUES (1,1,1,14000, TO_DATE('2024-05-20 14:49:30','YYYY-MM-DD HH24:MI:SS'));
 INSERT INTO NEWORDERS VALUES (5,1,6,3000, SYSDATE);
@@ -31,6 +34,16 @@ SELECT * FROM BOOK WHERE PUBLISHER IN ('굿스포츠','대한미디어');
 
 -------------------- 정렬
 SELECT * FROM BOOK ORDER BY PRICE DESC;
+
+-------------------------------------- DEFAULT 정의하기
+SELECT NAME 이름, nvl(PHONE, '연락처 없음') 전화번호
+FROM CUSTOMER;
+
+-------------------------------------- 앞의 몇가지 케이스에 대해서만 검색하기  ==> 가상의 ROWNUM
+SELECT ROWNUM 순번,  CUSTID 고객번호, NAME 이름,  PHONE 전화번호
+FROM CUSTOMER
+WHERE ROWNUM < 3;
+
 -------------------- 간단한 함수
 SELECT SUM(SALEPRICE) AS TOTAL, AVG(SALEPRICE) AS AVERAGE,
 MAX(SALEPRICE) AS MAXIMUM, MIN(SALEPRICE) AS MINIMUM
@@ -59,10 +72,23 @@ WHERE  C.CUSTID = O.CUSTID AND O.BOOKID = B.BOOKID
 AND O.SALEPRICE = 20000;
 
 -- Q. 대한민국에 거주하는 고객에게 판매한 도서의 총 판매액
+-- USING WHERE
 SELECT SUM(O.SALEPRICE) AS "총판매액"
 FROM ORDERS O, CUSTOMER C
 WHERE O.CUSTID=C.CUSTID
 AND C.ADDRESS LIKE '%대한민국%';
+
+-- USING JOIN
+SELECT SUM(O.SALEPRICE) AS "총판매액"
+FROM ORDERS O
+INNER JOIN CUSTOMER C ON O.CUSTID=C.CUSTID
+WHERE C.ADDRESS LIKE '%대한민국%';
+
+-- USING SUB-QUERY
+-- USING SUB-QUERY
+SELECT SUM(SALEPRICE) AS "총판매액"
+FROM ORDERS
+WHERE CUSTID IN (SELECT CUSTID FROM CUSTOMER WHERE ADDRESS LIKE '%대한민국%');
 
 -- Q. 대한민국 외에 거주하는 고객에게 판매한 도서의 총 판매액
 SELECT SUM(O.SALEPRICE) AS "총판매액"
@@ -116,11 +142,23 @@ WHERE PUBLISHER = '대한미디어'));
 SELECT BOOKNAME, PRICE, PUBLISHER FROM BOOK 
 WHERE PRICE = (SELECT MAX(PRICE) FROM BOOK);
 
--- Q. 평균 주문금액 이하의 주문에 대해서 주문번호와 금액 검색 <== 전체 평균 대비
+--------------------------------------- Q. 평균 주문금액 이하의 주문에 대해서 주문번호와 금액 검색 <== 전체 평균 대비
 SELECT ORDERID, SALEPRICE 
 FROM ORDERS
 WHERE SALEPRICE < (SELECT AVG(SALEPRICE)
 FROM ORDERS);
+-- 다른 방식 i
+SELECT O1.ORDERID, O1.SALEPRICE 
+FROM ORDERS O1
+WHERE O1.SALEPRICE < (SELECT AVG(O2.SALEPRICE)
+FROM ORDERS O2);
+
+-- 다른 방식 ii
+-- 서브 쿼리를 O2별칭으로 지정, 서브 쿼리인 SALEPRICE의 평균 값을 AVG_SALEPRICE로 계산해서 O2로
+SELECT O1.ORDERID, O1.SALEPRICE 
+FROM ORDERS O1
+JOIN (SELECT AVG(SALEPRICE) AS AVG_SALEPRICE FROM ORDERS) O2
+ON O1.SALEPRICE < O2.AVG_SALEPRICE;
 
 --Q. 출판사별로 출판사의 평균 도서 가격보다 비싼 도서를 구하시오.<== 출판사별 평균 대비,,,
 -- 이를 위해 B2.PUBLISHER = B1.PUBLISHER 같은 출판사에 대해 AVG 모두 계산하기 위해...
@@ -136,27 +174,43 @@ SELECT NAME FROM CUSTOMER WHERE CUSTID NOT IN (
 SELECT CUSTID FROM ORDERS);
 
 
----------------------------------------- UPDATE 추가 예정
+---------------------------------------- UPDATE 
 UPDATE CUSTOMER SET ADDRESS='대한민국 대전' WHERE NAME='박세리';
 UPDATE CUSTOMER SET ADDRESS=(SELECT ADDRESS FROM CUSTOMER WHERE NAME='김연아') WHERE NAME='박세리';
 
----------------------------------------- LETTER 추출
+---------------------------------------- 글자 추출
+-- Q. 같은 성(姓)을 가진 사람이 몇 명이나 되는지 성별 인원수를 구하시오.
 -- SUBSTR(원본문자열 혹은 컬럼, 시작위치, 추출개수)
-SELECT 성, COUNT(성) FROM (SELECT NAME, SUBSTR(NAME, 1, 1) as 성 FROM CUSTOMER) GROUP BY 성 ORDER BY ;
+SELECT 성, COUNT(성) FROM (SELECT NAME, SUBSTR(NAME, 1, 1) as 성 FROM CUSTOMER) 
+GROUP BY 성 
+ORDER BY 성;
 
----------------------------------------- REPLACE 추가 예정
+SELECT SUBSTR(NAME, 1, 1) 성, COUNT(*) 인원 
+FROM CUSTOMER
+GROUP BY SUBSTR(NAME, 1, 1)
+ORDER BY SUBSTR(NAME, 1, 1);
+
+---------------------------------------- REPLACE 
+---- 실재 변경
 UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'야구','농구');
+---- DATA가 실재로 바뀌지는 않고 검색 시에 변경만 되서.. TABLE의 값은 원래대로..
+SELECT BOOKID, REPLACE(BOOKNAME,'야구','농구') BOOKNAME, PUBLISHER, PRICE
+FROM BOOK;
 
 ---------------------------------------- 시간 추출 
-
 -- Q. 마당서점은 주문일로부터 10일 후 매출을 확정한다. 각 주문의 확정일자를 구하시오.
+SELECT ORDERDATE "주문 일자", ORDERDATE + 10 "확정 일자" FROM ORDERS;
 SELECT ORDERDATE AS "주문 일자", TO_DATE(ORDERDATE,'yyyy-mm-dd') + 10 AS "확정 일자" FROM ORDERS;
+-- 2달 후는...
+SELECT ORDERDATE "주문 일자", add_months(ORDERDATE, 2) "확정 일자" FROM ORDERS;
 
 -- Q. 마당서점이 2020년 7월 7일에 주문받은 도서의 주문번호, 주문일, 고객번호, 도서번호를 모두 보이시오. 
 -- 단 주문일은 ‘yyyy-mm-dd 요일’ 형태로 표시한다.
 SELECT ORDERID, TO_CHAR(ORDERDATE, 'yyyy-mm-dd-DAY') AS "주문일", CUSTID, BOOKID
 FROM ORDERS
 WHERE ORDERDATE = '2020-07-07';
+-- WHERE ORDERDATE = TO_DATE('2020-07-07', 'YYYY-MM-DD');  
+-- WHERE ORDERDATE = TO_DATE('07/07/24', 'DD/MM/YY');
 
 -- ALL PRINT
 SELECT ORDERID, ORDERDATE, CUSTID, BOOKID, TO_CHAR(ORDERDATE, 'day'), TO_CHAR(ORDERDATE, 'yyyy-mm-dd DAY')
@@ -167,3 +221,24 @@ SELECT ORDERID, ORDERDATE, CUSTID, BOOKID, TO_CHAR(ORDERDATE, 'day'), TO_DATE(OR
 FROM ORDERS
 WHERE ORDERDATE = '2020-07-07';
 
+
+-------------------------------------- SYSTEM 시간 DATE 가져오기
+SELECT SYSDATE FROM DUAL;
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS DAY') SYSDATE1
+FROM DUAL;
+
+---------------------------------------- 단순 계산 할 때 DUMMY로 DUAL을 쓴다.
+-- 절대값
+SELECT ABS(-78), ABS(+78) FROM DUAL;
+-- 반올림
+SELECT ROUND(4.897,1) FROM DUAL;
+
+---------------------------------------- Q. 고객별 평균 주문 금액을 백원 단위로 반올림한 값을 구하시오
+SELECT CUSTID AS 고객번호, ROUND(AVG(SALEPRICE), -2) AS 평균주문금액
+FROM ORDERS
+GROUP BY CUSTID;
+
+-- Q. 굿스포츠에서 출판한 도서의 제목과 제목의 글자수 바이트 수를 보이시오
+SELECT BOOKNAME 제목, LENGTH(BOOKNAME) 글자수, LENGTHB(BOOKNAME) 바이트수
+FROM BOOK
+WHERE PUBLISHER = '굿스포츠';
