@@ -221,6 +221,13 @@ SELECT ORDERID, ORDERDATE, CUSTID, BOOKID, TO_CHAR(ORDERDATE, 'day'), TO_DATE(OR
 FROM ORDERS
 WHERE ORDERDATE = '2020-07-07';
 
+-------------------------------------- Q. 2005년 상반기에 입사한 사랍들 QUERY
+SELECT FIRST_NAME ||' ' ||LAST_NAME FULL_NAME, HIRE_DATE 입사일
+FROM EMPLOYEES
+WHERE TO_CHAR(HIRE_DATE, 'YY/MM') BETWEEN '05/01' AND '05/06';
+
+
+
 
 -------------------------------------- SYSTEM 시간 DATE 가져오기
 SELECT SYSDATE FROM DUAL;
@@ -242,3 +249,37 @@ GROUP BY CUSTID;
 SELECT BOOKNAME 제목, LENGTH(BOOKNAME) 글자수, LENGTHB(BOOKNAME) 바이트수
 FROM BOOK
 WHERE PUBLISHER = '굿스포츠';
+
+---------------------------------------- 변수 문자열 합치기
+-- FIRST_NAME||' '||LAST_NAME AS 이름: 성과 이름을 공백으로 연결하여 RETURN
+SELECT E.EMPLOYEE_ID 사번, E.FIRST_NAME ||' ' ||E.LAST_NAME FULL_NAME,
+
+---------------------------------------- _는 와일드카드 (1자)가 아닌 문자로 취급하고 싶을 때 ESCAPE 옵션을 사용 (LIKE 구문에만)
+SELECT * FROM EMPLOYEES WHERE JOB_ID LIKE '%\_A%';                      -- SQL에서는 ESCAPE로 자동으로 인식 X
+SELECT * FROM EMPLOYEES WHERE JOB_ID LIKE '%\_A%' ESCAPE '\';           -- SQL에서는 ESCAPE로 뭘로 쓸건지 정의 해줘야
+SELECT * FROM EMPLOYEES WHERE JOB_ID LIKE '%#_A%' ESCAPE '#';           -- \뿐만 아니라 #도 지정해주는 것에 따라
+
+---------------------------------------- IN : OR 대신 사용
+SELECT * FROM EMPLOYEES WHERE MANAGER_ID =101 OR MANAGER_ID=102 OR MANAGER_ID=103;
+SELECT * FROM EMPLOYEES WHERE MANAGER_ID IN (101,102,103);
+
+
+---------------------------------------- IS NULL / IS NOT NULL
+SELECT * FROM EMPLOYEES WHERE COMMISSION_PCT IS NULL;
+SELECT * FROM EMPLOYEES WHERE COMMISSION_PCT IS NOT NULL;
+
+
+
+---------------------------------------- IS NULL / IS NOT NULL
+SELECT ROUND(355.9555) FROM DUAL; SELECT TRUNC(355.9555,1) FROM DUAL; SELECT CEIL(45.333) FROM DUAL;
+  
+
+
+
+
+
+DATE관련해서 더 정리할 것
+실습과제 더 업데이트할 것
+WITH AS 보안
+ERD 정리할 것
+
