@@ -35,14 +35,30 @@ SELECT * FROM EMPLOYEE_DETAILS;
 ALTER TABLE TEACHERS DROP COLUMN SUBJECT;
 ALTER TABLE TEACHERS MODIFY (CLASS_ASSIGNED VARCHAR2(15));
 DELETE FROM teachers WHERE name = '김철호';
+
+---------------------------------------- REPLACE 
+---- 실재 변경
+UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'야구','농구');
+---- DATA가 실재로 바뀌지는 않고 검색 시에 변경만 되서.. TABLE의 값은 원래대로..
+SELECT BOOKID, REPLACE(BOOKNAME,'야구','농구') BOOKNAME, PUBLISHER, PRICE
+FROM BOOK;
+
+---------------------------------------- UPDATE 
+UPDATE CUSTOMER SET ADDRESS='대한민국 대전' WHERE NAME='박세리';
+UPDATE CUSTOMER SET ADDRESS=(SELECT ADDRESS FROM CUSTOMER WHERE NAME='김연아') WHERE NAME='박세리';
+UPDATE SCOREBOARD SET
+SCORE_MATH = ROUND((MATH1 * 0.3 + MATH2 * 0.3 + MATH3 * 0.3) - ABSENCE),
+SCORE_PHYS = ROUND((PHYS1 * 0.3 + PHYS2 * 0.3 + PHYS3 * 0.3) - ABSENCE);
+
 ---------------------------------------- 저장하기: 보류중인 모든 데이터 변경사항을 영구적으로 적용
 COMMIT;
 ---------------------------------------- 되돌리기: 현재 트랜잭션 종료, 직전 커밋 직후의 단계로 회귀(되돌아가기)
-ROLLBACK;
+ROLLBACK;                                -- 직전 COMMIT 까지.. 모두 다 날아갈 수 있음.
 ---------------------------------------- ROLLBACK할 중간 체크 포인트 지정
 SAVEPOINT SP1;
 ~~~~
 ROLLBACK TO SP1;
+
 ---------------------------------------- TABLE에 DATA VALUE 넣기
 --테이블에 데이터를 입력하는 방법은 두 가지 유형이 있으며 한 번에 한 건만 입력된다.
 -- a.INSERT INTO 테이블명 (COLUMN_LIST) VALUES (COLUMN_LIST에 넣을 VALUE_LIST);
@@ -248,20 +264,6 @@ SELECT SPT.GRADE, SPT.STUDENT_COUNT, SPT.TEACHER_COUNT, SPT.STUDENT_PER_TEACHER
 FROM StudentPerTeacher SPT
 ORDER BY
     SPT.STUDENT_PER_TEACHER DESC;
-
----------------------------------------- REPLACE 
----- 실재 변경
-UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'야구','농구');
----- DATA가 실재로 바뀌지는 않고 검색 시에 변경만 되서.. TABLE의 값은 원래대로..
-SELECT BOOKID, REPLACE(BOOKNAME,'야구','농구') BOOKNAME, PUBLISHER, PRICE
-FROM BOOK;
-
----------------------------------------- UPDATE 
-UPDATE CUSTOMER SET ADDRESS='대한민국 대전' WHERE NAME='박세리';
-UPDATE CUSTOMER SET ADDRESS=(SELECT ADDRESS FROM CUSTOMER WHERE NAME='김연아') WHERE NAME='박세리';
-UPDATE SCOREBOARD SET
-SCORE_MATH = ROUND((MATH1 * 0.3 + MATH2 * 0.3 + MATH3 * 0.3) - ABSENCE),
-SCORE_PHYS = ROUND((PHYS1 * 0.3 + PHYS2 * 0.3 + PHYS3 * 0.3) - ABSENCE);
 
 ---------------------------------------- UNION
 -- UNION (합집합), INTERSECT (교집합), MINUS(차집합) UNION ALL(겹치는 것까지 포함)
