@@ -1,3 +1,9 @@
+----------------------------------------- DDL/DML/DCL/TCL
+DDL(Data Definition Lang): CREATE/ALTER/DROP
+DML (Data Manipulation Lang): SELECT/INSERT/UPDATE/DELETE
+DCL(Data Control Lang): GRANT/REVOKE
+TCL(Transaction Control Lag): COMMIT/ROLLBACK/SAVEPOINT
+
 ----------------------------------------- 최초 USER 계정 생성, 권한 설정
 DROP USER c##md CASCADE;
 CREATE USER c##md IDENTIFIED BY md DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp PROFILE DEFAULT;
@@ -19,6 +25,12 @@ ORDERDATE DATE,
 PRIMARY KEY(ORDERID),
 FOREIGN KEY(CUSTID) REFERENCES NEWCUSTOMER(CUSTID) ON DELETE CASCADE);
 
+---------------------------------------- CREATE VIEW (단순/추상화/보안....): 쿼리문 자체를 저장
+CREATE VIEW EMPLOYEE_DETAILS AS
+SELECT EMPLOYEE_ID, LAST_NAME, DEPARTMENT_ID FROM EMPLOYEES;
+-- CALL 할 때는 
+SELECT * FROM EMPLOYEE_DETAILS;
+
 ---------------------------------------- 수정하기: DATA DEFINITION-ALTER/DROP, MANIPULATION-DELETE
 ALTER TABLE TEACHERS DROP COLUMN SUBJECT;
 ALTER TABLE TEACHERS MODIFY (CLASS_ASSIGNED VARCHAR2(15));
@@ -27,11 +39,15 @@ DELETE FROM teachers WHERE name = '김철호';
 COMMIT;
 ---------------------------------------- 되돌리기: 현재 트랜잭션 종료, 직전 커밋 직후의 단계로 회귀(되돌아가기)
 ROLLBACK;
----------------------------------------- ROLLBACK할 포인트 지정
+---------------------------------------- ROLLBACK할 중간 체크 포인트 지정
 SAVEPOINT SP1;
 ~~~~
-ROLLBACK TO SAVEPOINT SP1;
+ROLLBACK TO SP1;
 ---------------------------------------- TABLE에 DATA VALUE 넣기
+--테이블에 데이터를 입력하는 방법은 두 가지 유형이 있으며 한 번에 한 건만 입력된다.
+-- a.INSERT INTO 테이블명 (COLUMN_LIST) VALUES (COLUMN_LIST에 넣을 VALUE_LIST);
+-- b.INSERT INTO 테이블명 VALUES (전체 COLUMN에 넣을 VALUE_LIST);
+
 INSERT INTO NEWORDERS VALUES (1,1,1,14000, TO_DATE('2024-05-20 14:49:30','YYYY-MM-DD HH24:MI:SS'));
 INSERT INTO NEWORDERS VALUES (5,1,6,3000, SYSDATE);
 
@@ -76,17 +92,26 @@ SELECT ROWNUM 순번,  CUSTID 고객번호, NAME 이름,  PHONE 전화번호
 FROM CUSTOMER
 WHERE ROWNUM < 3;
 
--------------------- 간단한 함수
+---------------------------------------- 간단한 함수
 SELECT SUM(SALEPRICE) AS TOTAL, AVG(SALEPRICE) AS AVERAGE,
 MAX(SALEPRICE) AS MAXIMUM, MIN(SALEPRICE) AS MINIMUM
 FROM ORDERS;
 
--------------------- GROUP BY / HAVING 사용 예
+---------------------------------------- GROUP BY / HAVING 사용 예
 -- 도서 수량이 2보다 조건
 SELECT CUSTID, COUNT(*) AS 도서수량, SUM(SALEPRICE) AS "총 판매액"
 FROM ORDERS
 WHERE BOOKID > 5 GROUP BY CUSTID
 HAVING COUNT(*) > 2;
+
+---------------------------------------- GROUP BY 할때 ROLLUP
+---------------------------------------- ROLLUP은 복수 GROUP을 사용할 때 소그룹/전체 그룹의 합계를 보여줌
+SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, NVL(E.JOB_ID, 'TOTAL') JOB_ID, COUNT(*) 직원수
+FROM EMPLOYEES E
+LEFT OUTER JOIN DEPARTMENTS D ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+GROUP BY ROLLUP((E.DEPARTMENT_ID, D.DEPARTMENT_NAME), E.JOB_ID)
+ORDER BY E.DEPARTMENT_ID;
+
 
 ---------------------------------------- INNER JOIN 사용
 -- Q. 도서 구매 가격이 20000원인 주문의 고객명, 도서명, 판매 가격 검색
@@ -238,17 +263,38 @@ UPDATE SCOREBOARD SET
 SCORE_MATH = ROUND((MATH1 * 0.3 + MATH2 * 0.3 + MATH3 * 0.3) - ABSENCE),
 SCORE_PHYS = ROUND((PHYS1 * 0.3 + PHYS2 * 0.3 + PHYS3 * 0.3) - ABSENCE);
 
+---------------------------------------- UNION
+-- UNION (합집합), INTERSECT (교집합), MINUS(차집합) UNION ALL(겹치는 것까지 포함)
+-- 두개의 쿼리문을 사용, 데이터 타입이 일치해야
+SELECT FIRST_NAME 이름, SALARY 급여 FROM EMPLOYEES
+WHERE SALARY < 5000
+UNION                                                  -- UNION/INTERSECT/MINUS/UNION ALL
+SELECT FIRST_NAME 이름, SALARY 급여 FROM EMPLOYEES
+WHERE HIRE_DATE < '99/01/01';
+
+---------------------------------------- DECODE
+-- if문이나 case문과 같이 여러 경우를 선택할 수 있도록 하는 함수
+-- DECODE(expression, search1, result1, ..., searchN, resultN, default) 
+SELECT LAST_NAME, DEPARTMENT_ID, DECODE(DEPARTMENT_ID,90, '경영지원실',60, '프로그래머',100, '인사부', '기타') AS 부서 FROM EMPLOYEES;
+SELECT COMMISSION_PCT AS COMMISSION, DECODE(COMMISSION_PCT, NULL, 'N', 'A') AS 변환 FROM EMPLOYEES ORDER BY 변환 DESC;
+
 ---------------------------------------- CASE - WHEN - THEN
-SELECT NAME, STDID, SCORE_MATH,
-    CASE
-    WHEN SCORE_MATH >= 65 THEN 'A'
-    WHEN SCORE_MATH BETWEEN 55 AND 64 THEN 'B'
-    WHEN SCORE_MATH BETWEEN 45 AND 54 THEN 'C'
-    WHEN SCORE_MATH BETWEEN 36 AND 44 THEN 'D'
-    ELSE 'F'
-    END AS GRADE_MATH,
-    ABSENCE,
-    FLUNK
+--decode() 함수와 유사하나 decode() 함수는 단순한 조건 비교에 사용되는 반면
+--case() 함수는 다양한 비교연산자로 조건을 제시할 수 있다.
+--CASE 문은 조건에 따라 다른 값을 반환하는 데 사용되며, DECODE보다 복잡한 조건을 표현할 수 있다. 
+--구문은 CASE WHEN condition THEN result ... ELSE default END이다. 
+
+SELECT LAST_NAME, DEPARTMENT_ID, 
+CASE WHEN DEPARTMENT_ID=90 THEN '경영지원실'
+WHEN DEPARTMENT_ID=60 THEN '프로그래머'
+WHEN DEPARTMENT_ID=100 THEN '인사부'
+ELSE '기타'
+END AS 소속
+FROM EMPLOYEES;
+----------------------------------------
+SELECT NAME, STDID, SCORE_MATH, CASE
+   WHEN SCORE_MATH >= 65 THEN 'A' WHEN SCORE_MATH BETWEEN 55 AND 64 THEN 'B'  WHEN SCORE_MATH BETWEEN 45 AND 54 THEN 'C'
+   WHEN SCORE_MATH BETWEEN 36 AND 44 THEN 'D'  ELSE 'F' END AS GRADE_MATH, ABSENCE, FLUNK
 FROM SCOREBOARD;
 
 ---------------------------------------- UPDATE + CASE - WHEN - THEN
@@ -386,8 +432,10 @@ SELECT BOOKNAME 제목, LENGTH(BOOKNAME) 글자수, LENGTHB(BOOKNAME) 바이트�
 FROM BOOK
 WHERE PUBLISHER = '굿스포츠';
 
----------------------------------------- 변수 문자열 합치기
+----------------------------- CONCATENATION
 -- FIRST_NAME||' '||LAST_NAME AS 이름: 성과 이름을 공백으로 연결하여 RETURN
+SELECT LAST_NAME, 'IS A ', JOB_ID FROM EMPLOYEES;
+SELECT LAST_NAME || 'IS A ' || JOB_ID FROM EMPLOYEES;
 SELECT E.EMPLOYEE_ID 사번, E.FIRST_NAME ||' ' ||E.LAST_NAME FULL_NAME,
 
 ---------------------------------------- _는 와일드카드 (1자)가 아닌 문자로 취급하고 싶을 때 ESCAPE 옵션을 사용 (LIKE 구문에만)
@@ -411,10 +459,11 @@ SELECT ROUND(355.9555) FROM DUAL; SELECT TRUNC(355.9555,1) FROM DUAL; SELECT CEI
 SELECT * FROM EMPLOYEES WHERE MOD(EMPLOYEE_ID, 2) = 1;
 SELECT MOD(10,3) FROM DUAL;
 
-----ROUND / TRUNC / CEIL ---------------- DUAL 테이블, 참조할 테이블이 없이 간단한 연산을 할 때 (홀 수 일때)
+----ROUND / TRUNC / CEIL / FLOOR ---------------- DUAL 테이블, 참조할 테이블이 없이 간단한 연산을 할 때 (홀 수 일때)
 SELECT ROUND(355.9555,2) FROM DUAL;
 SELECT TRUNC(355.9555,1) FROM DUAL;
 SELECT CEIL(45.333) FROM DUAL;
+SELECT FLOOR(45.333) FROM DUAL;
 
 ------------------------------------------- 기타 -----------------------------------------------------------
 SELECT COUNT(*) FROM EMPLOYEES WHERE COMMISSION_PCT IS NOT NULL;
@@ -466,6 +515,12 @@ select rtrim('   Hello World   ') from dual;                  --==> Hello '   He
 select trim('   Hello World   ') from dual;         
 select last_name, trim('A' from last_name) from employees;
 select last_name, trim('a' from last_name) from employees;
+
+--nvl()-------------  null을 0또는 다른 값으로 변환하는 함수
+select last_name, manager_id, nvl(to_char(manager_id), 'ceo') from employees;
+
+
+
 
 
 --------------------------------------- EMPLOYEES 테이블에서 DEPARTMENT_ID가 없는 직원을 추출해서 POSITION을 '신입'으로 출력
