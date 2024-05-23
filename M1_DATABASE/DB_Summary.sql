@@ -350,6 +350,8 @@ SELECT FIRST_NAME ||' ' ||LAST_NAME FULL_NAME, HIRE_DATE 입사일
 FROM EMPLOYEES
 WHERE TO_CHAR(HIRE_DATE, 'YY/MM') BETWEEN '05/01' AND '05/06';
 
+FROM (SELECT JOB_ID, FLOOR(MONTHS_BETWEEN(SYSDATE,HIRE_DATE)/12) AS 근속연수, SALARY FROM EMPLOYEES)
+
 
 -------------------------------------- SYSTEM 시간 DATE 가져오기
 SELECT SYSDATE FROM DUAL;
@@ -382,7 +384,7 @@ SELECT LAST_NAME, HIRE_DATE, NEXT_DAY(HIRE_DATE, 2) "다음 월요일" FROM EMPL
 
 --MONTHS_BETWEEN------------------------- Q. 날짜와 날짜 사이의 개월수를 구한다. (개월 수를 소수점 첫째 자리까지 반올림)
 SELECT HIRE_DATE, ROUND(MONTHS_BETWEEN(SYSDATE, HIRE_DATE), 1) FROM EMPLOYEES;
-
+SELECT HIRE_DATE, ROUND(MONTHS_BETWEEN(SYSDATE, HIRE_DATE), 1) FROM EMPLOYEES;
 --형 변환 : TO_DATE---------------------- Q. 문자를 날짜로 변경한다.
 SELECT TO_DATE('2023-01-01', 'YYYY-MM-DD') FROM DUAL;
 
@@ -520,9 +522,6 @@ select last_name, trim('a' from last_name) from employees;
 
 --nvl()-------------  null을 0또는 다른 값으로 변환하는 함수
 select last_name, manager_id, nvl(to_char(manager_id), 'ceo') from employees;
-
-
-
 
 
 --------------------------------------- EMPLOYEES 테이블에서 DEPARTMENT_ID가 없는 직원을 추출해서 POSITION을 '신입'으로 출력
