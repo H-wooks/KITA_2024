@@ -6,16 +6,16 @@ SELECT PRICE, BOOKID FROM BOOK;
 SELECT NAME,address, PHONE FROM CUSTOMER;
 
 
--- Áßº¹ ¾øÀÌ Ãâ·Â DISTINCT
+-- ì¤‘ë³µ ì—†ì´ ì¶œë ¥ DISTINCT
 SELECT PUBLISHER FROM BOOK;
 SELECT DISTINCT PUBLISHER FROM BOOK;           
 
---Q. °¡°ÝÀÌ 10,000ÀÌ»óÀÎ µµ¼­¸¦ °Ë»ö
--- Á¶°Ç °Ë»öÇØ¼­ SELECT´Â "WHERE"
+--Q. ê°€ê²©ì´ 10,000ì´ìƒì¸ ë„ì„œë¥¼ ê²€ìƒ‰
+-- ì¡°ê±´ ê²€ìƒ‰í•´ì„œ SELECTëŠ” "WHERE"
 SELECT * FROM BOOK 
 WHERE  PRICE > 20000;
 
--- °¡°ÝÀÌ 10000ÀÌ»ó 20000ÀÌÇÏÀÎ µµ¼­¸¦ °Ë»öÇÏ½Ã¿À (2°¡Áö ¹æ¹ý)
+-- ê°€ê²©ì´ 10000ì´ìƒ 20000ì´í•˜ì¸ ë„ì„œë¥¼ ê²€ìƒ‰í•˜ì‹œì˜¤ (2ê°€ì§€ ë°©ë²•)
 -- OPTION1
 SELECT * FROM BOOK 
 WHERE  PRICE >= 10000 AND PRICE <= 20000;
@@ -23,42 +23,42 @@ WHERE  PRICE >= 10000 AND PRICE <= 20000;
 SELECT * FROM BOOK 
 WHERE PRICE BETWEEN 10000 AND 20000;
 
--- LIKE´Â Á¤È®È÷ 'Ãà±¸ÀÇ ¿ª»ç'¿Í ÀÏÄ¡ÇÏ´Â Çà¸¸ ¼±ÅÃ: LIKE
+-- LIKEëŠ” ì •í™•ížˆ 'ì¶•êµ¬ì˜ ì—­ì‚¬'ì™€ ì¼ì¹˜í•˜ëŠ” í–‰ë§Œ ì„ íƒ: LIKE
 SELECT BOOKNAME, PUBLISHER FROM BOOK
-WHERE BOOKNAME LIKE 'Ãà±¸ÀÇ ¿ª»ç';
+WHERE BOOKNAME LIKE 'ì¶•êµ¬ì˜ ì—­ì‚¬';
 
--- 'Ãà±¸'°¡ Æ÷ÇÔµÈ ÃâÆÇ»ç: '%xx%'
+-- 'ì¶•êµ¬'ê°€ í¬í•¨ëœ ì¶œíŒì‚¬: '%xx%'
 SELECT BOOKNAME, PUBLISHER FROM BOOK
-WHERE BOOKNAME LIKE '%Ãà±¸%';
+WHERE BOOKNAME LIKE '%ì¶•êµ¬%';
 
--- µµ¼­ÀÌ¸§ÀÇ ¿ÞÂÊ µÎ ¹øÂ° À§Ä¡¿¡ '±¸'¶ó´Â ¹®ÀÚ¿­À» °®´Â µµ¼­: '_X%'
+-- ë„ì„œì´ë¦„ì˜ ì™¼ìª½ ë‘ ë²ˆì§¸ ìœ„ì¹˜ì— 'êµ¬'ë¼ëŠ” ë¬¸ìžì—´ì„ ê°–ëŠ” ë„ì„œ: '_X%'
 SELECT BOOKNAME ,PUBLISHER FROM BOOK
-WHERE BOOKNAME LIKE '_±¸%';
+WHERE BOOKNAME LIKE '_êµ¬%';
 
 
--- Á¤·Ä ¿À¸§Â÷¼ø ORDERED BY
+-- ì •ë ¬ ì˜¤ë¦„ì°¨ìˆœ ORDERED BY
 SELECT * FROM BOOK
 ORDER BY BOOKNAME;
 
--- Á¤·Ä ³»¸²Â÷¼ø: DESC
+-- ì •ë ¬ ë‚´ë¦¼ì°¨ìˆœ: DESC
 SELECT * FROM BOOK
 ORDER BY PRICE DESC;
 
--- Q. µµ¼­¸¦ °¡°Ý¼øÀ¸·Î °Ë»öÇÏ°í, °¡°ÝÀÌ °°À¸¸é ÀÌ¸§¼øÀ¸·Î °Ë»ö
+-- Q. ë„ì„œë¥¼ ê°€ê²©ìˆœìœ¼ë¡œ ê²€ìƒ‰í•˜ê³ , ê°€ê²©ì´ ê°™ìœ¼ë©´ ì´ë¦„ìˆœìœ¼ë¡œ ê²€ìƒ‰
 SELECT * FROM BOOK
 ORDER BY PRICE, BOOKNAME;
 
--- Q. 2¹ø ±è¿¬¾Æ °í°´ÀÌ ÁÖ¹®ÇÑ µµ¼­ÀÇ ÃÑ ÆÇ¸Å¾×À» ±¸ÇÏ½Ã¿À
+-- Q. 2ë²ˆ ê¹€ì—°ì•„ ê³ ê°ì´ ì£¼ë¬¸í•œ ë„ì„œì˜ ì´ íŒë§¤ì•¡ì„ êµ¬í•˜ì‹œì˜¤
 SELECT * FROM ORDERS;
 SELECT * FROM CUSTOMER;
--- Á¶ÀÎÀÌ ÇÊ¿äÇØ¼­ Áö±ÝÀº x
+-- ì¡°ì¸ì´ í•„ìš”í•´ì„œ ì§€ê¸ˆì€ x
 
--- (STEP1) ÀÏ´Ü ±è¿¬¾ÆÀÇ COSTID°¡ 2ÀÌ¹Ç·Î
-SELECT SUM(SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×"
+-- (STEP1) ì¼ë‹¨ ê¹€ì—°ì•„ì˜ COSTIDê°€ 2ì´ë¯€ë¡œ
+SELECT SUM(SALEPRICE) AS "ì´ íŒë§¤ì•¡"
 FROM ORDERS
 WHERE CUSTID = 2;
 
--- (STEP2) GROUP BY: µ¥ÀÌÅÍ¸¦ Æ¯Á¤ ±âÁØ¿¡ µû¶ó ±×·ìÈ­ÇÏ´Âµ¥ »ç¿ë. ÀÌ¸¦ ÅëÇØ Áý°è ÇÔ¼ö (SUM, AVG, MAX, MIN, COUNT)¸¦ ÀÌ¿ë
+-- (STEP2) GROUP BY: ë°ì´í„°ë¥¼ íŠ¹ì • ê¸°ì¤€ì— ë”°ë¼ ê·¸ë£¹í™”í•˜ëŠ”ë° ì‚¬ìš©. ì´ë¥¼ í†µí•´ ì§‘ê³„ í•¨ìˆ˜ (SUM, AVG, MAX, MIN, COUNT)ë¥¼ ì´ìš©
 SELECT SUM(SALEPRICE) AS TOTAL,
 AVG(SALEPRICE) AS AVERAGE,
 MAX(SALEPRICE) AS MAXIMUM,
@@ -68,90 +68,90 @@ FROM ORDERS;
 
 SELECT * FROM ORDERS;
 
--- ÃÑ ÆÇ¸Å¾×À» CUSTID¸¦ ±âÁØÀ¸·Î ±×·ìÈ­
--- ¾Æ·¡ ÄÚµåÀÇ ¼³¸í; ORDERS Å×ÀÌºí·Î ºÎÅÍ COLÀ» (1)CUSTID, (2) COUNT(*), (3) SUM(SALEPRICE)·Î °Ë»öÇÏ´Âµ¥..
--- ÀÌ¶§ BOOKID°¡ 5ÃÊ°úÀÎ Á¶°ÇÀ¸·Î CUSTID ±âÁØÀ¸·Î °Ë»ö
-SELECT CUSTID, COUNT(*) AS µµ¼­¼ö·®, SUM(SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×"
+-- ì´ íŒë§¤ì•¡ì„ CUSTIDë¥¼ ê¸°ì¤€ìœ¼ë¡œ ê·¸ë£¹í™”
+-- ì•„ëž˜ ì½”ë“œì˜ ì„¤ëª…; ORDERS í…Œì´ë¸”ë¡œ ë¶€í„° COLì„ (1)CUSTID, (2) COUNT(*), (3) SUM(SALEPRICE)ë¡œ ê²€ìƒ‰í•˜ëŠ”ë°..
+-- ì´ë•Œ BOOKIDê°€ 5ì´ˆê³¼ì¸ ì¡°ê±´ìœ¼ë¡œ CUSTID ê¸°ì¤€ìœ¼ë¡œ ê²€ìƒ‰
+SELECT CUSTID, COUNT(*) AS ë„ì„œìˆ˜ëŸ‰, SUM(SALEPRICE) AS "ì´ íŒë§¤ì•¡"
 FROM ORDERS
 WHERE BOOKID > 5
 GROUP BY CUSTID;
--- <== ¿©±â¼­ GROUP BY CUSTID°¡ ¾øÀ¸¸é ERROR°¡ ³ª¿À´Âµ¥, ÀÌ°Ç CUSTID°¡ °Ë»ö ÄÃ·³¿¡ Æ÷ÇÔµÇ¾î ÀÖÀ¸´Ï ¼öÇàÇÏ±â ºÒ°¡´É
+-- <== ì—¬ê¸°ì„œ GROUP BY CUSTIDê°€ ì—†ìœ¼ë©´ ERRORê°€ ë‚˜ì˜¤ëŠ”ë°, ì´ê±´ CUSTIDê°€ ê²€ìƒ‰ ì»¬ëŸ¼ì— í¬í•¨ë˜ì–´ ìžˆìœ¼ë‹ˆ ìˆ˜í–‰í•˜ê¸° ë¶ˆê°€ëŠ¥
 
 
--- CF) ±×·³ CUSTID¸¦ °Ë»ö COL¿¡¼­ Á¦°Å¸¦ ÇÏ°í "GROUP BY CUSTID"¸¦ ¾ÈÇÏ¸é ERORR°¡ ¹ß»ý ¾ÈÇÏ³ª? ==> ¿¡·¯ ¾øÀ½
-SELECT COUNT(*) AS µµ¼­¼ö·®, SUM(SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×"
+-- CF) ê·¸ëŸ¼ CUSTIDë¥¼ ê²€ìƒ‰ COLì—ì„œ ì œê±°ë¥¼ í•˜ê³  "GROUP BY CUSTID"ë¥¼ ì•ˆí•˜ë©´ ERORRê°€ ë°œìƒ ì•ˆí•˜ë‚˜? ==> ì—ëŸ¬ ì—†ìŒ
+SELECT COUNT(*) AS ë„ì„œìˆ˜ëŸ‰, SUM(SALEPRICE) AS "ì´ íŒë§¤ì•¡"
 FROM ORDERS
 WHERE BOOKID > 5;
 
--- µµ¼­ ¼ö·®ÀÌ 2º¸´Ù Á¶°Ç
-SELECT CUSTID, COUNT(*) AS µµ¼­¼ö·®, SUM(SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×"
+-- ë„ì„œ ìˆ˜ëŸ‰ì´ 2ë³´ë‹¤ ì¡°ê±´
+SELECT CUSTID, COUNT(*) AS ë„ì„œìˆ˜ëŸ‰, SUM(SALEPRICE) AS "ì´ íŒë§¤ì•¡"
 FROM ORDERS
 WHERE BOOKID > 5
 GROUP BY CUSTID
 HAVING COUNT(*) > 2;
 
 
--- TASK1.0517. ÃâÆÇ»ç°¡ "±Â½ºÆ÷Ã÷" È¤Àº "´ëÇÑ ¹Ìµð¾î"ÀÎ µµ¼­¸¦ °Ë»öÇÏ½Ã¿À (3°¡Áö)
+-- TASK1.0517. ì¶œíŒì‚¬ê°€ "êµ¿ìŠ¤í¬ì¸ " í˜¹ì€ "ëŒ€í•œ ë¯¸ë””ì–´"ì¸ ë„ì„œë¥¼ ê²€ìƒ‰í•˜ì‹œì˜¤ (3ê°€ì§€)
 -- OPTION1
 SELECT * FROM BOOK
-WHERE PUBLISHER='±Â½ºÆ÷Ã÷' OR PUBLISHER='´ëÇÑ¹Ìµð¾î';
+WHERE PUBLISHER='êµ¿ìŠ¤í¬ì¸ ' OR PUBLISHER='ëŒ€í•œë¯¸ë””ì–´';
 -- OPTION2
 SELECT * FROM BOOK
-WHERE PUBLISHER LIKE '%½ºÆ÷Ã÷%' OR PUBLISHER LIKE  '%´ëÇÑ%';
+WHERE PUBLISHER LIKE '%ìŠ¤í¬ì¸ %' OR PUBLISHER LIKE  '%ëŒ€í•œ%';
 -- OPTION3
 SELECT * FROM BOOK
-WHERE PUBLISHER IN ('±Â½ºÆ÷Ã÷','´ëÇÑ¹Ìµð¾î');
+WHERE PUBLISHER IN ('êµ¿ìŠ¤í¬ì¸ ','ëŒ€í•œë¯¸ë””ì–´');
 -- Option4
 SELECT * FROM BOOK
-WHERE PUBLISHER='±Â½ºÆ÷Ã÷' 
+WHERE PUBLISHER='êµ¿ìŠ¤í¬ì¸ ' 
 UNION
 SELECT * FROM BOOK
-WHERE PUBLISHER='´ëÇÑ¹Ìµð¾î';
+WHERE PUBLISHER='ëŒ€í•œë¯¸ë””ì–´';
 
--- Task2_0517. ÃâÆÇ»ç°¡ '±Â½ºÆ÷Ã÷' È¤Àº '´ëÇÑ¹Ìµð¾î'°¡ ¾Æ´Ñ µµ¼­¸¦ °Ë»ö
+-- Task2_0517. ì¶œíŒì‚¬ê°€ 'êµ¿ìŠ¤í¬ì¸ ' í˜¹ì€ 'ëŒ€í•œë¯¸ë””ì–´'ê°€ ì•„ë‹Œ ë„ì„œë¥¼ ê²€ìƒ‰
 SELECT * FROM BOOK
-WHERE PUBLISHER !='±Â½ºÆ÷Ã÷' AND PUBLISHER != '´ëÇÑ¹Ìµð¾î';
+WHERE PUBLISHER !='êµ¿ìŠ¤í¬ì¸ ' AND PUBLISHER != 'ëŒ€í•œë¯¸ë””ì–´';
 SELECT * FROM BOOK
-WHERE PUBLISHER NOT IN ('±Â½ºÆ÷Ã÷','´ëÇÑ¹Ìµð¾î');
+WHERE PUBLISHER NOT IN ('êµ¿ìŠ¤í¬ì¸ ','ëŒ€í•œë¯¸ë””ì–´');
 
--- Task3_0517. Ãà±¸¿¡ °üÇÑ µµ¼­ Áß °¡°ÝÀÌ 20,000¿ø ÀÌ»óÀÎ µµ¼­¸¦ °Ë»öÇÏ½Ã¿À.
--- %: 0°³ ÀÌ»óÀÇ ÀÓÀÇÀÇ ¹®ÀÚ, _ Á¤È®È÷ 1°³ÀÇ ÀÓÀÇÀÇ ¹®ÀÚ
+-- Task3_0517. ì¶•êµ¬ì— ê´€í•œ ë„ì„œ ì¤‘ ê°€ê²©ì´ 20,000ì› ì´ìƒì¸ ë„ì„œë¥¼ ê²€ìƒ‰í•˜ì‹œì˜¤.
+-- %: 0ê°œ ì´ìƒì˜ ìž„ì˜ì˜ ë¬¸ìž, _ ì •í™•ížˆ 1ê°œì˜ ìž„ì˜ì˜ ë¬¸ìž
 SELECT * FROM BOOK
-WHERE BOOKNAME LIKE '%Ãà±¸%' AND PRICE >= 20000;
+WHERE BOOKNAME LIKE '%ì¶•êµ¬%' AND PRICE >= 20000;
 
---Task4_0517. 2¹ø ±è¿¬¾Æ °í°´ÀÌ ÁÖ¹®ÇÑ µµ¼­ÀÇ ÃÑ ÆÇ¸Å¾×À» ±¸ÇÏ½Ã¿À.
-SELECT CUSTOMER.NAME, ORDERS.CUSTID, SUM(ORDERS.SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×"
+--Task4_0517. 2ë²ˆ ê¹€ì—°ì•„ ê³ ê°ì´ ì£¼ë¬¸í•œ ë„ì„œì˜ ì´ íŒë§¤ì•¡ì„ êµ¬í•˜ì‹œì˜¤.
+SELECT CUSTOMER.NAME, ORDERS.CUSTID, SUM(ORDERS.SALEPRICE) AS "ì´ íŒë§¤ì•¡"
 FROM ORDERS
 JOIN CUSTOMER ON CUSTOMER.CUSTID = ORDERS.CUSTID
-WHERE CUSTOMER.NAME = '±è¿¬¾Æ'
+WHERE CUSTOMER.NAME = 'ê¹€ì—°ì•„'
 GROUP BY CUSTOMER.NAME,ORDERS.CUSTID;
 
--- °­»ç´Ô
-SELECT  ORDERS.CUSTID, CUSTOMER.NAME, SUM(ORDERS.SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×"
+-- ê°•ì‚¬ë‹˜
+SELECT  ORDERS.CUSTID, CUSTOMER.NAME, SUM(ORDERS.SALEPRICE) AS "ì´ íŒë§¤ì•¡"
 FROM ORDERS, CUSTOMER
 WHERE CUSTOMER.CUSTID=2 AND ORDERS.CUSTID = CUSTOMER.CUSTID
 GROUP BY CUSTOMER.NAME,ORDERS.CUSTID;
 
-SELECT  CUSTOMER.NAME, ORDERS.CUSTID, SUM(ORDERS.SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×"
+SELECT  CUSTOMER.NAME, ORDERS.CUSTID, SUM(ORDERS.SALEPRICE) AS "ì´ íŒë§¤ì•¡"
 FROM ORDERS
 INNER JOIN CUSTOMER ON ORDERS.CUSTID = CUSTOMER.CUSTID
 WHERE CUSTOMER.CUSTID=2
 GROUP BY CUSTOMER.NAME,ORDERS.CUSTID;
 
---CF Task4_0517. 2¹ø ±è¿¬¾Æ °í°´ÀÌ ÁÖ¹®ÇÑ µµ¼­ÀÇ ÃÑ °¹¼ö¿Í ÃÑ ÆÇ¸Å¾×À» ±¸ÇÏ½Ã¿À.
-SELECT  CUSTOMER.NAME, ORDERS.CUSTID, SUM(ORDERS.SALEPRICE) AS "ÃÑ ÆÇ¸Å¾×", COUNT(ORDERS.ORDERID) AS "ÃÑ µµ¼­ ±¸¸Å ¼ö"
+--CF Task4_0517. 2ë²ˆ ê¹€ì—°ì•„ ê³ ê°ì´ ì£¼ë¬¸í•œ ë„ì„œì˜ ì´ ê°¯ìˆ˜ì™€ ì´ íŒë§¤ì•¡ì„ êµ¬í•˜ì‹œì˜¤.
+SELECT  CUSTOMER.NAME, ORDERS.CUSTID, SUM(ORDERS.SALEPRICE) AS "ì´ íŒë§¤ì•¡", COUNT(ORDERS.ORDERID) AS "ì´ ë„ì„œ êµ¬ë§¤ ìˆ˜"
 FROM ORDERS
 INNER JOIN CUSTOMER ON ORDERS.CUSTID = CUSTOMER.CUSTID
 WHERE CUSTOMER.CUSTID=2
 GROUP BY CUSTOMER.NAME,ORDERS.CUSTID;
 
---Task5_0517. °¡°ÝÀÌ 8,000¿ø ÀÌ»óÀÎ µµ¼­¸¦ ±¸¸ÅÇÑ °í°´¿¡ ´ëÇÏ¿© °í°´º° ÁÖ¹® µµ¼­ÀÇ ÃÑ ¼ö·®À» ±¸ÇÏ½Ã¿À. 
---´Ü, µÎ ±Ç ÀÌ»ó ±¸¸ÅÇÑ °í°´¸¸ ±¸ÇÏ½Ã¿À.
+--Task5_0517. ê°€ê²©ì´ 8,000ì› ì´ìƒì¸ ë„ì„œë¥¼ êµ¬ë§¤í•œ ê³ ê°ì— ëŒ€í•˜ì—¬ ê³ ê°ë³„ ì£¼ë¬¸ ë„ì„œì˜ ì´ ìˆ˜ëŸ‰ì„ êµ¬í•˜ì‹œì˜¤. 
+--ë‹¨, ë‘ ê¶Œ ì´ìƒ êµ¬ë§¤í•œ ê³ ê°ë§Œ êµ¬í•˜ì‹œì˜¤.
 SELECT * FROM ORDERS;
 SELECT * FROM CUSTOMER;
 SELECT * FROM BOOK;
 
-SELECT CUSTOMER.NAME,CUSTOMER.CUSTID, COUNT(*) AS µµ¼­¼ö·®
+SELECT CUSTOMER.NAME,CUSTOMER.CUSTID, COUNT(*) AS ë„ì„œìˆ˜ëŸ‰
 FROM CUSTOMER
 JOIN ORDERS ON 
 CUSTOMER.CUSTID = ORDERS.CUSTID
@@ -160,15 +160,15 @@ GROUP BY CUSTOMER.CUSTID, CUSTOMER.NAME
 HAVING COUNT(*) >= 2
 ORDER BY CUSTOMER.CUSTID;
 
--- °­»ç´Ô
-SELECT CUSTID, COUNT(*) AS "µµ¼­¼ö·®"
+-- ê°•ì‚¬ë‹˜
+SELECT CUSTID, COUNT(*) AS "ë„ì„œìˆ˜ëŸ‰"
 FROM ORDERS
 WHERE SALEPRICE >= 8000
 GROUP BY CUSTID
 HAVING COUNT(*) >=2;
 
 
--- º¸¼±¾¾ TIP
+-- ë³´ì„ ì”¨ TIP
 SELECT B.CUSTID, COUNT(*)
 FROM BOOK A,ORDERS B
 WHERE
@@ -177,7 +177,7 @@ AND A.PRICE >= 8000
 GROUP BY B.CUSTID
 HAVING COUNT(*) >= 2;
 
---Task6_0517. °í°´ÀÇ ÀÌ¸§°ú °í°´ÀÌ ÁÖ¹®ÇÑ µµ¼­ÀÇ ÆÇ¸Å°¡°ÝÀ» °Ë»öÇÏ½Ã¿À.
+--Task6_0517. ê³ ê°ì˜ ì´ë¦„ê³¼ ê³ ê°ì´ ì£¼ë¬¸í•œ ë„ì„œì˜ íŒë§¤ê°€ê²©ì„ ê²€ìƒ‰í•˜ì‹œì˜¤.
 SELECT * FROM ORDERS;
 SELECT * FROM CUSTOMER;
 SELECT * FROM BOOK;
@@ -188,28 +188,28 @@ JOIN ORDERS ON
 CUSTOMER.CUSTID = ORDERS.CUSTID
 ORDER BY NAME, SALEPRICE;
 
---Task7_0517. °í°´º°·Î ÁÖ¹®ÇÑ ¸ðµç µµ¼­ÀÇ ÃÑ ÆÇ¸Å¾×À» ±¸ÇÏ°í, °í°´º°·Î Á¤·ÄÇÏ½Ã¿À.
-SELECT CUSTOMER.NAME, SUM(ORDERS.SALEPRICE) AS "ÃÑ¾×"
+--Task7_0517. ê³ ê°ë³„ë¡œ ì£¼ë¬¸í•œ ëª¨ë“  ë„ì„œì˜ ì´ íŒë§¤ì•¡ì„ êµ¬í•˜ê³ , ê³ ê°ë³„ë¡œ ì •ë ¬í•˜ì‹œì˜¤.
+SELECT CUSTOMER.NAME, SUM(ORDERS.SALEPRICE) AS "ì´ì•¡"
 FROM CUSTOMER
 JOIN ORDERS ON 
 CUSTOMER.CUSTID = ORDERS.CUSTID
 GROUP BY NAME
-ORDER BY "ÃÑ¾×";
+ORDER BY "ì´ì•¡";
 
--- °­»ç´Ô
-SELECT CUSTID, SUM(SALEPRICE) AS  "ÃÑÆÇ¸Å¾×"
+-- ê°•ì‚¬ë‹˜
+SELECT CUSTID, SUM(SALEPRICE) AS  "ì´íŒë§¤ì•¡"
 FROM ORDERS
 GROUP BY CUSTID
-ORDER BY "ÃÑÆÇ¸Å¾×";
+ORDER BY "ì´íŒë§¤ì•¡";
 
-SELECT NAME, SUM(SALEPRICE) AS "ÃÑÆÇ¸Å¾×"
+SELECT NAME, SUM(SALEPRICE) AS "ì´íŒë§¤ì•¡"
 FROM ORDERS O, CUSTOMER C
 WHERE C.CUSTID=O.CUSTID
 GROUP BY C.NAME
 ORDER BY C.NAME;
 
--- 5/20 (¿ù)
--- Q. °í°´ÀÇ ÀÌ¸§°ú °í°´ÀÌ ÁÖ¹®ÇÑ µµ¼­ÀÇ ÀÌ¸§À» ±¸ÇÏ½Ã¿À
+-- 5/20 (ì›”)
+-- Q. ê³ ê°ì˜ ì´ë¦„ê³¼ ê³ ê°ì´ ì£¼ë¬¸í•œ ë„ì„œì˜ ì´ë¦„ì„ êµ¬í•˜ì‹œì˜¤
 SELECT * FROM ORDERS;
 SELECT * FROM CUSTOMER;
 SELECT * FROM BOOK;
@@ -228,7 +228,7 @@ INNER JOIN ORDERS O ON C.CUSTID = O.CUSTID
 INNER JOIN BOOK B ON O.BOOKID = B.BOOKID
 ORDER BY C.NAME;
 
--- Q. °¡°ÝÀÌ 20000¿øÀÎ µµ¼­¸¦ ÁÖ¹®ÇÑ °í°´ÀÇ ÀÌ¸§°ú µµ¼­ÀÇ ÀÌ¸§À» ±¸ÇÏ½Ã¿À
+-- Q. ê°€ê²©ì´ 20000ì›ì¸ ë„ì„œë¥¼ ì£¼ë¬¸í•œ ê³ ê°ì˜ ì´ë¦„ê³¼ ë„ì„œì˜ ì´ë¦„ì„ êµ¬í•˜ì‹œì˜¤
 SELECT C.NAME, B.BOOKNAME, O.SALEPRICE
 FROM CUSTOMER C 
 INNER JOIN ORDERS O ON C.CUSTID = O.CUSTID
@@ -240,40 +240,40 @@ INNER JOIN ORDERS O ON C.CUSTID = O.CUSTID
 INNER JOIN BOOK B ON O.BOOKID = B.BOOKID
 WHERE O.SALEPRICE = 20000;
 
-SELECT C.NAME, SUM(O.SALEPRICE) AS "ÃÑ±¸¸Å¾×"
+SELECT C.NAME, SUM(O.SALEPRICE) AS "ì´êµ¬ë§¤ì•¡"
 FROM CUSTOMER C 
 INNER JOIN ORDERS O ON C.CUSTID = O.CUSTID
 INNER JOIN BOOK B ON O.BOOKID = B.BOOKID
 WHERE O.SALEPRICE > 4000
 GROUP BY C.NAME;
 
---JOINÀº µÎ °³ ÀÌ»óÀÇ Å×ÀÌºíÀ» ¿¬°áÇÏ¿© °ü·ÃµÈ µ¥ÀÌÅÍ¸¦ °áÇÕÇÒ ¶§ »ç¿ë
---³»ºÎ Á¶ÀÎ (Inner Join)
+--JOINì€ ë‘ ê°œ ì´ìƒì˜ í…Œì´ë¸”ì„ ì—°ê²°í•˜ì—¬ ê´€ë ¨ëœ ë°ì´í„°ë¥¼ ê²°í•©í•  ë•Œ ì‚¬ìš©
+--ë‚´ë¶€ ì¡°ì¸ (Inner Join)
 SELECT CUSTOMER.NAME, ORDERS.SALEPRICE
 FROM CUSTOMER
 INNER JOIN ORDERS ON CUSTOMER.CUSTID=ORDERS.CUSTID;
 
---¿ÞÂÊ ¿ÜºÎ Á¶ÀÎ (Left Outer Join) : . µÎ ¹øÂ° Å×ÀÌºí¿¡ ÀÏÄ¡ÇÏ´Â µ¥ÀÌÅÍ°¡ ¾ø´Â °æ¿ì NULL °ªÀÌ »ç¿ë
+--ì™¼ìª½ ì™¸ë¶€ ì¡°ì¸ (Left Outer Join) : . ë‘ ë²ˆì§¸ í…Œì´ë¸”ì— ì¼ì¹˜í•˜ëŠ” ë°ì´í„°ê°€ ì—†ëŠ” ê²½ìš° NULL ê°’ì´ ì‚¬ìš©
 SELECT CUSTOMER.NAME, ORDERS.SALEPRICE
 FROM CUSTOMER
 LEFT OUTER JOIN ORDERS ON CUSTOMER.CUSTID=ORDERS.CUSTID;
 
---¿À¸¥ÂÊ ¿ÜºÎ Á¶ÀÎ (Right Outer Join) : Ã¹ ¹øÂ° Å×ÀÌºí¿¡ ÀÏÄ¡ÇÏ´Â µ¥ÀÌÅÍ°¡ ¾ø´Â °æ¿ì NULL °ªÀÌ »ç¿ë
+--ì˜¤ë¥¸ìª½ ì™¸ë¶€ ì¡°ì¸ (Right Outer Join) : ì²« ë²ˆì§¸ í…Œì´ë¸”ì— ì¼ì¹˜í•˜ëŠ” ë°ì´í„°ê°€ ì—†ëŠ” ê²½ìš° NULL ê°’ì´ ì‚¬ìš©
 SELECT CUSTOMER.NAME, ORDERS.SALEPRICE
 FROM CUSTOMER
 RIGHT OUTER JOIN ORDERS ON CUSTOMER.CUSTID=ORDERS.CUSTID;
 
---FULL OUTER JOIN : ÀÏÄ¡ÇÏ´Â µ¥ÀÌÅÍ°¡ ¾ø´Â °æ¿ì ÇØ´ç Å×ÀÌºí¿¡¼­´Â NULL °ªÀÌ »ç¿ë
+--FULL OUTER JOIN : ì¼ì¹˜í•˜ëŠ” ë°ì´í„°ê°€ ì—†ëŠ” ê²½ìš° í•´ë‹¹ í…Œì´ë¸”ì—ì„œëŠ” NULL ê°’ì´ ì‚¬ìš©
 SELECT CUSTOMER.NAME, ORDERS.SALEPRICE
 FROM CUSTOMER
 FULL OUTER JOIN ORDERS ON CUSTOMER.CUSTID=ORDERS.CUSTID;
 
---CROSS JOIN : µÎ Å×ÀÌºí °£ÀÇ ¸ðµç °¡´ÉÇÑ Á¶ÇÕÀ» »ý¼º
+--CROSS JOIN : ë‘ í…Œì´ë¸” ê°„ì˜ ëª¨ë“  ê°€ëŠ¥í•œ ì¡°í•©ì„ ìƒì„±
 SELECT CUSTOMER.NAME, ORDERS.SALEPRICE
 FROM CUSTOMER
 CROSS JOIN ORDERS;
 
--- Q. µµ¼­¸¦ ±¸¸ÅÇÏÁö; ¾ÊÀº °í°´À» Æ÷ÇÔÇÏ¿© °í°´ÀÇ ÀÌ¸§°ú °í°´ÀÌ ÁÖ¹®ÇÑ µµ¼­ÀÇ ÆÇ¸Å°¡°ÝÀ» ±¸ÇÏ½Ã¿À (2°¡Áö ¹æ¹ý, WHERE, JOIN)
+-- Q. ë„ì„œë¥¼ êµ¬ë§¤í•˜ì§€; ì•Šì€ ê³ ê°ì„ í¬í•¨í•˜ì—¬ ê³ ê°ì˜ ì´ë¦„ê³¼ ê³ ê°ì´ ì£¼ë¬¸í•œ ë„ì„œì˜ íŒë§¤ê°€ê²©ì„ êµ¬í•˜ì‹œì˜¤ (2ê°€ì§€ ë°©ë²•, WHERE, JOIN)
 -- OPTION 1 USING WHERE
 SELECT C.NAME,B.BOOKNAME, O.SALEPRICE
 FROM CUSTOMER C, BOOK B, ORDERS O
@@ -288,13 +288,13 @@ LEFT OUTER JOIN ORDERS O ON C.CUSTID=O.CUSTID
 LEFT OUTER JOIN BOOK B ON B.BOOKID=O.BOOKID
 ORDER BY C.NAME;
 
--- ºÎ¼Ó ÁúÀÇ (SUB QUERY)
--- Q. µµ¼­¸¦ ±¸¸ÅÇÑ ÀûÀÌ ÀÖ´Â °í°´ÀÇ ÀÌ¸§À» °Ë»öÇÏ½Ã¿À
+-- ë¶€ì† ì§ˆì˜ (SUB QUERY)
+-- Q. ë„ì„œë¥¼ êµ¬ë§¤í•œ ì ì´ ìžˆëŠ” ê³ ê°ì˜ ì´ë¦„ì„ ê²€ìƒ‰í•˜ì‹œì˜¤
 SELECT NAME
 FROM CUSTOMER
 WHERE CUSTID IN (SELECT CUSTID FROM ORDERS);
 
--- Q. ´ëÇÑ ¹Ìµð¾î¿¡¼­ ÃâÆÇÇÑ µµ¼­¸¦ ±¸¸ÅÇÑ °í°´ÀÇ ÀÌ¸§À» º¸ÀÌ½Ã¿À
+-- Q. ëŒ€í•œ ë¯¸ë””ì–´ì—ì„œ ì¶œíŒí•œ ë„ì„œë¥¼ êµ¬ë§¤í•œ ê³ ê°ì˜ ì´ë¦„ì„ ë³´ì´ì‹œì˜¤
 SELECT CUSTOMER.NAME
 FROM CUSTOMER
 WHERE CUSTID IN (
@@ -302,55 +302,55 @@ SELECT ORDERS.CUSTID
 FROM ORDERS 
 INNER JOIN BOOK 
 ON BOOK.BOOKID=ORDERS.BOOKID 
-WHERE BOOK.PUBLISHER='´ëÇÑ¹Ìµð¾î');
+WHERE BOOK.PUBLISHER='ëŒ€í•œë¯¸ë””ì–´');
 
--- °­»ç´Ô
+-- ê°•ì‚¬ë‹˜
 SELECT NAME
 FROM CUSTOMER
 WHERE CUSTID IN (SELECT CUSTID FROM ORDERS
 WHERE BOOKID IN (SELECT BOOKID FROM BOOK
-WHERE PUBLISHER ='´ëÇÑ¹Ìµð¾î'));
+WHERE PUBLISHER ='ëŒ€í•œë¯¸ë””ì–´'));
 
---Q. ÃâÆÇ»çº°·Î ÃâÆÇ»çÀÇ Æò±Õ µµ¼­ °¡°Ýº¸´Ù ºñ½Ñ µµ¼­¸¦ ±¸ÇÏ½Ã¿À.
+--Q. ì¶œíŒì‚¬ë³„ë¡œ ì¶œíŒì‚¬ì˜ í‰ê·  ë„ì„œ ê°€ê²©ë³´ë‹¤ ë¹„ì‹¼ ë„ì„œë¥¼ êµ¬í•˜ì‹œì˜¤.
 SELECT B1.BOOKNAME 
 FROM BOOK B1 
 WHERE B1.PRICE > (SELECT AVG(B2.PRICE) 
 FROM BOOK B2 
 WHERE B2.PUBLISHER = B1.PUBLISHER);
 
---Q. µµ¼­¸¦ ÁÖ¹®ÇÏÁö ¾ÊÀº °í°´ÀÇ ÀÌ¸§À» º¸ÀÌ½Ã¿À.
+--Q. ë„ì„œë¥¼ ì£¼ë¬¸í•˜ì§€ ì•Šì€ ê³ ê°ì˜ ì´ë¦„ì„ ë³´ì´ì‹œì˜¤.
 SELECT C.NAME
 FROM CUSTOMER C
 WHERE C.CUSTID NOT IN (
 SELECT ORDERS.CUSTID FROM ORDERS);
 
---°­»ç´Ô
+--ê°•ì‚¬ë‹˜
 SELECT NAME
 FROM CUSTOMER
 WHERE CUSTID NOT IN (
 SELECT CUSTID FROM ORDERS);
 
---Q. ÁÖ¹®ÀÌ ÀÖ´Â °í°´ÀÇ ÀÌ¸§°ú ÁÖ¼Ò¸¦ º¸ÀÌ½Ã¿À.
-SELECT NAME °í°´ÀÌ¸§, ADDRESS °í°´ÁÖ¼Ò
+--Q. ì£¼ë¬¸ì´ ìžˆëŠ” ê³ ê°ì˜ ì´ë¦„ê³¼ ì£¼ì†Œë¥¼ ë³´ì´ì‹œì˜¤.
+SELECT NAME ê³ ê°ì´ë¦„, ADDRESS ê³ ê°ì£¼ì†Œ
 FROM CUSTOMER 
 WHERE CUSTID IN (
 SELECT CUSTID FROM ORDERS);
 
-SELECT NAME "°í°´ ÀÌ¸§", ADDRESS "°í°´ ÁÖ¼Ò"
+SELECT NAME "ê³ ê° ì´ë¦„", ADDRESS "ê³ ê° ì£¼ì†Œ"
 FROM CUSTOMER 
 WHERE CUSTID IN (
 SELECT CUSTID FROM ORDERS);
 
 
 -- Re-Try
---Q. ¡®´ëÇÑ¹Ìµð¾î¡¯¿¡¼­ ÃâÆÇÇÑ µµ¼­¸¦ ±¸¸ÅÇÑ °í°´ÀÇ ÀÌ¸§À» º¸ÀÌ½Ã¿À.
+--Q. â€˜ëŒ€í•œë¯¸ë””ì–´â€™ì—ì„œ ì¶œíŒí•œ ë„ì„œë¥¼ êµ¬ë§¤í•œ ê³ ê°ì˜ ì´ë¦„ì„ ë³´ì´ì‹œì˜¤.
 SELECT NAME
 FROM CUSTOMER
 WHERE CUSTID IN ( SELECT CUSTID FROM ORDERS
 WHERE BOOKID IN ( SELECT BOOKID FROM BOOK
-WHERE PUBLISHER = '´ëÇÑ¹Ìµð¾î'));
+WHERE PUBLISHER = 'ëŒ€í•œë¯¸ë””ì–´'));
 
---Q. ÃâÆÇ»çº°·Î ÃâÆÇ»çÀÇ Æò±Õ µµ¼­ °¡°Ýº¸´Ù ºñ½Ñ µµ¼­¸¦ ±¸ÇÏ½Ã¿À.
+--Q. ì¶œíŒì‚¬ë³„ë¡œ ì¶œíŒì‚¬ì˜ í‰ê·  ë„ì„œ ê°€ê²©ë³´ë‹¤ ë¹„ì‹¼ ë„ì„œë¥¼ êµ¬í•˜ì‹œì˜¤.
 SELECT BOOKNAME
 FROM BOOK
 WHERE PRICE > (
@@ -358,69 +358,69 @@ SELECT PUBLISHER, AVG(PRICE)
 FROM BOOK
 GROUP BY PUBLISHER;
 
---Q. µµ¼­¸¦ ÁÖ¹®ÇÏÁö ¾ÊÀº °í°´ÀÇ ÀÌ¸§À» º¸ÀÌ½Ã¿À.
+--Q. ë„ì„œë¥¼ ì£¼ë¬¸í•˜ì§€ ì•Šì€ ê³ ê°ì˜ ì´ë¦„ì„ ë³´ì´ì‹œì˜¤.
 
---Q. ÁÖ¹®ÀÌ ÀÖ´Â °í°´ÀÇ ÀÌ¸§°ú ÁÖ¼Ò¸¦ º¸ÀÌ½Ã¿À.
+--Q. ì£¼ë¬¸ì´ ìžˆëŠ” ê³ ê°ì˜ ì´ë¦„ê³¼ ì£¼ì†Œë¥¼ ë³´ì´ì‹œì˜¤.
 
 
 
--- µ¥ÀÌÅÍ Å¸ÀÔ
--- ¼ýÀÚÇü (Numeric Types)
--- NUMBER: °¡Àå ¹ü¿ëÀûÀÎ ¼ýÀÚ µ¥ÀÌÅÍ Å¸ÀÔ. Á¤¼ö, ½Ç¼ö, °íÁ¤ ¼Ò¼öÁ¡, ºÎµ¿ ¼Ò¼öÁ¡ ¼ö¸¦ ÀúÀå
--- NUMBER´Â NUMBER(38,0)¿Í °°Àº ÀÇ¹Ì·Î ÇØ¼®; PRECISION 38Àº ÀÚ¸®¼ö , SCALE 0´Â ¼Ò¼öÁ¡ ÀÌÇÏ ÀÚ¸®¼ö: 0
--- NUMBER(10): ÀÚ¸®¼ö°¡ 10 ¼Ò¼öÁ¡ 0, NUMBER(8,2): ÀÚ¸®¼ö 2, ¼Ò¼öÁ¡ 2==> 8¿¡´Â ¼Ò¼öÁ¡ ÀÌÇÏ 2µµ Æ÷ÇÔµÊ.
---¹®ÀÚÇü (Character Types)
---VARCHAR2(size): °¡º¯ ±æÀÌ ¹®ÀÚ¿­À» ÀúÀå. size´Â ÃÖ´ë ¹®ÀÚ ±æÀÌ¸¦ ¹ÙÀÌÆ® È¤Àº ±ÛÀÚ¼ö·Î ÁöÁ¤
---NVARCHAR2(size)ÀÇ »çÀÌÁî¸¦ ÁöÁ¤ÇÒ ¶§´Â ¹ÙÀÌÆ® ´ÜÀ§ ´ë½Å Ç×»ó ¹®ÀÚ ´ÜÀ§·Î Å©±â°¡ ÁöÁ¤
---CHAR(size): °íÁ¤ ±æÀÌ ¹®ÀÚ¿­À» ÀúÀå. ÁöÁ¤µÈ ±æÀÌº¸´Ù ÂªÀº ¹®ÀÚ¿­ÀÌ ÀÔ·ÂµÇ¸é ³ª¸ÓÁö´Â °ø¹éÀ¸·Î Ã¤¿öÁü
---³¯Â¥ ¹× ½Ã°£Çü (Date and Time Types)
---DATE: ³¯Â¥¿Í ½Ã°£À» ÀúÀå. µ¥ÀÌÅÍ Å¸ÀÔÀº ³â, ¿ù, ÀÏ, ½Ã, ºÐ, ÃÊ¸¦ Æ÷ÇÔ
---DATE Å¸ÀÔÀº ³¯Â¥¿Í ½Ã°£À» YYYY-MM-DD HH24:MI:SS Çü½ÄÀ¸·Î ÀúÀåÇÕ´Ï´Ù.
---¿¹¸¦ µé¾î, 2024³â 5¿ù 20ÀÏ ¿ÀÈÄ 3½Ã 45ºÐ 30ÃÊ´Â 2024-05-20 15:45:30À¸·Î ÀúÀå
+-- ë°ì´í„° íƒ€ìž…
+-- ìˆ«ìží˜• (Numeric Types)
+-- NUMBER: ê°€ìž¥ ë²”ìš©ì ì¸ ìˆ«ìž ë°ì´í„° íƒ€ìž…. ì •ìˆ˜, ì‹¤ìˆ˜, ê³ ì • ì†Œìˆ˜ì , ë¶€ë™ ì†Œìˆ˜ì  ìˆ˜ë¥¼ ì €ìž¥
+-- NUMBERëŠ” NUMBER(38,0)ì™€ ê°™ì€ ì˜ë¯¸ë¡œ í•´ì„; PRECISION 38ì€ ìžë¦¬ìˆ˜ , SCALE 0ëŠ” ì†Œìˆ˜ì  ì´í•˜ ìžë¦¬ìˆ˜: 0
+-- NUMBER(10): ìžë¦¬ìˆ˜ê°€ 10 ì†Œìˆ˜ì  0, NUMBER(8,2): ìžë¦¬ìˆ˜ 2, ì†Œìˆ˜ì  2==> 8ì—ëŠ” ì†Œìˆ˜ì  ì´í•˜ 2ë„ í¬í•¨ë¨.
+--ë¬¸ìží˜• (Character Types)
+--VARCHAR2(size): ê°€ë³€ ê¸¸ì´ ë¬¸ìžì—´ì„ ì €ìž¥. sizeëŠ” ìµœëŒ€ ë¬¸ìž ê¸¸ì´ë¥¼ ë°”ì´íŠ¸ í˜¹ì€ ê¸€ìžìˆ˜ë¡œ ì§€ì •
+--NVARCHAR2(size)ì˜ ì‚¬ì´ì¦ˆë¥¼ ì§€ì •í•  ë•ŒëŠ” ë°”ì´íŠ¸ ë‹¨ìœ„ ëŒ€ì‹  í•­ìƒ ë¬¸ìž ë‹¨ìœ„ë¡œ í¬ê¸°ê°€ ì§€ì •
+--CHAR(size): ê³ ì • ê¸¸ì´ ë¬¸ìžì—´ì„ ì €ìž¥. ì§€ì •ëœ ê¸¸ì´ë³´ë‹¤ ì§§ì€ ë¬¸ìžì—´ì´ ìž…ë ¥ë˜ë©´ ë‚˜ë¨¸ì§€ëŠ” ê³µë°±ìœ¼ë¡œ ì±„ì›Œì§
+--ë‚ ì§œ ë° ì‹œê°„í˜• (Date and Time Types)
+--DATE: ë‚ ì§œì™€ ì‹œê°„ì„ ì €ìž¥. ë°ì´í„° íƒ€ìž…ì€ ë…„, ì›”, ì¼, ì‹œ, ë¶„, ì´ˆë¥¼ í¬í•¨
+--DATE íƒ€ìž…ì€ ë‚ ì§œì™€ ì‹œê°„ì„ YYYY-MM-DD HH24:MI:SS í˜•ì‹ìœ¼ë¡œ ì €ìž¥í•©ë‹ˆë‹¤.
+--ì˜ˆë¥¼ ë“¤ì–´, 2024ë…„ 5ì›” 20ì¼ ì˜¤í›„ 3ì‹œ 45ë¶„ 30ì´ˆëŠ” 2024-05-20 15:45:30ìœ¼ë¡œ ì €ìž¥
 
---TIMESTAMP: ³¯Â¥¿Í ½Ã°£À» ´õ »ó¼¼È÷ ³ª³ëÃÊ ´ÜÀ§±îÁö ÀúÀå
---ÀÌÁø µ¥ÀÌÅÍÇü (Binary Data Types)
---BLOB: ´ë·®ÀÇ ÀÌÁø µ¥ÀÌÅÍ¸¦ ÀúÀå. ÀÌ¹ÌÁö, ¿Àµð¿À ÆÄÀÏ µîÀ» ÀúÀåÇÏ´Â µ¥ ÀûÇÕ
---´ë±Ô¸ð °´Ã¼Çü (Large Object Types)
---CLOB: ´ë·®ÀÇ ¹®ÀÚ µ¥ÀÌÅÍ¸¦ ÀúÀå
---NCLOB: ´ë·®ÀÇ ±¹°¡º° ¹®ÀÚ ÁýÇÕ µ¥ÀÌÅÍ¸¦ ÀúÀå
+--TIMESTAMP: ë‚ ì§œì™€ ì‹œê°„ì„ ë” ìƒì„¸ížˆ ë‚˜ë…¸ì´ˆ ë‹¨ìœ„ê¹Œì§€ ì €ìž¥
+--ì´ì§„ ë°ì´í„°í˜• (Binary Data Types)
+--BLOB: ëŒ€ëŸ‰ì˜ ì´ì§„ ë°ì´í„°ë¥¼ ì €ìž¥. ì´ë¯¸ì§€, ì˜¤ë””ì˜¤ íŒŒì¼ ë“±ì„ ì €ìž¥í•˜ëŠ” ë° ì í•©
+--ëŒ€ê·œëª¨ ê°ì²´í˜• (Large Object Types)
+--CLOB: ëŒ€ëŸ‰ì˜ ë¬¸ìž ë°ì´í„°ë¥¼ ì €ìž¥
+--NCLOB: ëŒ€ëŸ‰ì˜ êµ­ê°€ë³„ ë¬¸ìž ì§‘í•© ë°ì´í„°ë¥¼ ì €ìž¥
 
---¹®ÀÚ ÀÎÄÚµùÀÇ ÀÇ¹Ì
---ÄÄÇ»ÅÍ´Â ¼ýÀÚ·Î ÀÌ·ç¾îÁø µ¥ÀÌÅÍ¸¦ Ã³¸®. ÀÎÄÚµùÀ» ÅëÇØ ¹®ÀÚ(¿¹: 'A', '°¡', '?')¸¦ 
---¼ýÀÚ(ÄÚµå Æ÷ÀÎÆ®)·Î º¯È¯ÇÏ¿© ÄÄÇ»ÅÍ°¡ ÀÌÇØÇÏ°í ÀúÀåÇÒ ¼ö ÀÖ°Ô ÇÑ´Ù.
---¿¹¸¦ µé¾î, ASCII ÀÎÄÚµù¿¡¼­´Â ´ë¹®ÀÚ 'A'¸¦ 65·Î, ¼Ò¹®ÀÚ 'a'¸¦ 97·Î ÀÎÄÚµù. 
---À¯´ÏÄÚµå ÀÎÄÚµù¿¡¼­´Â 'A'¸¦ U+0041, ÇÑ±Û '°¡'¸¦ U+AC00, ÀÌ¸ðÆ¼ÄÜ '?'¸¦ U+1F60A·Î ÀÎÄÚµù
---¾Æ½ºÅ°´Â 7ºñÆ®¸¦ »ç¿ëÇÏ¿© ÃÑ 128°³ÀÇ ¹®ÀÚ¸¦ Ç¥ÇöÇÏ´Â ¹Ý¸é À¯´ÏÄÚµå´Â ÃÖ´ë 1,114,112°³ÀÇ ¹®ÀÚ¸¦ Ç¥Çö
+--ë¬¸ìž ì¸ì½”ë”©ì˜ ì˜ë¯¸
+--ì»´í“¨í„°ëŠ” ìˆ«ìžë¡œ ì´ë£¨ì–´ì§„ ë°ì´í„°ë¥¼ ì²˜ë¦¬. ì¸ì½”ë”©ì„ í†µí•´ ë¬¸ìž(ì˜ˆ: 'A', 'ê°€', '?')ë¥¼ 
+--ìˆ«ìž(ì½”ë“œ í¬ì¸íŠ¸)ë¡œ ë³€í™˜í•˜ì—¬ ì»´í“¨í„°ê°€ ì´í•´í•˜ê³  ì €ìž¥í•  ìˆ˜ ìžˆê²Œ í•œë‹¤.
+--ì˜ˆë¥¼ ë“¤ì–´, ASCII ì¸ì½”ë”©ì—ì„œëŠ” ëŒ€ë¬¸ìž 'A'ë¥¼ 65ë¡œ, ì†Œë¬¸ìž 'a'ë¥¼ 97ë¡œ ì¸ì½”ë”©. 
+--ìœ ë‹ˆì½”ë“œ ì¸ì½”ë”©ì—ì„œëŠ” 'A'ë¥¼ U+0041, í•œê¸€ 'ê°€'ë¥¼ U+AC00, ì´ëª¨í‹°ì½˜ '?'ë¥¼ U+1F60Aë¡œ ì¸ì½”ë”©
+--ì•„ìŠ¤í‚¤ëŠ” 7ë¹„íŠ¸ë¥¼ ì‚¬ìš©í•˜ì—¬ ì´ 128ê°œì˜ ë¬¸ìžë¥¼ í‘œí˜„í•˜ëŠ” ë°˜ë©´ ìœ ë‹ˆì½”ë“œëŠ” ìµœëŒ€ 1,114,112ê°œì˜ ë¬¸ìžë¥¼ í‘œí˜„
 
---ASCII ÀÎÄÚµù:
---¹®ÀÚ 'A' -> 65 (10Áø¼ö) -> 01000001 (2Áø¼ö)
---¹®ÀÚ 'B' -> 66 (10Áø¼ö) -> 01000010 (2Áø¼ö)
+--ASCII ì¸ì½”ë”©:
+--ë¬¸ìž 'A' -> 65 (10ì§„ìˆ˜) -> 01000001 (2ì§„ìˆ˜)
+--ë¬¸ìž 'B' -> 66 (10ì§„ìˆ˜) -> 01000010 (2ì§„ìˆ˜)
 
---À¯´ÏÄÚµå(UTF-8) ÀÎÄÚµù: 
---¹®ÀÚ 'A' -> U+0041 -> 41 (16Áø¼ö) -> 01000001 (2Áø¼ö, ASCII¿Í µ¿ÀÏ)
---¹®ÀÚ '°¡' -> U+AC00 -> EC 95 80 (16Áø¼ö) -> 11101100 10010101 10000000 (2Áø¼ö)
+--ìœ ë‹ˆì½”ë“œ(UTF-8) ì¸ì½”ë”©: 
+--ë¬¸ìž 'A' -> U+0041 -> 41 (16ì§„ìˆ˜) -> 01000001 (2ì§„ìˆ˜, ASCIIì™€ ë™ì¼)
+--ë¬¸ìž 'ê°€' -> U+AC00 -> EC 95 80 (16ì§„ìˆ˜) -> 11101100 10010101 10000000 (2ì§„ìˆ˜)
 
---CLOB: CLOBÀº ÀÏ¹ÝÀûÀ¸·Î µ¥ÀÌÅÍº£ÀÌ½ºÀÇ ±âº» ¹®ÀÚ ÁýÇÕ(¿¹: ASCII, LATIN1 µî)À» »ç¿ëÇÏ¿© ÅØ½ºÆ® µ¥ÀÌÅÍ¸¦ ÀúÀå. 
---ÀÌ ¶§¹®¿¡ ÁÖ·Î ¿µ¾î¿Í °°Àº ´ÜÀÏ ¹ÙÀÌÆ® ¹®ÀÚ·Î ÀÌ·ç¾îÁø ÅØ½ºÆ®¸¦ ÀúÀåÇÏ´Â µ¥ »ç¿ë.
---NCLOB: NCLOBÀº À¯´ÏÄÚµå(UTF-16)¸¦ »ç¿ëÇÏ¿© ÅØ½ºÆ® µ¥ÀÌÅÍ¸¦ ÀúÀå. µû¶ó¼­ ´Ù±¹¾î Áö¿øÀÌ ÇÊ¿äÇÒ ¶§, \
---Áï ´Ù¾çÇÑ ¾ð¾î·Î ±¸¼ºµÈ ÅØ½ºÆ® µ¥ÀÌÅÍ¸¦ ÀúÀåÇÒ ¶§ ÀûÇÕ. ´Ù±¹¾î ¹®ÀÚ°¡ Æ÷ÇÔµÈ µ¥ÀÌÅÍ¸¦ È¿À²ÀûÀ¸·Î Ã³¸®ÇÒ ¼ö ÀÖ´Ù.
+--CLOB: CLOBì€ ì¼ë°˜ì ìœ¼ë¡œ ë°ì´í„°ë² ì´ìŠ¤ì˜ ê¸°ë³¸ ë¬¸ìž ì§‘í•©(ì˜ˆ: ASCII, LATIN1 ë“±)ì„ ì‚¬ìš©í•˜ì—¬ í…ìŠ¤íŠ¸ ë°ì´í„°ë¥¼ ì €ìž¥. 
+--ì´ ë•Œë¬¸ì— ì£¼ë¡œ ì˜ì–´ì™€ ê°™ì€ ë‹¨ì¼ ë°”ì´íŠ¸ ë¬¸ìžë¡œ ì´ë£¨ì–´ì§„ í…ìŠ¤íŠ¸ë¥¼ ì €ìž¥í•˜ëŠ” ë° ì‚¬ìš©.
+--NCLOB: NCLOBì€ ìœ ë‹ˆì½”ë“œ(UTF-16)ë¥¼ ì‚¬ìš©í•˜ì—¬ í…ìŠ¤íŠ¸ ë°ì´í„°ë¥¼ ì €ìž¥. ë”°ë¼ì„œ ë‹¤êµ­ì–´ ì§€ì›ì´ í•„ìš”í•  ë•Œ, \
+--ì¦‰ ë‹¤ì–‘í•œ ì–¸ì–´ë¡œ êµ¬ì„±ëœ í…ìŠ¤íŠ¸ ë°ì´í„°ë¥¼ ì €ìž¥í•  ë•Œ ì í•©. ë‹¤êµ­ì–´ ë¬¸ìžê°€ í¬í•¨ëœ ë°ì´í„°ë¥¼ íš¨ìœ¨ì ìœ¼ë¡œ ì²˜ë¦¬í•  ìˆ˜ ìžˆë‹¤.
 
---Á¦¾àÁ¶°Ç :  
---DEFAULT : ¿­¿¡ ¸í½ÃÀûÀÎ °ªÀÌ Á¦°øµÇÁö ¾ÊÀ» °æ¿ì »ç¿ëµÉ ±âº»°ªÀ» ÁöÁ¤
+--ì œì•½ì¡°ê±´ :  
+--DEFAULT : ì—´ì— ëª…ì‹œì ì¸ ê°’ì´ ì œê³µë˜ì§€ ì•Šì„ ê²½ìš° ì‚¬ìš©ë  ê¸°ë³¸ê°’ì„ ì§€ì •
 
 
 ----------------------------------------------------------------------------------------
--- VARCHAR2´Â µÎ °¡Áö ¹æ½ÄÀ¸·Î ±æÀÌ¸¦ Á¤ÀÇ: ¹ÙÀÌÆ®¿Í ¹®ÀÚ
--- ¼³Á¤ È®ÀÎ ¹æ¹ý
+-- VARCHAR2ëŠ” ë‘ ê°€ì§€ ë°©ì‹ìœ¼ë¡œ ê¸¸ì´ë¥¼ ì •ì˜: ë°”ì´íŠ¸ì™€ ë¬¸ìž
+-- ì„¤ì • í™•ì¸ ë°©ë²•
 SELECT *
 FROM V$NLS_PARAMETERS
 WHERE PARAMETER = 'NLS_LENGTH_SEMANTICS';
--- NLS_LENGTH_SEMANTICS´Â ¹ÙÀÌÆ®(Byte) ¶Ç´Â ¹®ÀÚ(Char)±æÀÌ¸¦ »ç¿ëÇÏ¿© char, varchar2 Å¸ÀÔÀÇ ÄÃ·³À» ¸¸µé¼ö ÀÖ½À´Ï´Ù. 
-ÀÌ¶§ ±âÁ¸ÀÇ ÄÃ·³Àº ¿µÇâÀ» ¹ÞÁö ¾Ê½À´Ï´Ù.
+-- NLS_LENGTH_SEMANTICSëŠ” ë°”ì´íŠ¸(Byte) ë˜ëŠ” ë¬¸ìž(Char)ê¸¸ì´ë¥¼ ì‚¬ìš©í•˜ì—¬ char, varchar2 íƒ€ìž…ì˜ ì»¬ëŸ¼ì„ ë§Œë“¤ìˆ˜ ìžˆìŠµë‹ˆë‹¤. 
+ì´ë•Œ ê¸°ì¡´ì˜ ì»¬ëŸ¼ì€ ì˜í–¥ì„ ë°›ì§€ ì•ŠìŠµë‹ˆë‹¤.
 -- ALTER [SYSTEM|SESSION] SET NLS_LENGTH_SEMANTICS=[CHAR|BYTE]
 
 
---AUTHOR Å×ÀÌºí »ý¼º
+--AUTHOR í…Œì´ë¸” ìƒì„±
 CREATE TABLE AUTHORS(
 ID NUMBER PRIMARY KEY,
 FIRST_NAME VARCHAR2(50) NOT NULL,
@@ -434,7 +434,7 @@ INSERT INTO AUTHORS VALUES(2,'YONWOO','CHOI','');
 SELECT * FROM AUTHORS;
 DROP TABLE AUTHORS;
 
--- Q. NEWBOOKÀÌ¶ó´Â Å×ÀÌºíÀ» »ý¼ºÇÏ¼¼¿ä
+-- Q. NEWBOOKì´ë¼ëŠ” í…Œì´ë¸”ì„ ìƒì„±í•˜ì„¸ìš”
 CREATE TABLE NEWBOOK (
     BOOKID NUMBER,
     ISBN NUMBER(13),
@@ -448,12 +448,12 @@ CREATE TABLE NEWBOOK (
 
 INSERT INTO NEWBOOK VALUES (1, 9781234567890, 'SQL Guide', 'John Doe', 'TechBooks', 15000, TO_DATE('2024-05-20', 'YYYY-MM-DD'));
 
--- ¾Æ·¡¿Í °°ÀÌ µ¿ÀÏÇÏ°Ô ³ÖÀ¸¸é BOOKID°¡ PRIMARY·Î DEFINEµÇ¾î ÀÖÀ¸¹Ç·Î Áßº¹ x ==> ¿¡·¯
+-- ì•„ëž˜ì™€ ê°™ì´ ë™ì¼í•˜ê²Œ ë„£ìœ¼ë©´ BOOKIDê°€ PRIMARYë¡œ DEFINEë˜ì–´ ìžˆìœ¼ë¯€ë¡œ ì¤‘ë³µ x ==> ì—ëŸ¬
 INSERT INTO NEWBOOK VALUES (1, 9781234567890, 'SQL Guide', 'John Doe', 'TechBooks', 15000, TO_DATE('2024-05-20', 'YYYY-MM-DD'));
 
 INSERT INTO NEWBOOK VALUES (2, 9781234567890, 'SQL Guide', 'John Doe', 'TechBooks', 15000, TO_DATE('2024-05-20 15:45:30', 'YYYY-MM-DD HH24:MI:SS'));
 
---ISBNÀÇ ÀÚ¸®¼ö°¡ 13À» ³Ñ¾î°¡¹Ç·Î ¿¡·¯
+--ISBNì˜ ìžë¦¬ìˆ˜ê°€ 13ì„ ë„˜ì–´ê°€ë¯€ë¡œ ì—ëŸ¬
 INSERT INTO NEWBOOK VALUES (3, 97812345678909342, 'SQL Guide', 'John Doe', 'TechBooks', 15000, TO_DATE('2024-05-20 15:45:30', 'YYYY-MM-DD HH24:MI:SS'));
 
 DELETE FROM  NEWBOOK;
@@ -486,7 +486,7 @@ DESC NEWBOOK;
 INSERT INTO NEWBOOK VALUES (3, 124534345909, 'BOOKNAME3', 'HUGH GRANT', 
 'FERGAMON',35000, TO_DATE('2024-05-20 14:49:30','YYYY-MM-DD HH24:MI:SS'));
 
--- ÇüÅÂ¸¦ º¼·Á¸é.. DESCRIPTION
+-- í˜•íƒœë¥¼ ë³¼ë ¤ë©´.. DESCRIPTION
 DESC NEWBOOK;
 
 ALTER TABLE NEWBOOK MODIFY (ISBN VARCHAR2(10));
@@ -497,7 +497,7 @@ SELECT * FROM NEWBOOK;
 
 
 ---------------------------------------------------------------------------
--- ON DELETE CASCADE ¿É¼ÇÀÌ ¼³Á¤µÇ¾î ÀÖ¾î, NEWCUSTOMER Å×ÀÌºí¿¡¼­ ¾î¶² °í°´ÀÇ ·¹ÄÚµå°¡ »èÁ¦µÇ¸é, ÇØ´ç °í°´ÀÇ ¸ðµÐ ÁÖ¹®ÀÌ NEWORDERS Å×ÀÌºí¿¡¼­µµ ÀÚµ¿À¸·Î »èÁ¦
+-- ON DELETE CASCADE ì˜µì…˜ì´ ì„¤ì •ë˜ì–´ ìžˆì–´, NEWCUSTOMER í…Œì´ë¸”ì—ì„œ ì–´ë–¤ ê³ ê°ì˜ ë ˆì½”ë“œê°€ ì‚­ì œë˜ë©´, í•´ë‹¹ ê³ ê°ì˜ ëª¨ë‘” ì£¼ë¬¸ì´ NEWORDERS í…Œì´ë¸”ì—ì„œë„ ìžë™ìœ¼ë¡œ ì‚­ì œ
 
 CREATE TABLE NEWCUSTOMER(
 CUSTID NUMBER PRIMARY KEY,
@@ -518,9 +518,9 @@ DESC NEWORDERS;
 SELECT * FROM NEWCUSTOMER;
 SELECT * FROM NEWORDERS;
 
--- Q. 10°³ÀÇ ¼Ó¼ºÀ¸·Î ±¸¼ºµÇ´Â Å×ÀÌºí 2°³¸¦ ÀÛ¼ºÇÏ¼¼¿ä, ´Ü FOREIGN KEY¸¦ Àû¿ëÇÏ¿© ÇÑÂÊ TABLEÀÇ µ¥ÀÌÅÍ¸¦ »èÁ¦ ½Ã ´Ù¸¥ Å×ÀÌºíÀÇ °ü·ÃµÈ
--- µ¥ÀÌÅÍµµ ¸ðµÎ »èÁ¦µÇµµ·Ï ÇÏ¼¼¿ä. (¸ðµç Á¦¾à Á¶°ÇÀ» »ç¿ë)
--- ´Ü, °¢ Å×ÀÌºí¿¡ 5°³ÀÇ µ¥ÀÌÅÍ¸¦ ÀÔ·ÂÇÏ°í µÎ¹øÂ° Å×ÀÌºí¿¡ Ã¹¹øÂ° µ¥ÀÌÅÍ¸¦ ÂüÁ¶ÇÏ°í ÀÖ´Â ¼Ó¼ºÀ» ¼±ÅÃÇÏ¿© µ¥ÀÌÅÍ »èÁ¦
+-- Q. 10ê°œì˜ ì†ì„±ìœ¼ë¡œ êµ¬ì„±ë˜ëŠ” í…Œì´ë¸” 2ê°œë¥¼ ìž‘ì„±í•˜ì„¸ìš”, ë‹¨ FOREIGN KEYë¥¼ ì ìš©í•˜ì—¬ í•œìª½ TABLEì˜ ë°ì´í„°ë¥¼ ì‚­ì œ ì‹œ ë‹¤ë¥¸ í…Œì´ë¸”ì˜ ê´€ë ¨ëœ
+-- ë°ì´í„°ë„ ëª¨ë‘ ì‚­ì œë˜ë„ë¡ í•˜ì„¸ìš”. (ëª¨ë“  ì œì•½ ì¡°ê±´ì„ ì‚¬ìš©)
+-- ë‹¨, ê° í…Œì´ë¸”ì— 5ê°œì˜ ë°ì´í„°ë¥¼ ìž…ë ¥í•˜ê³  ë‘ë²ˆì§¸ í…Œì´ë¸”ì— ì²«ë²ˆì§¸ ë°ì´í„°ë¥¼ ì°¸ì¡°í•˜ê³  ìžˆëŠ” ì†ì„±ì„ ì„ íƒí•˜ì—¬ ë°ì´í„° ì‚­ì œ
 
 --------------------------------------------------------------------------------
 CREATE TABLE NEWCUSTOMER(
@@ -554,46 +554,46 @@ SELECT * FROM NEWCUSTOMER;
 DROP TABLE NEWORDERS;
 DROP TABLE NEWCUSTOMER;
 
--- NEWCUSTOMER¿¡¼­ PRIMARY KEYÀÎ CUSTID=1ÀÎ DATA¸¦ »èÁ¦¸¦ ÇÏ¸é NEWORDERS¿¡¼­ CUSTID=1¿¡ ÇØ´çÇÏ´Â ORDERS DATAµµ ¸ðµÎ »èÁ¦..
+-- NEWCUSTOMERì—ì„œ PRIMARY KEYì¸ CUSTID=1ì¸ DATAë¥¼ ì‚­ì œë¥¼ í•˜ë©´ NEWORDERSì—ì„œ CUSTID=1ì— í•´ë‹¹í•˜ëŠ” ORDERS DATAë„ ëª¨ë‘ ì‚­ì œ..
 DELETE FROM NEWCUSTOMER WHERE CUSTID=1;
 
--- NEWORDERS¿¡¼­ CUSTID=3ÀÎ DATA¸¦ »èÁ¦ ÇÏ¸é NEWORDERS¿¡¼­´Â »èÁ¦µÇÁö¸¸, NEWCUSTOMER¿¡¼­ CUSTID=3ÀÎ DATAµéÀº »èÁ¦ x.. ±×´ë·Î Á¸Àç..
+-- NEWORDERSì—ì„œ CUSTID=3ì¸ DATAë¥¼ ì‚­ì œ í•˜ë©´ NEWORDERSì—ì„œëŠ” ì‚­ì œë˜ì§€ë§Œ, NEWCUSTOMERì—ì„œ CUSTID=3ì¸ DATAë“¤ì€ ì‚­ì œ x.. ê·¸ëŒ€ë¡œ ì¡´ìž¬..
 DELETE FROM NEWORDERS WHERE CUSTID=3;
 DELETE FROM NEWORDERS WHERE CUSTID=1;
 
--- NEWORDERS¿¡¼­ CUSTID ÄÃ·³À» »èÁ¦ÇÏ´õ¶óµµ NEWCUSTOMER¿¡¼­´Â »èÁ¦ ¾ÈµÇ°í ±×´ë·Î ³²¾Æ ÀÖÀ½
+-- NEWORDERSì—ì„œ CUSTID ì»¬ëŸ¼ì„ ì‚­ì œí•˜ë”ë¼ë„ NEWCUSTOMERì—ì„œëŠ” ì‚­ì œ ì•ˆë˜ê³  ê·¸ëŒ€ë¡œ ë‚¨ì•„ ìžˆìŒ
 ALTER TABLE NEWORDERS DROP COLUMN CUSTID;
 
--- ¹Ý¸é, NEWCUSTOMER¿¡¼­´Â CUSTID ÄÃ·³Àº NEWORDERS¿¡¼­ FOREIGN Å°·Î ¼³Á¤µÇ¾î ÀÖ¾î¼­ ¾Æ¿¹ »èÁ¦°¡ ¾ÈµÊ
--- ´Ù¸¸, NEWORDERS¿¡¼­ FOREIGN Å°·Î ¼³Á¤µÇ¾î ÀÖ´ø  CUSTID¸¦ ¸ÕÀú DROP½ÃÅ°°í ³ª¼­ NEWCOSTOMER¿¡¼­ CUSTID COLUMNÀ» DROPÀ¸·Î »èÁ¦´Â °¡´É
+-- ë°˜ë©´, NEWCUSTOMERì—ì„œëŠ” CUSTID ì»¬ëŸ¼ì€ NEWORDERSì—ì„œ FOREIGN í‚¤ë¡œ ì„¤ì •ë˜ì–´ ìžˆì–´ì„œ ì•„ì˜ˆ ì‚­ì œê°€ ì•ˆë¨
+-- ë‹¤ë§Œ, NEWORDERSì—ì„œ FOREIGN í‚¤ë¡œ ì„¤ì •ë˜ì–´ ìžˆë˜  CUSTIDë¥¼ ë¨¼ì € DROPì‹œí‚¤ê³  ë‚˜ì„œ NEWCOSTOMERì—ì„œ CUSTID COLUMNì„ DROPìœ¼ë¡œ ì‚­ì œëŠ” ê°€ëŠ¥
 ALTER TABLE NEWCUSTOMER DROP COLUMN CUSTID;
 
 ----------------------------------------------------------------------------------------------------------
---  ¿¬½À
+--  ì—°ìŠµ
 SELECT * FROM BOOK;
 SELECT * FROM CUSTOMER;
 SELECT * FROM ORDERS;
 
---Q. ¡®´ëÇÑ¹Ìµð¾î¡¯¿¡¼­ ÃâÆÇÇÑ µµ¼­¸¦ ±¸¸ÅÇÑ °í°´ÀÇ ÀÌ¸§À» º¸ÀÌ½Ã¿À.
+--Q. â€˜ëŒ€í•œë¯¸ë””ì–´â€™ì—ì„œ ì¶œíŒí•œ ë„ì„œë¥¼ êµ¬ë§¤í•œ ê³ ê°ì˜ ì´ë¦„ì„ ë³´ì´ì‹œì˜¤.
 SELECT NAME FROM CUSTOMER
 WHERE CUSTID IN (SELECT CUSTID FROM ORDERS
 WHERE BOOKID IN (SELECT BOOKID FROM BOOK
-WHERE PUBLISHER = '´ëÇÑ¹Ìµð¾î'));
+WHERE PUBLISHER = 'ëŒ€í•œë¯¸ë””ì–´'));
 
 
--- Q. °¡Àå ºñ½Ñ Ã¥ÀÇ Á¤º¸¸¦ °Ë»ö 
+-- Q. ê°€ìž¥ ë¹„ì‹¼ ì±…ì˜ ì •ë³´ë¥¼ ê²€ìƒ‰ 
 SELECT BOOKNAME, PRICE, PUBLISHER FROM BOOK 
 WHERE PRICE = (SELECT MAX(PRICE) FROM BOOK);
 
---Q. ÃâÆÇ»çº°·Î ÃâÆÇ»çÀÇ Æò±Õ µµ¼­ °¡°Ýº¸´Ù ºñ½Ñ µµ¼­¸¦ ±¸ÇÏ½Ã¿À.
+--Q. ì¶œíŒì‚¬ë³„ë¡œ ì¶œíŒì‚¬ì˜ í‰ê·  ë„ì„œ ê°€ê²©ë³´ë‹¤ ë¹„ì‹¼ ë„ì„œë¥¼ êµ¬í•˜ì‹œì˜¤.
 SELECT B1.PUBLISHER, B1.BOOKNAME, B1.PRICE 
 FROM BOOK B1
 WHERE B1.PRICE > (SELECT AVG(B2.PRICE)
 FROM BOOK B2
 WHERE B2.PUBLISHER = B1.PUBLISHER);
---GROUP BY PUBLISHER ==> ÇÊ¿ä ¾ø¾î °¢°¢ÀÌ µµ¼­¿¡ ´ëÇØ¼­ Æò±Õ º¸´Ù ºñ½Ñ °³º° µµ¼­ ÀÌ¹Ç·Î 
+--GROUP BY PUBLISHER ==> í•„ìš” ì—†ì–´ ê°ê°ì´ ë„ì„œì— ëŒ€í•´ì„œ í‰ê·  ë³´ë‹¤ ë¹„ì‹¼ ê°œë³„ ë„ì„œ ì´ë¯€ë¡œ 
 
---Q. µµ¼­¸¦ ÁÖ¹®ÇÏÁö ¾ÊÀº °í°´ÀÇ ÀÌ¸§À» º¸ÀÌ½Ã¿À.
+--Q. ë„ì„œë¥¼ ì£¼ë¬¸í•˜ì§€ ì•Šì€ ê³ ê°ì˜ ì´ë¦„ì„ ë³´ì´ì‹œì˜¤.
 SELECT NAME FROM CUSTOMER
 WHERE CUSTID NOT IN (
 SELECT CUSTID FROM ORDERS);
@@ -602,16 +602,16 @@ SELECT NAME FROM CUSTOMER
 WHERE CUSTID IN (
 SELECT CUSTID FROM ORDERS);
 
---Q. ÁÖ¹®ÀÌ ÀÖ´Â °í°´ÀÇ ÀÌ¸§°ú ÁÖ¼Ò¸¦ º¸ÀÌ½Ã¿À.
+--Q. ì£¼ë¬¸ì´ ìžˆëŠ” ê³ ê°ì˜ ì´ë¦„ê³¼ ì£¼ì†Œë¥¼ ë³´ì´ì‹œì˜¤.
 SELECT NAME, ADDRESS FROM CUSTOMER
 WHERE CUSTID IN (
 SELECT CUSTID FROM ORDERS);
 
 
 
--- TASK1_0520. 10°³ÀÇ ¼Ó¼ºÀ¸·Î ±¸¼ºµÇ´Â Å×ÀÌºí 2°³¸¦ ÀÛ¼ºÇÏ¼¼¿ä, ´Ü FOREIGN KEY¸¦ Àû¿ëÇÏ¿© ÇÑÂÊ TABLEÀÇ µ¥ÀÌÅÍ¸¦ »èÁ¦ ½Ã ´Ù¸¥ Å×ÀÌºíÀÇ °ü·ÃµÈ
--- µ¥ÀÌÅÍµµ ¸ðµÎ »èÁ¦µÇµµ·Ï ÇÏ¼¼¿ä. (¸ðµç Á¦¾à Á¶°ÇÀ» »ç¿ë)
--- ´Ü, °¢ Å×ÀÌºí¿¡ 5°³ÀÇ µ¥ÀÌÅÍ¸¦ ÀÔ·ÂÇÏ°í µÎ¹øÂ° Å×ÀÌºí¿¡ Ã¹¹øÂ° Å×ÀÌºíÀÇ µ¥ÀÌÅÍ¸¦ ÂüÁ¶ÇÏ°í ÀÖ´Â ¼Ó¼ºÀ» ¼±ÅÃÇÏ¿© µ¥ÀÌÅÍ »èÁ¦
+-- TASK1_0520. 10ê°œì˜ ì†ì„±ìœ¼ë¡œ êµ¬ì„±ë˜ëŠ” í…Œì´ë¸” 2ê°œë¥¼ ìž‘ì„±í•˜ì„¸ìš”, ë‹¨ FOREIGN KEYë¥¼ ì ìš©í•˜ì—¬ í•œìª½ TABLEì˜ ë°ì´í„°ë¥¼ ì‚­ì œ ì‹œ ë‹¤ë¥¸ í…Œì´ë¸”ì˜ ê´€ë ¨ëœ
+-- ë°ì´í„°ë„ ëª¨ë‘ ì‚­ì œë˜ë„ë¡ í•˜ì„¸ìš”. (ëª¨ë“  ì œì•½ ì¡°ê±´ì„ ì‚¬ìš©)
+-- ë‹¨, ê° í…Œì´ë¸”ì— 5ê°œì˜ ë°ì´í„°ë¥¼ ìž…ë ¥í•˜ê³  ë‘ë²ˆì§¸ í…Œì´ë¸”ì— ì²«ë²ˆì§¸ í…Œì´ë¸”ì˜ ë°ì´í„°ë¥¼ ì°¸ì¡°í•˜ê³  ìžˆëŠ” ì†ì„±ì„ ì„ íƒí•˜ì—¬ ë°ì´í„° ì‚­ì œ
 CREATE TABLE NEWCUSTOMER(
 CUSTID NUMBER PRIMARY KEY,
 NAME VARCHAR2(40),
@@ -638,33 +638,33 @@ INSERT INTO NEWORDERS VALUES (3,2,2,24000, TO_DATE('2024-05-20 14:49:30','YYYY-M
 INSERT INTO NEWORDERS VALUES (4,3,4,32000, TO_DATE('2024-05-20 14:49:30','YYYY-MM-DD HH24:MI:SS'));
 INSERT INTO NEWORDERS VALUES (5,1,6,3000, SYSDATE);
 ------------------------------------------------------------------------------------------------
--- NEWORDERSÀÇ 'CUSTID' KEY´Â NEWCUSTOMERÀÇ PRIMARY KEYÀÎ 'CUSTID'¸¦ REFERENCINGÇØ¼­ FOREIGN KEY·Î ¼³Á¤ÇØ µÒ.
+-- NEWORDERSì˜ 'CUSTID' KEYëŠ” NEWCUSTOMERì˜ PRIMARY KEYì¸ 'CUSTID'ë¥¼ REFERENCINGí•´ì„œ FOREIGN KEYë¡œ ì„¤ì •í•´ ë‘ .
 SELECT * FROM NEWORDERS;
 SELECT * FROM NEWCUSTOMER;
 DROP TABLE NEWORDERS;
 DROP TABLE NEWCUSTOMER;
 
--- NEWCUSTOMER¿¡¼­ PRIMARY KEYÀÎ CUSTID=1ÀÎ DATA¸¦ »èÁ¦¸¦ ÇÏ¸é NEWORDERS¿¡¼­ CUSTID=1¿¡ ÇØ´çÇÏ´Â ORDERS DATAµµ ¸ðµÎ »èÁ¦..
+-- NEWCUSTOMERì—ì„œ PRIMARY KEYì¸ CUSTID=1ì¸ DATAë¥¼ ì‚­ì œë¥¼ í•˜ë©´ NEWORDERSì—ì„œ CUSTID=1ì— í•´ë‹¹í•˜ëŠ” ORDERS DATAë„ ëª¨ë‘ ì‚­ì œ..
 DELETE FROM NEWCUSTOMER WHERE CUSTID=1;
 
--- NEWORDERS¿¡¼­ CUSTID=3ÀÎ DATA¸¦ »èÁ¦ ÇÏ¸é NEWORDERS¿¡¼­´Â »èÁ¦µÇÁö¸¸, NEWCUSTOMER¿¡¼­ CUSTID=3ÀÎ DATAµéÀº »èÁ¦ x.. ±×´ë·Î Á¸Àç..
+-- NEWORDERSì—ì„œ CUSTID=3ì¸ DATAë¥¼ ì‚­ì œ í•˜ë©´ NEWORDERSì—ì„œëŠ” ì‚­ì œë˜ì§€ë§Œ, NEWCUSTOMERì—ì„œ CUSTID=3ì¸ DATAë“¤ì€ ì‚­ì œ x.. ê·¸ëŒ€ë¡œ ì¡´ìž¬..
 DELETE FROM NEWORDERS WHERE CUSTID=3;
 DELETE FROM NEWORDERS WHERE CUSTID=1;
 
--- NEWORDERS¿¡¼­ CUSTID ÄÃ·³À» »èÁ¦ÇÏ´õ¶óµµ NEWCUSTOMER¿¡¼­´Â »èÁ¦ ¾ÈµÇ°í ±×´ë·Î ³²¾Æ ÀÖÀ½
+-- NEWORDERSì—ì„œ CUSTID ì»¬ëŸ¼ì„ ì‚­ì œí•˜ë”ë¼ë„ NEWCUSTOMERì—ì„œëŠ” ì‚­ì œ ì•ˆë˜ê³  ê·¸ëŒ€ë¡œ ë‚¨ì•„ ìžˆìŒ
 ALTER TABLE NEWORDERS DROP COLUMN CUSTID;
 
--- ¹Ý¸é, NEWCUSTOMER¿¡¼­´Â CUSTID ÄÃ·³Àº NEWORDERS¿¡¼­ FOREIGN Å°·Î ¼³Á¤µÇ¾î ÀÖ¾î¼­ ¾Æ¿¹ »èÁ¦°¡ ¾ÈµÊ
--- ´Ù¸¸, NEWORDERS¿¡¼­ FOREIGN Å°·Î ¼³Á¤µÇ¾î ÀÖ´ø  CUSTID¸¦ ¸ÕÀú DROP½ÃÅ°°í ³ª¼­ NEWCOSTOMER¿¡¼­ CUSTID COLUMNÀ» DROPÀ¸·Î »èÁ¦´Â °¡´É
+-- ë°˜ë©´, NEWCUSTOMERì—ì„œëŠ” CUSTID ì»¬ëŸ¼ì€ NEWORDERSì—ì„œ FOREIGN í‚¤ë¡œ ì„¤ì •ë˜ì–´ ìžˆì–´ì„œ ì•„ì˜ˆ ì‚­ì œê°€ ì•ˆë¨
+-- ë‹¤ë§Œ, NEWORDERSì—ì„œ FOREIGN í‚¤ë¡œ ì„¤ì •ë˜ì–´ ìžˆë˜  CUSTIDë¥¼ ë¨¼ì € DROPì‹œí‚¤ê³  ë‚˜ì„œ NEWCOSTOMERì—ì„œ CUSTID COLUMNì„ DROPìœ¼ë¡œ ì‚­ì œëŠ” ê°€ëŠ¥
 ALTER TABLE NEWCUSTOMER DROP COLUMN CUSTID;
 
 DROP TABLE NEWORDERS;
 DROP TABLE NEWCUSTOMER;
 
 
----------------------------- °­»ç´Ô Task1_0520. 10°³ÀÇ ¼Ó¼ºÀ¸·Î ±¸¼ºµÇ´Â Å×ÀÌºí 2°³¸¦ ÀÛ¼ºÇÏ¼¼¿ä. ´Ü FOREIGN KEY¸¦ Àû¿ëÇÏ¿© ÇÑÂÊ Å×ÀÌºíÀÇ µ¥ÀÌÅÍ¸¦ »èÁ¦ ½Ã 
--- ´Ù¸¥ Å×ÀÌºíÀÇ °ü·ÃµÇ´Â µ¥ÀÌÅÍµµ ¸ðµÎ »èÁ¦µÇµµ·Ï ÇÏ¼¼¿ä. (¸ðµç Á¦¾àÁ¶°ÇÀ» »ç¿ë)
--- ´Ü, °¢ Å×ÀÌºí¿¡ 5°³ÀÇ µ¥ÀÌÅÍ¸¦ ÀÔ·ÂÇÏ°í µÎ¹øÂ° Å×ÀÌºí¿¡ Ã¹¹øÂ° µ¥ÀÌÅÍ¸¦ ÂüÁ¶ÇÏ°í ÀÖ´Â ¼Ó¼ºÀ» ¼±ÅÃÇÏ¿© µ¥ÀÌÅÍ »èÁ¦ 
+---------------------------- ê°•ì‚¬ë‹˜ Task1_0520. 10ê°œì˜ ì†ì„±ìœ¼ë¡œ êµ¬ì„±ë˜ëŠ” í…Œì´ë¸” 2ê°œë¥¼ ìž‘ì„±í•˜ì„¸ìš”. ë‹¨ FOREIGN KEYë¥¼ ì ìš©í•˜ì—¬ í•œìª½ í…Œì´ë¸”ì˜ ë°ì´í„°ë¥¼ ì‚­ì œ ì‹œ 
+-- ë‹¤ë¥¸ í…Œì´ë¸”ì˜ ê´€ë ¨ë˜ëŠ” ë°ì´í„°ë„ ëª¨ë‘ ì‚­ì œë˜ë„ë¡ í•˜ì„¸ìš”. (ëª¨ë“  ì œì•½ì¡°ê±´ì„ ì‚¬ìš©)
+-- ë‹¨, ê° í…Œì´ë¸”ì— 5ê°œì˜ ë°ì´í„°ë¥¼ ìž…ë ¥í•˜ê³  ë‘ë²ˆì§¸ í…Œì´ë¸”ì— ì²«ë²ˆì§¸ ë°ì´í„°ë¥¼ ì°¸ì¡°í•˜ê³  ìžˆëŠ” ì†ì„±ì„ ì„ íƒí•˜ì—¬ ë°ì´í„° ì‚­ì œ 
 
 DROP table mart;
 DROP table department;
@@ -675,11 +675,11 @@ create table mart(
     , sx varchar2(20)
     , phone number not null
     , address varchar2(100)
-    , frequency number -- ¹æ¹® ºóµµ
+    , frequency number -- ë°©ë¬¸ ë¹ˆë„
     , amount_num number
     , amount_price number
-    , parking varchar2(20) -- ÁÖÂ÷¿©ºÎ
-    , family number -- °¡Á· ±¸¼º¿ø ¼ö
+    , parking varchar2(20) -- ì£¼ì°¨ì—¬ë¶€
+    , family number -- ê°€ì¡± êµ¬ì„±ì› ìˆ˜
 );
 
 alter table mart drop column amount_num;
@@ -687,11 +687,11 @@ alter table mart modify (name varchar2(30));
 alter table mart modify (phone varchar2(20));
 
 DESC mart;
-insert into mart values(1, '°í±æµ¿', 32, '³²', '010-1234-1234', '¼­¿ï °­³²', 5, 1500000, 'N', 3);
-insert into mart values(2, '¼ÕÈï¹Î', 31, '³²', '010-7777-1234', '°­¿ø ÃáÃµ', 5, 200000000, 'Y', 4);
-insert into mart values(3, 'ÀÌ¼ø½Å', 57, '³²', '010-1592-1234', '°æ³² Åë¿µ', 5, 270000, 'N', 1);
-insert into mart values(4, '¾ÆÀÌÀ¯', 30, '¿©', '010-0516-1234', '¼­¿ï ¼­ÃÊ', 5, 750000000, 'Y', 4);
-insert into mart values(5, 'ÀÓ¿µ¿õ', 30, '³²', '010-0517-1235', '¼­¿ï ¿ª»ï', 5, 75000000, 'Y', 2);
+insert into mart values(1, 'ê³ ê¸¸ë™', 32, 'ë‚¨', '010-1234-1234', 'ì„œìš¸ ê°•ë‚¨', 5, 1500000, 'N', 3);
+insert into mart values(2, 'ì†í¥ë¯¼', 31, 'ë‚¨', '010-7777-1234', 'ê°•ì› ì¶˜ì²œ', 5, 200000000, 'Y', 4);
+insert into mart values(3, 'ì´ìˆœì‹ ', 57, 'ë‚¨', '010-1592-1234', 'ê²½ë‚¨ í†µì˜', 5, 270000, 'N', 1);
+insert into mart values(4, 'ì•„ì´ìœ ', 30, 'ì—¬', '010-0516-1234', 'ì„œìš¸ ì„œì´ˆ', 5, 750000000, 'Y', 4);
+insert into mart values(5, 'ìž„ì˜ì›…', 30, 'ë‚¨', '010-0517-1235', 'ì„œìš¸ ì—­ì‚¼', 5, 75000000, 'Y', 2);
 
 select * from mart;
 
@@ -702,11 +702,11 @@ create table department(
     , sx varchar2(20)
     , phone number not null
     , address varchar2(100)
-    , use_store varchar2(100) -- ÀÚÁÖ Ã£´Â ¸ÅÀå
+    , use_store varchar2(100) -- ìžì£¼ ì°¾ëŠ” ë§¤ìž¥
     , amount_num number
     , amount_price number
-    , valet varchar2(20) -- ¹ß·¿ÆÄÅ· ¼­ºñ½º »ç¿ë¿©ºÎ
-    , rounge varchar2(20) -- vip ¶ó¿îÁö »ç¿ë¿©ºÎ
+    , valet varchar2(20) -- ë°œë ›íŒŒí‚¹ ì„œë¹„ìŠ¤ ì‚¬ìš©ì—¬ë¶€
+    , rounge varchar2(20) -- vip ë¼ìš´ì§€ ì‚¬ìš©ì—¬ë¶€
     , foreign key (custid) references mart(custid) on delete cascade
 );
 
@@ -718,56 +718,56 @@ alter table department drop column amount_num;
 --alter table department add (custid number);
 select * from department;
 
-insert into department values(1, '¼ÕÈï¹Î', 31, '³²', '010-7777-1234', '°­¿ø ÃáÃµ', 'LV', 900000000,'','');
-insert into department values(2, '¾ÆÀÌÀ¯', 30, '¿©', '010-0516-1234', '¼­¿ï ¼­ÃÊ', 'GUCCI', 1500000000,'','');
-insert into department values(3, '¹ÚÁö¼º', 31, '³²', '010-7775-1235', '°­¿ø ÃáÃµ', 'LV', 900000000,'','');
-insert into department values(4, '¹Ú¼¼¸®', 30, '¿©', '010-0516-1234', '¼­¿ï ¼­ÃÊ', 'GUCCI', 1500000000,'','');
-insert into department values(5, 'ÀÓ¿µ¿õ', 30, '³²', '010-0517-1235', '¼­¿ï ¿ª»ï', 'ROLEX', 150000000,'','');
+insert into department values(1, 'ì†í¥ë¯¼', 31, 'ë‚¨', '010-7777-1234', 'ê°•ì› ì¶˜ì²œ', 'LV', 900000000,'','');
+insert into department values(2, 'ì•„ì´ìœ ', 30, 'ì—¬', '010-0516-1234', 'ì„œìš¸ ì„œì´ˆ', 'GUCCI', 1500000000,'','');
+insert into department values(3, 'ë°•ì§€ì„±', 31, 'ë‚¨', '010-7775-1235', 'ê°•ì› ì¶˜ì²œ', 'LV', 900000000,'','');
+insert into department values(4, 'ë°•ì„¸ë¦¬', 30, 'ì—¬', '010-0516-1234', 'ì„œìš¸ ì„œì´ˆ', 'GUCCI', 1500000000,'','');
+insert into department values(5, 'ìž„ì˜ì›…', 30, 'ë‚¨', '010-0517-1235', 'ì„œìš¸ ì—­ì‚¼', 'ROLEX', 150000000,'','');
 
 DELETE mart
 WHERE custid = 1;
 
 
--- Task2_0520. Customer Å×ÀÌºí¿¡¼­ ¹Ú¼¼¸® °í°´ÀÇ ÁÖ¼Ò¸¦ ±è¿¬¾Æ °í°´ÀÇ ÁÖ¼Ò·Î º¯°æÇÏ½Ã¿À.
-UPDATE CUSTOMER SET ADDRESS=(SELECT ADDRESS FROM CUSTOMER WHERE NAME='±è¿¬¾Æ') WHERE NAME='¹Ú¼¼¸®';
+-- Task2_0520. Customer í…Œì´ë¸”ì—ì„œ ë°•ì„¸ë¦¬ ê³ ê°ì˜ ì£¼ì†Œë¥¼ ê¹€ì—°ì•„ ê³ ê°ì˜ ì£¼ì†Œë¡œ ë³€ê²½í•˜ì‹œì˜¤.
+UPDATE CUSTOMER SET ADDRESS=(SELECT ADDRESS FROM CUSTOMER WHERE NAME='ê¹€ì—°ì•„') WHERE NAME='ë°•ì„¸ë¦¬';
 SELECT * FROM CUSTOMER;
--- ¿ø·¡´ë·Î º¹±¸
-UPDATE CUSTOMER SET ADDRESS='´ëÇÑ¹Î±¹ ´ëÀü' WHERE NAME='¹Ú¼¼¸®';
+-- ì›ëž˜ëŒ€ë¡œ ë³µêµ¬
+UPDATE CUSTOMER SET ADDRESS='ëŒ€í•œë¯¼êµ­ ëŒ€ì „' WHERE NAME='ë°•ì„¸ë¦¬';
 
--- Task3_0520.µµ¼­ Á¦¸ñ¿¡ ¡®¾ß±¸¡¯°¡ Æ÷ÇÔµÈ µµ¼­¸¦ ¡®³ó±¸¡¯·Î º¯°æÇÑ ÈÄ µµ¼­ ¸ñ·Ï, °¡°ÝÀ» º¸ÀÌ½Ã¿À.
-UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'¾ß±¸','³ó±¸');
+-- Task3_0520.ë„ì„œ ì œëª©ì— â€˜ì•¼êµ¬â€™ê°€ í¬í•¨ëœ ë„ì„œë¥¼ â€˜ë†êµ¬â€™ë¡œ ë³€ê²½í•œ í›„ ë„ì„œ ëª©ë¡, ê°€ê²©ì„ ë³´ì´ì‹œì˜¤.
+UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'ì•¼êµ¬','ë†êµ¬');
 SELECT * FROM BOOK;
 
----- DATA°¡ ½ÇÀç·Î ¹Ù²îÁö´Â ¾Ê°í °Ë»ö ½Ã¿¡ º¯°æ¸¸ µÇ¼­.. TABLEÀÇ °ªÀº ¿ø·¡´ë·Î..
-SELECT BOOKID, REPLACE(BOOKNAME,'¾ß±¸','³ó±¸') BOOKNAME, PUBLISHER, PRICE
+---- DATAê°€ ì‹¤ìž¬ë¡œ ë°”ë€Œì§€ëŠ” ì•Šê³  ê²€ìƒ‰ ì‹œì— ë³€ê²½ë§Œ ë˜ì„œ.. TABLEì˜ ê°’ì€ ì›ëž˜ëŒ€ë¡œ..
+SELECT BOOKID, REPLACE(BOOKNAME,'ì•¼êµ¬','ë†êµ¬') BOOKNAME, PUBLISHER, PRICE
 FROM BOOK;
 
--- ¿ø·¡´ë·Î º¹±¸
-UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'³ó±¸','¾ß±¸');
+-- ì›ëž˜ëŒ€ë¡œ ë³µêµ¬
+UPDATE BOOK SET BOOKNAME=REPLACE(BOOKNAME,'ë†êµ¬','ì•¼êµ¬');
 
--- Task4_0520. ¸¶´ç¼­Á¡ÀÇ °í°´ Áß¿¡¼­ °°Àº ¼º(àó)À» °¡Áø »ç¶÷ÀÌ ¸î ¸íÀÌ³ª µÇ´ÂÁö ¼ºº° ÀÎ¿ø¼ö¸¦ ±¸ÇÏ½Ã¿À.
--- SUBSTR(¿øº»¹®ÀÚ¿­ È¤Àº ÄÃ·³, ½ÃÀÛÀ§Ä¡, ÃßÃâ°³¼ö)
-SELECT ¼º, COUNT(¼º) FROM (SELECT SUBSTR(NAME, 1, 1) as ¼º FROM CUSTOMER)
-GROUP BY ¼º
-ORDER BY ¼º;
--- °­»ç´Ô
-SELECT SUBSTR(NAME, 1, 1) ¼º, COUNT(*) ÀÎ¿ø 
+-- Task4_0520. ë§ˆë‹¹ì„œì ì˜ ê³ ê° ì¤‘ì—ì„œ ê°™ì€ ì„±(å§“)ì„ ê°€ì§„ ì‚¬ëžŒì´ ëª‡ ëª…ì´ë‚˜ ë˜ëŠ”ì§€ ì„±ë³„ ì¸ì›ìˆ˜ë¥¼ êµ¬í•˜ì‹œì˜¤.
+-- SUBSTR(ì›ë³¸ë¬¸ìžì—´ í˜¹ì€ ì»¬ëŸ¼, ì‹œìž‘ìœ„ì¹˜, ì¶”ì¶œê°œìˆ˜)
+SELECT ì„±, COUNT(ì„±) FROM (SELECT SUBSTR(NAME, 1, 1) as ì„± FROM CUSTOMER)
+GROUP BY ì„±
+ORDER BY ì„±;
+-- ê°•ì‚¬ë‹˜
+SELECT SUBSTR(NAME, 1, 1) ì„±, COUNT(*) ì¸ì› 
 FROM CUSTOMER
 GROUP BY SUBSTR(NAME, 1, 1)
 ORDER BY SUBSTR(NAME, 1, 1);
 
--- Task5_0520. ¸¶´ç¼­Á¡Àº ÁÖ¹®ÀÏ·ÎºÎÅÍ 10ÀÏ ÈÄ ¸ÅÃâÀ» È®Á¤ÇÑ´Ù. °¢ ÁÖ¹®ÀÇ È®Á¤ÀÏÀÚ¸¦ ±¸ÇÏ½Ã¿À.
-SELECT ORDERDATE AS "ÁÖ¹® ÀÏÀÚ", TO_DATE(ORDERDATE,'yyyy-mm-dd') + 10 AS "È®Á¤ ÀÏÀÚ" FROM ORDERS;
+-- Task5_0520. ë§ˆë‹¹ì„œì ì€ ì£¼ë¬¸ì¼ë¡œë¶€í„° 10ì¼ í›„ ë§¤ì¶œì„ í™•ì •í•œë‹¤. ê° ì£¼ë¬¸ì˜ í™•ì •ì¼ìžë¥¼ êµ¬í•˜ì‹œì˜¤.
+SELECT ORDERDATE AS "ì£¼ë¬¸ ì¼ìž", TO_DATE(ORDERDATE,'yyyy-mm-dd') + 10 AS "í™•ì • ì¼ìž" FROM ORDERS;
 
--- °­»ç´Ô
-SELECT ORDERDATE "ÁÖ¹® ÀÏÀÚ", ORDERDATE + 10 "È®Á¤ ÀÏÀÚ" FROM ORDERS;
+-- ê°•ì‚¬ë‹˜
+SELECT ORDERDATE "ì£¼ë¬¸ ì¼ìž", ORDERDATE + 10 "í™•ì • ì¼ìž" FROM ORDERS;
 
--- Q. ¸¶´ç¼­Á¡Àº ÁÖ¹®ÀÏ·ÎºÎÅÍ 2°³¿ù ÈÄ ¸ÅÃâÀ» È®Á¤ÇÑ´Ù. °¢ ÁÖ¹®ÀÇ È®Á¤ÀÏÀÚ¸¦ ±¸ÇÏ½Ã¿À.
-SELECT ORDERDATE "ÁÖ¹® ÀÏÀÚ", add_months(ORDERDATE, 2) "È®Á¤ ÀÏÀÚ" FROM ORDERS;
+-- Q. ë§ˆë‹¹ì„œì ì€ ì£¼ë¬¸ì¼ë¡œë¶€í„° 2ê°œì›” í›„ ë§¤ì¶œì„ í™•ì •í•œë‹¤. ê° ì£¼ë¬¸ì˜ í™•ì •ì¼ìžë¥¼ êµ¬í•˜ì‹œì˜¤.
+SELECT ORDERDATE "ì£¼ë¬¸ ì¼ìž", add_months(ORDERDATE, 2) "í™•ì • ì¼ìž" FROM ORDERS;
 
--- Task6_0520.¸¶´ç¼­Á¡ÀÌ 2020³â 7¿ù 7ÀÏ¿¡ ÁÖ¹®¹ÞÀº µµ¼­ÀÇ ÁÖ¹®¹øÈ£, ÁÖ¹®ÀÏ, °í°´¹øÈ£, µµ¼­¹øÈ£¸¦ ¸ðµÎ º¸ÀÌ½Ã¿À. 
--- ´Ü ÁÖ¹®ÀÏÀº ¡®yyyy-mm-dd ¿äÀÏ¡¯ ÇüÅÂ·Î Ç¥½ÃÇÑ´Ù.
-SELECT ORDERID, TO_CHAR(ORDERDATE, 'yyyy-mm-dd-DAY') AS "ÁÖ¹®ÀÏ", CUSTID, BOOKID
+-- Task6_0520.ë§ˆë‹¹ì„œì ì´ 2020ë…„ 7ì›” 7ì¼ì— ì£¼ë¬¸ë°›ì€ ë„ì„œì˜ ì£¼ë¬¸ë²ˆí˜¸, ì£¼ë¬¸ì¼, ê³ ê°ë²ˆí˜¸, ë„ì„œë²ˆí˜¸ë¥¼ ëª¨ë‘ ë³´ì´ì‹œì˜¤. 
+-- ë‹¨ ì£¼ë¬¸ì¼ì€ â€˜yyyy-mm-dd ìš”ì¼â€™ í˜•íƒœë¡œ í‘œì‹œí•œë‹¤.
+SELECT ORDERID, TO_CHAR(ORDERDATE, 'yyyy-mm-dd-DAY') AS "ì£¼ë¬¸ì¼", CUSTID, BOOKID
 FROM ORDERS
 WHERE ORDERDATE = '2020-07-07';
 -- WHERE ORDERDATE = TO_DATE('2020-07-07', 'YYYY-MM-DD');
@@ -782,7 +782,7 @@ SELECT ORDERID, ORDERDATE, CUSTID, BOOKID, TO_CHAR(ORDERDATE, 'day'), TO_DATE(OR
 FROM ORDERS
 WHERE ORDERDATE = '2020-07-07';
 
--- Task7_0520. Æò±Õ ÁÖ¹®±Ý¾× ÀÌÇÏÀÇ ÁÖ¹®¿¡ ´ëÇØ¼­ ÁÖ¹®¹øÈ£¿Í ±Ý¾×À» º¸ÀÌ½Ã¿À.
+-- Task7_0520. í‰ê·  ì£¼ë¬¸ê¸ˆì•¡ ì´í•˜ì˜ ì£¼ë¬¸ì— ëŒ€í•´ì„œ ì£¼ë¬¸ë²ˆí˜¸ì™€ ê¸ˆì•¡ì„ ë³´ì´ì‹œì˜¤.
 SELECT ORDERID, SALEPRICE 
 FROM ORDERS
 WHERE SALEPRICE < (SELECT AVG(SALEPRICE)
@@ -794,67 +794,67 @@ WHERE O1.SALEPRICE < (SELECT AVG(O2.SALEPRICE)
 FROM ORDERS O2);
 
 
--- ¼­ºê Äõ¸®¸¦ O2º°ÄªÀ¸·Î ÁöÁ¤, ¼­ºê Äõ¸®ÀÎ SALEPRICEÀÇ Æò±Õ °ªÀ» AVG_SALEPRICE·Î °è»êÇØ¼­ O2·Î
+-- ì„œë¸Œ ì¿¼ë¦¬ë¥¼ O2ë³„ì¹­ìœ¼ë¡œ ì§€ì •, ì„œë¸Œ ì¿¼ë¦¬ì¸ SALEPRICEì˜ í‰ê·  ê°’ì„ AVG_SALEPRICEë¡œ ê³„ì‚°í•´ì„œ O2ë¡œ
 SELECT O1.ORDERID, O1.SALEPRICE 
 FROM ORDERS O1
 JOIN (SELECT AVG(SALEPRICE) AS AVG_SALEPRICE FROM ORDERS) O2
 ON O1.SALEPRICE < O2.AVG_SALEPRICE;
 
--- Task8_0520. ´ëÇÑ¹Î±¹¡¯¿¡ °ÅÁÖÇÏ´Â °í°´¿¡°Ô ÆÇ¸ÅÇÑ µµ¼­ÀÇ ÃÑ ÆÇ¸Å¾×À» ±¸ÇÏ½Ã¿À.
+-- Task8_0520. ëŒ€í•œë¯¼êµ­â€™ì— ê±°ì£¼í•˜ëŠ” ê³ ê°ì—ê²Œ íŒë§¤í•œ ë„ì„œì˜ ì´ íŒë§¤ì•¡ì„ êµ¬í•˜ì‹œì˜¤.
 -- USING WHERE
-SELECT SUM(O.SALEPRICE) AS "ÃÑÆÇ¸Å¾×"
+SELECT SUM(O.SALEPRICE) AS "ì´íŒë§¤ì•¡"
 FROM ORDERS O, CUSTOMER C
 WHERE O.CUSTID=C.CUSTID
-AND C.ADDRESS LIKE '%´ëÇÑ¹Î±¹%';
+AND C.ADDRESS LIKE '%ëŒ€í•œë¯¼êµ­%';
 
 -- USING JOIN
-SELECT SUM(O.SALEPRICE) AS "ÃÑÆÇ¸Å¾×"
+SELECT SUM(O.SALEPRICE) AS "ì´íŒë§¤ì•¡"
 FROM ORDERS O
 INNER JOIN CUSTOMER C ON O.CUSTID=C.CUSTID
-WHERE C.ADDRESS LIKE '%´ëÇÑ¹Î±¹%';
+WHERE C.ADDRESS LIKE '%ëŒ€í•œë¯¼êµ­%';
 
 -- USING SUB-QUERY
-SELECT SUM(SALEPRICE) AS "ÃÑÆÇ¸Å¾×"
+SELECT SUM(SALEPRICE) AS "ì´íŒë§¤ì•¡"
 FROM ORDERS
-WHERE CUSTID IN (SELECT CUSTID FROM CUSTOMER WHERE ADDRESS LIKE '%´ëÇÑ¹Î±¹%');
+WHERE CUSTID IN (SELECT CUSTID FROM CUSTOMER WHERE ADDRESS LIKE '%ëŒ€í•œë¯¼êµ­%');
 
----- ´ëÇÑ¹Î±¹ ¿Ü °ÅÁÖÇÏ´Â...
-SELECT SUM(O.SALEPRICE) AS "ÃÑÆÇ¸Å¾×"
+---- ëŒ€í•œë¯¼êµ­ ì™¸ ê±°ì£¼í•˜ëŠ”...
+SELECT SUM(O.SALEPRICE) AS "ì´íŒë§¤ì•¡"
 FROM ORDERS O, CUSTOMER C
 WHERE O.CUSTID=C.CUSTID
-AND C.ADDRESS NOT LIKE '%´ëÇÑ¹Î±¹%';
+AND C.ADDRESS NOT LIKE '%ëŒ€í•œë¯¼êµ­%';
 
 -----------------------------------------------------------------------------------------
--- ´Ü¼ø °è»ê ÇÒ ¶§ DUMMY·Î DUALÀ» ¾´´Ù.
--- Àý´ë°ª
+-- ë‹¨ìˆœ ê³„ì‚° í•  ë•Œ DUMMYë¡œ DUALì„ ì“´ë‹¤.
+-- ì ˆëŒ€ê°’
 SELECT ABS(-78), ABS(+78) FROM DUAL;
--- ¹Ý¿Ã¸²
+-- ë°˜ì˜¬ë¦¼
 SELECT ROUND(4.897,1) FROM DUAL;
 
--- Q. °í°´º° Æò±Õ ÁÖ¹® ±Ý¾×À» ¹é¿ø ´ÜÀ§·Î ¹Ý¿Ã¸²ÇÑ °ªÀ» ±¸ÇÏ½Ã¿À
+-- Q. ê³ ê°ë³„ í‰ê·  ì£¼ë¬¸ ê¸ˆì•¡ì„ ë°±ì› ë‹¨ìœ„ë¡œ ë°˜ì˜¬ë¦¼í•œ ê°’ì„ êµ¬í•˜ì‹œì˜¤
 SELECT * FROM ORDERS;
-SELECT CUSTID AS °í°´¹øÈ£, ROUND(AVG(SALEPRICE), -2) AS "Æò±Õ ÁÖ¹® ±Ý¾×"
+SELECT CUSTID AS ê³ ê°ë²ˆí˜¸, ROUND(AVG(SALEPRICE), -2) AS "í‰ê·  ì£¼ë¬¸ ê¸ˆì•¡"
 FROM ORDERS
 GROUP BY CUSTID;
 
--- Q. ±Â½ºÆ÷Ã÷¿¡¼­ ÃâÆÇÇÑ µµ¼­ÀÇ Á¦¸ñ°ú Á¦¸ñÀÇ ±ÛÀÚ¼ö ¹ÙÀÌÆ® ¼ö¸¦ º¸ÀÌ½Ã¿À
-SELECT BOOKNAME Á¦¸ñ, LENGTH(BOOKNAME) ±ÛÀÚ¼ö, LENGTHB(BOOKNAME) ¹ÙÀÌÆ®¼ö
+-- Q. êµ¿ìŠ¤í¬ì¸ ì—ì„œ ì¶œíŒí•œ ë„ì„œì˜ ì œëª©ê³¼ ì œëª©ì˜ ê¸€ìžìˆ˜ ë°”ì´íŠ¸ ìˆ˜ë¥¼ ë³´ì´ì‹œì˜¤
+SELECT BOOKNAME ì œëª©, LENGTH(BOOKNAME) ê¸€ìžìˆ˜, LENGTHB(BOOKNAME) ë°”ì´íŠ¸ìˆ˜
 FROM BOOK
-WHERE PUBLISHER = '±Â½ºÆ÷Ã÷';
+WHERE PUBLISHER = 'êµ¿ìŠ¤í¬ì¸ ';
 
 
--------------------------------------- SYSTEM ½Ã°£ DATE °¡Á®¿À±â
+-------------------------------------- SYSTEM ì‹œê°„ DATE ê°€ì ¸ì˜¤ê¸°
 SELECT SYSDATE FROM DUAL;
 SELECT SYSDATE, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS DAY') SYSDATE1
 FROM DUAL;
 
--------------------------------------- DEFAULT Á¤ÀÇÇÏ±â
-SELECT NAME ÀÌ¸§, nvl(PHONE, '¿¬¶ôÃ³ ¾øÀ½') ÀüÈ­¹øÈ£
+-------------------------------------- DEFAULT ì •ì˜í•˜ê¸°
+SELECT NAME ì´ë¦„, nvl(PHONE, 'ì—°ë½ì²˜ ì—†ìŒ') ì „í™”ë²ˆí˜¸
 FROM CUSTOMER;
 
 
--------------------------------------- ¾ÕÀÇ ¸î°¡Áö ÄÉÀÌ½º¿¡ ´ëÇØ¼­¸¸ °Ë»öÇÏ±â  ==> °¡»óÀÇ ROWNUM
-SELECT ROWNUM ¼ø¹ø,  CUSTID °í°´¹øÈ£, NAME ÀÌ¸§,  PHONE ÀüÈ­¹øÈ£
+-------------------------------------- ì•žì˜ ëª‡ê°€ì§€ ì¼€ì´ìŠ¤ì— ëŒ€í•´ì„œë§Œ ê²€ìƒ‰í•˜ê¸°  ==> ê°€ìƒì˜ ROWNUM
+SELECT ROWNUM ìˆœë²ˆ,  CUSTID ê³ ê°ë²ˆí˜¸, NAME ì´ë¦„,  PHONE ì „í™”ë²ˆí˜¸
 FROM CUSTOMER
 WHERE ROWNUM < 3;
 
