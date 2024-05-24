@@ -65,6 +65,7 @@
 
 --------------------------------------------------------------------------------- FLATTEN ALL DB TO REVIEW DATA CONSISTENCY
 DROP VIEW EMPLOYEES_NEW;
+DROP TABLE EMPLOYEES_NEW;
 CREATE VIEW EMPLOYEES_NEW AS
 SELECT 
     E.EMPLOYEE_ID 사번,
@@ -112,16 +113,16 @@ WHERE 부서명 IS NULL;
 
             -- 직원 핸드폰 번호에 INVALID FORMAT의 전화 번호 미국: XXX.XXX.XXXX (O), 영국: (0XX(X).XXX(X).XXXX TYPE) 확인
 SELECT 
-    사번,이름,핸드폰번호,근무국가,
+    사번,이름,핸드폰번호,근무대륙,
     CASE
-        WHEN 근무국가 = 'UK' AND (REGEXP_LIKE(핸드폰번호, '^0[0-9]{2}\.[0-9]{4}\.[0-9]{4}$') OR REGEXP_LIKE(핸드폰번호, '^0[0-9]{3}\.[0-9]{3}\.[0-9]{4}$')) THEN 'PASS'
-        WHEN 근무국가 = 'US' AND REGEXP_LIKE(핸드폰번호, '^[0-9]{3}\.[0-9]{3}\.[0-9]{4}$') THEN 'PASS'
+        WHEN 근무대륙 = 'Europe' AND (REGEXP_LIKE(핸드폰번호, '^0[0-9]{2}\.[0-9]{4}\.[0-9]{4}$') OR REGEXP_LIKE(핸드폰번호, '^0[0-9]{3}\.[0-9]{3}\.[0-9]{4}$')) THEN 'PASS'
+        WHEN 근무대륙 = 'Americas' AND REGEXP_LIKE(핸드폰번호, '^[0-9]{3}\.[0-9]{3}\.[0-9]{4}$') THEN 'PASS'
         ELSE 'FAIL'
     END AS VALID_HP
 FROM 
     EMPLOYEES_NEW;
 
--------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------- 급여 비교 ---------------------------------------------------------------------
 SELECT 
     사번, 
     이름, 
@@ -141,12 +142,61 @@ SELECT
 FROM 
     EMPLOYEES_NEW;
 
+---------------------------------------------------------- 임직원 수 비교 ---------------------------------------------------------------------
+-- 연차별
+SELECT 연차, COUNT(*) 임직원수 FROM EMPLOYEES_NEW
+GROUP BY 연차
+ORDER BY 임직원수;
 
+-- 부서별
+SELECT 부서명, COUNT(*) 임직원수 FROM EMPLOYEES_NEW
+GROUP BY 부서명
+ORDER BY 임직원수;
 
+-- 도시별
+SELECT 근무도시, COUNT(*) 임직원수 FROM EMPLOYEES_NEW
+GROUP BY 근무도시
+ORDER BY 임직원수;
 
+-- 국가별
+SELECT 근무국가, COUNT(*) 임직원수 FROM EMPLOYEES_NEW
+GROUP BY 근무국가
+ORDER BY 임직원수;
+
+-- 대륙별
+SELECT 근무대륙, COUNT(*) 임직원수 FROM EMPLOYEES_NEW
+GROUP BY 근무대륙
+ORDER BY 임직원수;
+
+---------------------------------------------------------- 평균 연봉 비교 ---------------------------------------------------------------------
+-- 연차별
+SELECT 연차, ROUND(AVG(급여)) 평균연봉 FROM EMPLOYEES_NEW
+GROUP BY 연차
+ORDER BY 평균연봉;
+
+-- 부서별
+SELECT 부서명, ROUND(AVG(급여)) 평균연봉 FROM EMPLOYEES_NEW
+GROUP BY 부서명
+ORDER BY 평균연봉;
+
+-- 도시별
+SELECT 근무도시, ROUND(AVG(급여)) 평균연봉 FROM EMPLOYEES_NEW
+GROUP BY 근무도시
+ORDER BY 평균연봉;
+
+-- 국가별
+SELECT 근무국가, ROUND(AVG(급여)) 평균연봉 FROM EMPLOYEES_NEW
+GROUP BY 근무국가
+ORDER BY 평균연봉;
+
+-- 대륙별
+SELECT 근무대륙, ROUND(AVG(급여)) 평균연봉 FROM EMPLOYEES_NEW
+GROUP BY 근무대륙
+ORDER BY 평균연봉;
+
+-------------------------------------------------------------------------------
 DROP VIEW EMPLOYEES_NEW;
 DROP TABLE EMPLOYEES_NEW CASCADE CONSTRAINTS PURGE;
-
 --------------------------------------------------------------- VIEW가 아닌 실재 NEW TABLE을 생성
 -- EMPLOYEES_NEW 테이블 생성
 CREATE TABLE EMPLOYEES_NEW (
@@ -225,7 +275,7 @@ SELECT * FROM EMPLOYEES_NEW ORDER BY EMPLOYEE_ID;
 UPDATE EMPLOYEES_NEW
 SET PHONE_NUMBER = 
     CASE 
-        WHEN COUNTRY_ID = 'UK' THEN 
+        WHEN REGION_NAME = 'Europe' THEN 
             CASE 
                 WHEN REGEXP_LIKE(PHONE_NUMBER, '^0[0-9]{2}\.[0-9]{4}\.[0-9]{4}$') OR 
                      REGEXP_LIKE(PHONE_NUMBER, '^0[0-9]{3}\.[0-9]{3}\.[0-9]{4}$') THEN 
@@ -235,7 +285,7 @@ SET PHONE_NUMBER =
                     LPAD(TRUNC(DBMS_RANDOM.VALUE(1, 999)), 3, '0') || '.' ||
                     LPAD(TRUNC(DBMS_RANDOM.VALUE(1, 9999)), 4, '0')
             END
-        WHEN COUNTRY_ID = 'US' THEN 
+        WHEN REGION_NAME = 'Americas' THEN 
             CASE 
                 WHEN REGEXP_LIKE(PHONE_NUMBER, '^[0-9]{3}\.[0-9]{3}\.[0-9]{4}$') THEN 
                     PHONE_NUMBER
@@ -246,7 +296,7 @@ SET PHONE_NUMBER =
             END
     END;
 
-SELECT * FROM EMPLOYEES_NEW ORDER BY EMPLOYEE_ID;;
+SELECT * FROM EMPLOYEES_NEW ORDER BY EMPLOYEE_ID;
 ------------------------------------------------------------- 매니저부정합 수정
 UPDATE EMPLOYEES_NEW SET MANAGER_ID = 담당매니저ID2;
 ALTER TABLE EMPLOYEES_NEW DROP COLUMN 담당매니저ID2;
@@ -263,6 +313,7 @@ WHERE EMPLOYEE_ID = 178;
 
 
 ------------------------------------------------- 인사 역량 평가/관리를 위한 INDIVIDUAL_PERF 테이블 생성
+DROP TABLE INDIVIDUAL_PERF CASCADE CONSTRAINTS PURGE;
 CREATE TABLE INDIVIDUAL_PERF (
     EMPLOYEE_ID NUMBER,
     NAME VARCHAR2(100),
@@ -337,6 +388,7 @@ SELECT * FROM INDIVIDUAL_PERF ORDER BY EMPLOYEE_ID;
 
 
 ------------------------------------------------------------------ LOCATIONS_NEW 테이블 생성
+DROP TABLE LOCATIONS_NEW CASCADE CONSTRAINTS PURGE;
 CREATE TABLE LOCATIONS_NEW (
     REGION_ID NUMBER 
     ,REGION_NAME VARCHAR2(25)
@@ -402,7 +454,8 @@ ORDER BY
 
 SELECT * FROM LOCATIONS_NEW;
 
--- 테이블 생성
+---------------------------------------------- 복지 테이블 생성
+DROP TABLE WELFARE CASCADE CONSTRAINTS PURGE;
 CREATE TABLE WELFARE (
     EMPLOYEE_ID NUMBER,
     NAME VARCHAR2(100),
@@ -419,7 +472,7 @@ SELECT * FROM WELFARE ORDER BY EMPLOYEE_ID;
 
 
 ------------------------------------------------------------------- 근태 테이블 생성   
-DROP TABLE TA_MANAGEMENT;
+DROP TABLE TA_MANAGEMENT CASCADE CONSTRAINTS PURGE;
 CREATE TABLE TA_MANAGEMENT(
     EMPLOYEE_ID NUMBER
     ,WORK_YEAR VARCHAR2(4) 
@@ -461,11 +514,11 @@ INSERT INTO TA_MANAGEMENT VALUES(149, '2021', 7, 40);
 INSERT INTO TA_MANAGEMENT VALUES(161, '2021', 8, 40);
 INSERT INTO TA_MANAGEMENT VALUES(156, '2021', 32, 85);
 
-SELECT * FROM TA_MANAGEMENT;
+SELECT * FROM TA_MANAGEMENT ORDER BY EMPLOYEE_ID;
 
 
-
-
+--------------------------------------------------------퇴사자 명단 테이블 생성
+DROP TABLE resignation CASCADE CONSTRAINTS PURGE;
 CREATE TABLE resignation (
     EMPLOYEE_ID NUMBER 
     ,START_DATE	DATE
@@ -514,15 +567,6 @@ SELECT * FROM RESIGNATION;
 COMMIT;
 
     
-
--- 테이블 삭제
-DROP TABLE loc;
-
-
-
-
-
-
 
 SELECT * FROM EMPLOYEES;
 SELECT * FROM DEPARTMENTS;
