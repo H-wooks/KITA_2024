@@ -36,4 +36,4 @@ SQL 기초 무료 강의: https://bit.ly/3srNoZM
 - DML (Data Manipulation Lang): SELECT/INSERT/UPDATE/DELETE
 - DCL(Data Control Lang): GRANT/REVOKE
 - TCL(Transaction Control Lag): COMMIT/ROLLBACK/SAVEPOINT
-- 
+
