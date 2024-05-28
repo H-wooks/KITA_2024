@@ -1,36 +1,188 @@
-############################################### Pandas Series ###########################################
+#####################################################################################################
+############################################ seaborn data load ######################################
+#####################################################################################################
+import seaborn as sns
+# Titanic 데이터셋에서 age, sex, 등 5개 열을 선택하여 데이터 프레임 만들기
+titanic = sns.load_dataset('titanic')
+#df=titanic.loc[:, ['age', 'sex', 'class', 'fare', 'survived']]
+df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
+
+#####################################################################################################
+############################################# NP Array Series #######################################
+#####################################################################################################
+np.arange(12.)  ==>  array([ 0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11.])
+arr=np.arange(12.).reshape(3,4) ==> 
+array([[ 0.,  1.,  2.,  3.],
+       [ 4.,  5.,  6.,  7.],
+       [ 8.,  9., 10., 11.]])
+############################################## Broadcasting
+arr - arr[0]              ## arr[0]=array([0, 1, 2, 3])
+==> 연산시 행 확장되어 계산
+array([[0, 0, 0, 0],
+       [4, 4, 4, 4],
+       [8, 8, 8, 8]])
+
+#####################################################################################################
+############################################# Pandas Series #########################################
+#####################################################################################################
+############################################## 생성
 list_data=['2019-07-02', 3.14, 'ABC', 100, True]
 sr=pd.Series(list_data, index=list('abcde'))
-idx=sr.index
-val=sr.values
-print(sr[3])
-
 tp_data=('hwooks',96, 46, '남', '1978.01.18',True)
 sr=pd.Series(tp_data, index=['name','학번', '나이','성별', '생년월일','bool'])
-### index에 특정 string을 설정하더라도 numerical indexing도 여전히 가능
+dict_data = {'aaa' : 10, 'bbb' : 20, 'ccc' : 30}
+sr=pd.Series(dict_data)
+############################################## index 와 value 보기
+idx=sr.index
+val=sr.values
+############################################## indexing
+### index에 특정 string을 설정하더라도 
+### numerical indexing도 여전히 가능
 print(sr['성별'])
-print(sr[[3,4]])             ## 복수개의 indexing; 일반 리스트에서는 지원 X, 
-print(S1[['b','d']])         ## 시리즈에서 위치 기반 인덱싱을 사용해서 여러 요소를 선택 가능
+print(sr[[3,4]])             				## 복수개의 indexing; 일반 리스트에서는 지원 X, 
+print(S1[['b','d']])         				## 시리즈에서 위치 기반 인덱싱을 사용해서 여러 요소를 선택 가능
 print(sr[1:5]) 
+
+############################################## Series에 전체 title과 index의 name 설정
 SR1.name='population'
 SR1.index.name='state'
 
-SR1.Califonia=np.nan ##np.nan은 NaN(부동소수점으로 취급) 결과를 반환하는 반면, None은 TypeError를 반환
-null_mask = SR1.isnull()  ## 각 요소에 대해 True, Faulse로 반환
-filled_series=SR1.fillna(0) 
-SR1.isnull().sum()
-dropped_series=SR1.dropna()
+############################################## 결손 data 처리
+SR1.Califonia=np.nan              ##np.nan은 NaN(부동소수점으로 취급) 결과를 반환하는 반면, None은 TypeError를 반환
+null_mask = SR1.isnull()  				## 각 요소에 대해 True, Faulse로 반환
+filled_series=SR1.fillna(0) 			## NaN과 None type 결손 data에 0을 채움
+SR1.isnull().sum()					      ##  결손 data count
+dropped_series=SR1.dropna()			  ## 결손 data drop
 
-##### type 변경
+
+############################################## Series의 Type 변경
 list_from_series=s2.tolist()
 dict_from_series=s2.to_dict()
 df_from_series=s2.to_frame(name='value')
 
 
-
-############################################### DataFrame ############################################### 
+#####################################################################################################
+############################################# DataFrame #############################################
+#####################################################################################################
+############################################## 생성
+######## NP Array
 data = np.random.randint(100,120,size=(3,3))
 df = pd.DataFrame(data,index=['d1','d2','d3'],columns=['pd','sales','inv'])
+
+######## Dict
+dict_data = {'a':[1,2,3,4,5], 'b':[4,5,6,7,8], 'c':[7,8,9,10,11], 'd':[10,11,12,13,14], 'e':[13,14,15,16,17]}
+df = pd.DataFrame(dict_data, index=['r0','r1','r2','r3','r4'])
+
+######## concatenate NP Array
+id=np.arange(1,1001); i1=pd.Series(id)
+gender = np.random.randint(2,size=1000); g1=pd.Series(gender)
+age=np.random.randint(1,101,size=1000); a1=pd.Series(age)
+region=np.random.randint(1,11,size=1000); r1=pd.Series(region)
+df=pd.concat([i1, g1,a1,r1], axis=1)  ### 열 방향으로 쌓는다 (컬럼이 추가)
+
+######## concatenate NP Array + reshape
+np.arange(12.).reshape((3,4))              # 12는 정수, 12.은 실수 type으로
+df2=pd.DataFrame(np.arange(12.).reshape((3,4)), columns=list('abcd'))
+==> 
+	a	  b	  c	  d
+0	0.0	1.0	2.0	3.0
+1	4.0	5.0	6.0	7.0
+2	8.0	9.0	10.0	11.0
+
+######## concatenate Series
+id=np.arange(1,1001); i1=pd.Series(id)
+gender = np.random.randint(2,size=1000); g1=pd.Series(gender)
+age=np.random.randint(1,101,size=1000); a1=pd.Series(age)
+region=np.random.randint(1,11,size=1000); r1=pd.Series(region)
+df=pd.concat([i1, g1,a1,r1], axis=1)  ### 열 방향으로 쌓는다 (컬럼이 추가)
+
+########  concatenate DF
+df_1 = pd.DataFrame({'col1':np.array([1,2,3]),'col2':np.array(['A','B','C'])})
+df_2 = pd.DataFrame({'col1':np.array([4,5,6]),'col2':np.array(['D','E','F'])})
+df_3=pd.concat([df_1,df_2], axis=1)     # 열이 늘어나는 방향으로
+df_4=pd.concat([df_1,df_2], axis=0)     # 행이 늘어나는 방향으로
+
+########  Dict ==> Series ==> concatenate 
+st1 = pd.Series({'국어':np.nan,'영어':80,'수학':90}); st2 = pd.Series({'수학':80,'국어':90})
+ad=st1.add(st2, fill_value=0); su=st1.sub(st2, fill_value=0)
+mu=st1.mul(st2, fill_value=0); di=st1.div(st2, fill_value=0)
+df=pd.DataFrame([ad, su, mu, di], index=['덧셈','뺄셈','곱셈','나눗셈'])
+
+############################################## Serise를 concatenate, 그리고 DataFrame으로 각각 만들면 행/열이 다름
+st1=pd.Series({'국어':100, '영어':80, '수학':90})
+st2=pd.Series({'수학':80, '국어':90, '영어':90})
+==> 
+국어    100
+영어     80
+수학     90
+add=st1+st2; sub=st1-st2; mul=st1*st2; div=round((st1/st2), 2)
+df=pd.concat([add, sub,mul,div], axis=1)
+==> 
+      0   1     2     3
+국어  190  10  9000  1.11
+수학  170  10  7200  1.12
+영어  170 -10  7200  0.89
+df=pd.DataFrame([add, sub,mul,div], index=['덧셈', '뺄셈','곱','나눗셈'])
+==> 
+	    국어	수학	영어
+덧셈	190.00	170.00	170.00
+뺄셈	10.00	  10.00	  -10.00
+곱	  9000.0	7200.0	7200.00
+나눗셈	 1.11	  1.12	  0.89
+########################################################################################################
+
+
+
+
+############################################## index
+
+
+##############################################
+##############################################
+##############################################
+##############################################
+##############################################
+
+
+
+############################################## Broadcasting
+frame = pd.DataFrame(np.arange(12.).reshape(4,3),columns=list('bde'),index = ['Utah','Ohio','Texas','Oreg'])
+==> 
+	    b	  d	  e
+Utah	0.0	1.0	2.0
+Ohio	3.0	4.0	5.0
+Texas	6.0	7.0	8.0
+Oreg  9.0	10.0	11.0
+series=frame.iloc[0]; frame-series
+==> 
+	b	d	e
+Utah	0.0	0.0	0.0
+Ohio	3.0	3.0	3.0
+Texas	6.0	6.0	6.0
+Oregon	9.0	9.0	9.0
+
+
+
+
+
+###################################################################################################################################################################################################################################################### 여기 아래 내용부터 위로 정리
+
+## 다른 df에 넣을 필요 없이.. 바로 적용
+df1.set_index('ID', inplace=True)
+df1.index.name=None
+df2_new.reset_index(inplace=True)
+
+########### 유용 함수
+### 계산 인자를 뒤집어서 계산
+df.rdiv(1) / r.rsub()
+## 정보/컬럼 정보 이용
+df.info()        ## null 수, 컬럼, 인덱스, type 등의 정보
+df.columns      ## 컬럼 label 출력 ==> Index(['Name', 'Math', 'English', 'Science', 'History'], dtype='object')
+df1=df.copy()
+
+
+############################################### DataFrame ############################################### 
+
 #### indexing 
 #### integer location / label location [3, 'name'] 이렇게 섞어서는 error
 #### 애초에 index 자체를 number로 assign하고 loc[i,'']는 가능
@@ -46,19 +198,54 @@ print(df.loc['d2']) # -> index 이름이 d2인것
 rint(df.iloc[1,:],'\n') # 행은 1이고 열은 전부다
 print(df.loc['d2',:]) # 행은 d2이고 열은 전부다
 
+########################################## DataFrame indexing ########################################### 
+## iloc/loc/at/컬럼만 따로/불린indexing.. 정리 필요 !!!!!!!!!!!!!!!!!!!!!!!
+## iloc/loc/at
+## column 선택 indexing
+df5['Name']
+df5[['Name','Age']]
+## 불린 indexing
+df5[df5['Age']>=25]
+
+###################################### DataFrame col/index 재 정의 #######################################
+### 재정의
+### dic형태로 만들어 놓고.. 'a'/'b'/... ==> '국어'/'영어'/..., 0/1/2..==> 'a'/'b'/'c'/... 변경
+columns={'a':'국어','b':'영어','c':'수학','d':'과학','e':'음악'}
+index={0:'a',1:'b',2:'c',3:'d',4:'e',5:'f',6:'g',7:'h'}
+df.rename(columns=columns, index=index, inplace=True)
+
+####
+df1=df.copy();
+df1['col_name']=list('가나다라마')      # 인덱스로 쓸 내용을 컬럼에 추가
+df2=df1.set_index('col_name')          # 인덱스를 위해 추가된 컬럼이 index로 설정됨
+#### 원복해서 기본 (0/1/2~)로 변경되고 index를 위한 컬럼은 다시 일반 컬럼으로 변경
+df3=df2.reset_index()
+#### index 위에는 컬럼 네임이 필요 없는데 있을 때 이를 삭제.
+df22=df3.set_index('col_name')
+df22.index.name=None
+
+################################################################# 행 추가하면서 값 setting
+## df: 5x5 
+### r5,r6 두개의 행을 추가하고 값은 0을 적용하여 출력
+df.loc['r5']=0; 
+df.loc['r6']=0; 
+### reindex
+new_index=['r0','r1','r2','r3','r4', 'r5','r6']
+df5=df.reindex(new_index,fill_value=0)            # 새로게 추가되는 행에 대해서는 NaN이 채워지지만 fill_value=0로 하면,  0으로
+#### 특정 행을 drop
+df1=df5.drop(df5.index[5:9])
+
+#### reindex로 행을 drop 가능
+## df5 7 x 5
+new_index=['r0','r1','r2','r3','r4']
+df5=df.reindex(new_index,fill_value=0) ===> 5 x 5 df로 drop 
+
+
 ### iloc은 integer indexing만, loc은 labe indexing만 가능 섞어서 쓰는건 안됨.
 ### 단 열 컬럼을 숫자로 만들어놓으면 상관없음.
-#################################### concatenate
-id=np.arange(1,1001)
-i1=pd.Series(id)
-gender = np.random.randint(2,size=1000)
-g1=pd.Series(gender)
-age=np.random.randint(1,101,size=1000)
-a1=pd.Series(age)
-region=np.random.randint(1,11,size=1000)
-r1=pd.Series(region)
 
-df=pd.concat([i1, g1,a1,r1], axis=1)  ### 열 방향으로 쌓는다 (컬럼이 추가)
+
+
 ### pd.concat([i1, g1,a1,r1], axis=0)  ### 행 방향으로 쌓는다 (행이 추가)
 ### inplace=True ==> 원본에 반영할 건지.. True는 반영
 df.rename(columns={0:'id', 1:'gender', 2:'age', 3:'region'}, inplace=True)
@@ -77,9 +264,116 @@ numNull=df.isnull().sum()           ## 이렇게 하면 column별 null 값을 �
 numNull=df.isnull().sum().sum()     ## 두번해야지 전체 df null 값을 반환
 numNull=df.iloc[:,0].isnull().sum()           ## 1st column별 null 값을 반환
 numNull=df.iloc[0].isnull().sum()           ## 이렇게 하면 1st 열 null 값을 반환
+filled_df=df.fillna(0)  or df.fillna(0, inplace=True)
+#################################### copy
+df1=df.copy()  ### df1=df[:] 과는 다름 df.copy는 df1을 수정/업데이트해도 df에 영향이 X 반면,  df1=df[:] df1이 수정되면 df도 함께 수정
+
+#################################### DF 정렬,필터링df.iloc[1],'\n') # [1] 하나만 있으면 행을 가리키는것  행,열
+print(df.loc['d2']) # -> index 이름이 d2인것
+rint(df.iloc[1,:],'\n') # 행은 1이고 열은 전부다
+print(df.loc['d2',:]) # 행은 d2이고 열은 전부다
+
+### iloc은 integer indexing만, loc은 labe indexing만 가능 섞어서 쓰는건 안됨.
+### 단 열 컬럼을 숫자로 만들어놓으면 상관없음.
+#################################### concatenate
+
+
+### pd.concat([i1, g1,a1,r1], axis=0)  ### 행 방향으로 쌓는다 (행이 추가)
+### inplace=True ==> 원본에 반영할 건지.. True는 반영
+df.rename(columns={0:'id', 1:'gender', 2:'age', 3:'region'}, inplace=True)
+
+
+
+
+#################################### drop
+df.drop(['gender'], axis=1, inplace=True) ## axis=1 ==> 열 기준으로... (열을 drop시킬 때)
+df.drop([0], axis=0, inplace=True)        ## axis=0 ==> 행 기준으로... (행을 drop시킬때)
+#################################### at
+df.at[5,'id']  ## <=== df.loc[5,'id']과 기능적으로 동일 but 단일 값을 접근할때는 속도가 빠름
+#################################### upate
+df.loc[1,'d4']=0
+df.loc['d4']=0  ## 행의 모든 값도 업데이트 가능
+
+#################################### is null 계산 None or np.nan
+numNull=df.isnull().sum()           ## 이렇게 하면 column별 null 값을 반환
+numNull=df.isnull().sum().sum()     ## 두번해야지 전체 df null 값을 반환
+numNull=df.iloc[:,0].isnull().sum()           ## 1st column별 null 값을 반환
+numNull=df.iloc[0].isnull().sum()           ## 이렇게 하면 1st 열 null 값을 반환
 filled_df=df.fillna(0)
 #################################### copy
 df1=df.copy()  ### df1=df[:] 과는 다름 df.copy는 df1을 수정/업데이트해도 df에 영향이 X 반면,  df1=df[:] df1이 수정되면 df도 함께 수정
+
+#################################### DF 정렬,필터링
+## Math 점수가 80 이상인 학생만 필터링
+df2_filtered=df2[df2['Math']>=80]
+## English 점수를 기준으로 내림차순으로 정렬
+df2_sorted=df2_filtered.sort_values(by='English', ascending=False)
+df1_s=df1.sort_index(ascending=False)
+
+##### index 기준으로 필터링
+dates = pd.date_range('2024-01-01', periods=4, freq='D')
+df5 = pd.DataFrame({ 'Value': [10, 20, 30, 40]}, index=dates)
+==> 	Value
+2024-01-01	10
+2024-01-02	20
+2024-01-03	30
+2024-01-04	40
+
+filtered_df5 = df5[df5.index < '2024-01-03']
+filtered_df6=df5[(df5.index >= '2024-01-01') & (df5.index < '2024-01-03')]
+new_dates = pd.date_range('2024-01-01', periods=6, freq='D')
+df_reindexed=df5.reindex(new_dates, fill_value=10)     ## 행이 2개 추가
+#################################### DF 전치 (Transpose)
+df1_t=df1.transpose()        ## or
+df1_t=df1.T
+##
+df6 = pd.DataFrame(data)
+df_transpose=df6.set_index('Year').T
+
+#################################### 연산을 통한 indexing
+subset=df5[df5['Age']>=25]
+
+#################################### DF의 data가 대상별로 나눠져 있지 않을때..연산
+      Name  Subject  Score
+0    Alice     Math     85
+1      Bob     Math     79
+2  Charlie     Math     88
+3    David     Math     90
+4      Eve     Math     76
+5    Alice  English     92
+6      Bob  English     85
+7  Charlie  English     89
+8    David  English     93
+9      Eve  English     80
+#### groupby를 이용해서 AVG
+df_avg=df.groupby('Name')['Score'].mean() ===> Alice: 88.5
+df_avg=df3['Score'].groupby(df3['Name']).mean()  ==> 동일 결과
+#### PIVOT 사용
+df3.pivot_table(index='Name', columns='Subject', values='Score',aggfunc='mean')
+==> 
+Subject	English	Math
+Name		
+Alice	92	85
+Bob	85	79
+Charlie	89	88
+David	93	90
+Eve	80	76
+df3_pivot=df3.pivot_table(index='Name', columns='Subject', values='Score',aggfunc='mean').reset_index()
+==> 
+Subject	Name	English	Math
+0	Alice	92	85
+1	Bob	85	79
+2	Charlie	89	88
+3	David	93	90
+4	Eve	80	76
+df3_pivot.columns.name=None
+==> 
+      Name  English  Math
+0    Alice       92    85
+1      Bob       85    79
+2  Charlie       89    88
+3    David       93    90
+4      Eve       80    76
 
 #################################### random seed 고정: random gen 시에 고정된 (첫번째 seed: 0) 으로 생성
 np.random.seed(0)       
@@ -89,7 +383,76 @@ a=np.random.randint(1,5, size=(10,5))
 np.random.seed(0); a=np.random.randint(1,5, size=(10,5)); list1=a.tolist();
 df1=pd.DataFrame(list1, columns=['c1', 'c2', 'c3','c4','c5'])
 
-### df를 list로
-list1=ar.tolist()
-### df를 dict로
-dict1=df1.to_dict('list')            ### 'dict', 'series', 'records', 'index'....
+## 배열로 변환
+array1=df2.to_numpy()
+print(array1)
+
+## Dict로 변환
+dict1=df2.to_dict(orient='list')
+print(dict1)
+
+## List로 변환
+list1=df2.values.tolist()
+print(list1)
+#################################### 특정 열의 데이터 타입을 변환한 후 변환된 타입
+## 'A'열을 정수형(int)으로 변환
+df4['A']=df4['A'].astype(int)
+
+## 'B'열을 부동소수점(float)으로 변환
+df4['B']=df4['B'].astype(float)
+
+## 'C'열을 datetime 형식으로 변환
+df4['C']=pd.to_datetime(df4['C'])
+
+## date형식으로 array 만들기
+dates = pd.date_range('2024-01-01', periods=4, freq='D')
+
+#################################### 숫자 열에 대해 결측값을 각 열의 평균값으로 대체
+## 정보/컬럼 정보 이용
+df.info()        ## null 수, 컬럼, 인덱스, type 등의 정보
+df.columns      ## 컬럼 label 출력 ==> Index(['Name', 'Math', 'English', 'Science', 'History'], dtype='object')
+df1=df.copy()
+columns=['Math', 'English', 'Science', 'History']
+for column in columns:
+  df1[column].fillna(df1[column].mean(), inplace=True)
+## .dropna()    .fillna(0)
+
+####################################  데이터프레임에서 숫자형 데이터 타입을 가진 열들만 선택 처리
+df2=df1.copy()
+for column in df2.select_dtypes(include=[np.number]).columns:
+  df2[column].fillna(df2[column].mean(), inplace=True)
+
+######################################################################## File I/O
+file_data=pd.DataFrame({ 'col1':[1,2,3,4,5,6], 'col2':['A','A','B','B','C', 'C']})
+file_data.to_csv('file_data.csv', index=None)
+file_data=pd.read_csv('file_data.csv')
+
+
+########################################## EX ########################################### 
+#### DataFrame의 N열에서 Series 값을 빼고 결과를 새로운 열 O에 저장
+df = pd.DataFrame({"M": [15, 25, 35, 45, 55],"N": [100, 200, 300, 400, 500]})
+s = pd.Series([5, 10, 15, 20, 25])
+df['O']=df.loc[:,'N']-s                  ## 새로운 열 "O"에 df 특정열과 series열간 차를 저장
+
+#### DataFrame의 여러 열에 대해 각기 다른 Series를 더하고, 결과를 새로운 DataFrame으로 반환, 각 행의 합계를 새로운 열에 추가
+df = pd.DataFrame({"A": [1, 2, 3, 4, 5], "B": [10, 20, 30, 40, 50], "C": [100, 200, 300, 400, 500]})
+s1 = pd.Series([5, 5, 5, 5, 5]); s2 = pd.Series([10, 10, 10, 10, 10]); s3 = pd.Series([15, 15, 15, 15, 15])
+df_new=df.copy()
+df_new['A']=df['A']+s1
+df_new['B']=df['B']+s2
+df_new['C']=df['C']+s3
+df_new['D']=df_new.sum(axis=1)
+
+or 
+df_new = pd.DataFrame({"A": df["A"] + s1,"B": df["B"] + s2,"C": df["C"] + s3})
+df_new['D']=df_new.sum(axis=1)
+
+#### df에서 세 열 ('A','C','E')의 값을 더하여 새로운 컬럼을 생성
+df['F']=df[['A','C','E']].sum(axis=1)
+
+#### df에서 세 열 ('A','C','E')의 평균값으로 새로운 컬럼을 생성
+df['F']=df[['A','C','E']].mean(axis=1)
+
+
+#### DataFrame의 두 개의 열을 더한 값이 다른 한 개의 열보다 큰 경우에는 1, 작은 경우에는 0으로 값을 정하는 새로운 열을 생성
+df['F'] = (df['A'] + df['B'] > df['C']).astype(int)
