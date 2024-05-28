@@ -179,6 +179,10 @@ df.rdiv(1) / r.rsub()
 df.info()        ## null 수, 컬럼, 인덱스, type 등의 정보
 df.columns      ## 컬럼 label 출력 ==> Index(['Name', 'Math', 'English', 'Science', 'History'], dtype='object')
 df1=df.copy()
+df2_filtered=df2[df2['Math']>=80]
+df2_sorted=df2_filtered.sort_values(by='English', ascending=False)
+
+subset=df5[df5['Age']>=25]
 
 
 ############################################### DataFrame ############################################### 
