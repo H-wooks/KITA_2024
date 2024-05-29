@@ -607,8 +607,44 @@ df["그룹평균1"]=df.groupby("Category")["Value"].transform(lambda x: x.mean()
 ### (i) map안의 df.groupby("Category")["Value"].mean()는 Category A/B/C에 따른 mean 값 (ii) 그걸 Category에 따라 map
 df["그룹평균2"]=df['Category'].map(df.groupby("Category")["Value"].mean())
 
+##################################################################################################### 
+####### 주어진 DataFrame의 특정 열에 대해 제곱과 제곱근을 계산하는 함수들을 동시에 적용하여 새로운 열을 생성
+def SQ_SQRT(x):  return round(x*x,2), round(x**0.5,2)
+# Option1
+df[['SQ', 'SQRT']] =df['Numbers'].transform(lambda x: pd.Series(SQ_SQRT(x)))        ## Apply나 Transform이나 동일
+# Option2   --> 복수의 lambda 결과는 tuple에 들어가 있어 SR로 변
+df[['SQ', 'SQRT']] = df['Numbers'].apply(lambda x: (round(x*x,2), round(x**0.5,2))).apply(pd.Series)
 
+##################################################################################################### 
+####### 주어진 DataFrame의 각 요소에 대해 제곱하는 함수를 적용하여 값을 변환
+def SQ(x):  return x*x
+df=df.transform(SQ)
 
+##################################################################################################### 
+####### 주어진 데이터프레임에서 각 그룹별로 Value 열을 표준화하여 새로운 열로 추가하여 출력(apply, transform)
+data = {'Category': ['A', 'A', 'B', 'B', 'A', 'B', 'B', 'A', 'B', 'A'],'Value': [10, 15, 10, 20, 10, 30, 50, 10, 20, 15]}
+df = pd.DataFrame(data)
+ef z_score(x):  return round((x-x.mean())/x.std(),2)
+
+## Option-1 Using TRANSFORM
+df["그룹평균"]=df.groupby("Category")["Value"].transform(lambda x: round(x.mean(),2))
+df["STD"]=df.groupby("Category")["Value"].transform(lambda x: round(x.std(),2))
+df["Z-Score"]=df.groupby("Category")["Value"].transform(z_score)
+
+## Option-2 Using MAP
+CatMean=round(df.groupby("Category")["Value"].mean(),2)
+CatStd=round(df.groupby("Category")["Value"].std(),2)
+df["그룹평균"]=df["Category"].map(CatMean)
+df["STD"]=df["Category"].map(CatStd)
+df["Z-score"] = round((df["Value"] - df["그룹평균"]) / df["STD"],2)
+
+## Option-3 Using APPLY()
+def M_S_Z(df_g):
+    df_g['그룹평균'] = round(df_g["Value"].mean(),2)
+    df_g['STD'] = round(df_g["Value"].std(),2)
+    df_g['Z-score'] = round((df_g["Value"] - df_g["그룹평균"]) / df_g['STD'],2)
+    return df_g
+df = df.groupby('Category', group_keys=False).apply(M_S_Z)
 
 #####################################################################################################
 ########################################### Numpy제공 random 함수 ####################################
