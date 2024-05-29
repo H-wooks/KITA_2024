@@ -309,7 +309,7 @@ grouped_f=grouped.filter(lambda x:len(x)>=200)
 ## 클래스별 value 갯수 count
 grouped_f.value_counts('class')
 
-############### Mapping
+############### (MAP/APPLY/APPLYMAP/TRANSFORM) Mapping 
 cf) sr=pd.Series([1,2,3,4,5]); sr_mapped=sr.map(lambda x: x+2)
 
 ####### MAP : map함수는 SR에만 적용
@@ -339,7 +339,7 @@ min	-0.174600	0.108549	-1.545400
 max	1.331587	0.715279	1.203037
 
 
-######## APPLYMAP for DF: 상수를 더하거나 value 전체의 format을 설정할 때 사용하면 적당
+######## APPLYMAP for DF: 상수를 더하거나 value 전체의 format을 설정할 때 사용하면 적당 (series에는 적용 불가)
 ## applymap은 은 DF에만 적용되며, 각 요소에 함수를 적용
 df_apmap=df.applymap(lambda x: x+2)
 
@@ -446,6 +446,7 @@ s = pd.Series([5, 10, 15, 20, 25])
 df['O']=df.loc[:,'N']-s                  ## 새로운 열 "O"에 df 특정열과 series열간 차를 저장
 df['O']=df['N']-s                  ## 새로운 열 "O"에 df 특정열과 series열간 차를 저장
 
+##################################################################################################### 
 ######## DataFrame의 여러 열에 대해 각기 다른 Series를 더하고, 결과를 새로운 DataFrame으로 반환, 각 행의 합계를 새로운 열에 추가
 df = pd.DataFrame({"A": [1, 2, 3, 4, 5], "B": [10, 20, 30, 40, 50], "C": [100, 200, 300, 400, 500]})
 s1 = pd.Series([5, 5, 5, 5, 5]); s2 = pd.Series([10, 10, 10, 10, 10]); s3 = pd.Series([15, 15, 15, 15, 15])
@@ -459,55 +460,45 @@ or
 df_new = pd.DataFrame({"A": df["A"] + s1,"B": df["B"] + s2,"C": df["C"] + s3})
 df_new['D']=df_new.sum(axis=1)
 
+##################################################################################################### 
 ######## df에서 세 열 ('A','C','E')의 값을 더하여 새로운 컬럼을 생성
 df['F']=df[['A','C','E']].sum(axis=1)
 or
 df['F']=df['A']+df['C']+df['E']
 
+##################################################################################################### 
 ######## df에서 세 열 ('A','C','E')의 평균값으로 새로운 컬럼을 생성
 df['F']=df[['A','C','E']].mean(axis=1)
 
-
+##################################################################################################### 
 ######## DataFrame의 두 개의 열을 더한 값이 다른 한 개의 열보다 큰 경우에는 1, 작은 경우에는 0으로 값을 정하는 새로운 열을 생성
 df['F'] = (df['A'] + df['B'] > df['C']).astype(int)
 
+##################################################################################################### 
 ###### 주어진 DataFrame에서 열별/그룹별 평균값
 grouped_m=df.groupby('Category')['Value'].mean().reset_index()
 
+##################################################################################################### 
 ####### 주어진 DataFrame에서 열별/그룹별 누적 합계
 df["cummulativeSum"]=df.groupby('Category')['Value'].cumsum()
 
+##################################################################################################### 
 ####### 주어진 DataFrame에서 'Category'별로 그룹화하여 각 그룹의 'Value' 열의 합계, 평균, 최대값, 최소값을 계산
 df_g=df.groupby('Category'); df_agg=df_g.agg({'Value':['sum','mean','max','min']})
 or
 df_agg=df.groupby('Category')['Value'].agg(['sum','mean','max','min']).reset_index()
 
+##################################################################################################### 
 ####### 주어진 DataFrame에서 category별로 가장 자주 등장하는 value를 찾아서 새로운 열의 값으로 적용한 후 출력하세요.
+## option-1
 most_frequent_values = df.groupby('Category')['Value'].apply(lambda x: x.value_counts().idxmax())
 df['most_frequent_value'] = df['Category'].map(most_frequent_values)
 
-or 
+## option-2
 def most_frequent(x): return x.mode().iloc[0]
 df['most_frequent_value'] = df.groupby('Category')['Value'].transform(most_frequent)
 
-####### 주어진 DataFrame에서 각 그룹별로 누적 평균을 계산하여 새로운 열로 추가
-# Transform을 써야 원래 열/행에 그대로 결과가 출력
-df['누적평균']=df.groupby('Category')['Value'].transform(lambda x: x.expanding().mean())
-# 반면, apply를 쓰면, DF으로 나오기 때문에 df['누적평균']= 이렇게 directly 넣어줄수도 없고, 원래 행/열에 반환 X 
-==>  결과는 제대로 나오지만, 카테고리별로 group화 되서 나오는 문제가 있음 
-Category   
-A         0    10.000000
-          1    12.500000
-          4    11.666667
-          7    11.250000
-          9    12.000000
-B         2    10.000000
-          3    15.000000
-          5    20.000000
-          6    27.500000
-          8    26.000000
-
-#### CF
+#### option-1의 설명
 df=
   Category  Value
 0        A     10
@@ -537,6 +528,87 @@ A    10
 B    20
 df['최빈값'] = df['Category'].map(most_freq)
 ==> '최빈값' 컬럼 생성 후 df 카테고리에 맞게 최빈 값이 할당.
+
+##################################################################################################### 
+####### 주어진 DataFrame에서 각 그룹별로 누적 평균을 계산하여 새로운 열로 추가
+# Transform을 써야 원래 열/행에 그대로 결과가 출력
+df['누적평균']=df.groupby('Category')['Value'].transform(lambda x: x.expanding().mean())
+# 반면, apply를 쓰면, DF으로 나오기 때문에 df['누적평균']= 이렇게 directly 넣어줄수도 없고, 원래 행/열에 반환 X 
+==>  결과는 제대로 나오지만, 카테고리별로 group화 되서 나오는 문제가 있음 
+Category   
+A         0    10.000000
+          1    12.500000
+          4    11.666667
+          7    11.250000
+          9    12.000000
+B         2    10.000000
+          3    15.000000
+          5    20.000000
+          6    27.500000
+          8    26.000000
+
+##################################################################################################### 
+####### 주어진 DataFrame의 특정 열에 대해 map을 사용하여 등급을 부여
+df = pd.DataFrame({"Name": ["Alice", "Bob", "Charlie", "David", "Eve"],"Score": [85, 90, 95, 80, 75]})
+# Option1
+df['Grade']=df['Score'].map(lambda x: "A" if x >= 90 else ("B" if x >= 80 else ('C' if x >= 70 else 'D')))
+# Option2
+df['Grade']=df['Score'].apply(lambda x: "A" if x >= 90 else ("B" if x >= 80 else ('C' if x >= 70 else 'D')))
+# Option3
+df['Grade']=df['Score'].transform(lambda x: "A" if x >= 90 else ("B" if x >= 80 else ('C' if x >= 70 else 'D')))
+# Option4
+def Grade(x):
+  if x >= 90:  return "A"
+  elif x >= 80:  return "B"
+  elif x >= 70:  return "C"
+  else: return "D"
+df['Grade']=df['Score'].apply(Grade)
+# Option5
+df['Grade']=df.Score.map(Grade)
+# Option6
+df['Grade']=df.Score.apply(Grade)
+# Option7
+df['Grade']=df.Score.transform(Grade)
+
+##################################################################################################### 
+####### 주어진 DataFrame의 특정 열에 대해 제곱을 구해서 새로운 열에 추가
+df = pd.DataFrame({"Numbers": [1, 2, 3, 4, 5]})
+
+# Option-1
+df["Square"]=df.mul(df)
+# Option-2
+df["Square"]=df["Numbers"].map(lambda x: x*x)
+# Option-3
+df["Square"]=df.apply(lambda x: x*x)
+# Option-4
+df["Square"]=df.transform(lambda x: x*x)
+
+##################################################################################################### 
+####### 주어진 DataFrame의 각 열의 값을 합하는 함수를 적용하여 새로운 열을 생성
+# Option-1
+df["Sum"]=df.sum(axis=1)
+# Option-2
+df["Sum"]=df.apply(lambda x: x.sum(), axis=1)
+# Option-3
+df["Sum"]=df.apply(lambda x: x.A+x.B, axis=1)
+
+##################################################################################################### 
+####### 주어진 DataFrame의 10보다 크면 2배, 그렇지 않으면 원래의 수 
+df['NewCol']=df['Values'].map(lambda x: 2*x if x > 10 else x) 		## 새로운 열
+df['NewCol']=df.Values.apply(lambda x: 2*x if x > 10 else x)		## 새로운 열
+df=df.Values.apply(lambda x: 2*x if x > 10 else x)			## Values 컬럼 치환
+df=df.transform(lambda x: 2*x if x > 10 else x)				## Values 컬럼 치환
+
+##################################################################################################### 
+####### 주어진 DataFrame에서 특정 열을 그룹화한 후 각 그룹에 대해 그룹별로 평균 값
+### Option-1
+df["그룹평균1"]=df.groupby("Category")["Value"].transform(lambda x: x.mean())
+### Option-2
+### (i) map안의 df.groupby("Category")["Value"].mean()는 Category A/B/C에 따른 mean 값 (ii) 그걸 Category에 따라 map
+df["그룹평균2"]=df['Category'].map(df.groupby("Category")["Value"].mean())
+
+
+
 
 #####################################################################################################
 ########################################### Numpy제공 random 함수 ####################################
