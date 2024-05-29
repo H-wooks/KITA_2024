@@ -1,13 +1,4 @@
 #####################################################################################################
-############################################ seaborn data load ######################################
-#####################################################################################################
-import seaborn as sns
-# Titanic 데이터셋에서 age, sex, 등 5개 열을 선택하여 데이터 프레임 만들기
-titanic = sns.load_dataset('titanic')
-#df=titanic.loc[:, ['age', 'sex', 'class', 'fare', 'survived']]
-df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
-
-#####################################################################################################
 ############################################# NP Array Series #######################################
 #####################################################################################################
 np.arange(12.)  ==>  array([ 0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11.])
@@ -53,7 +44,7 @@ null_mask = SR1.isnull()  			## 각 요소에 대해 True, Faulse로 반환
 filled_series=SR1.fillna(0) 			## NaN과 None type 결손 data에 0을 채움
 SR1.isnull().sum()				##  결손 data count
 dropped_series=SR1.dropna()			## 결손 data drop
-
+.isna() 도 가능
 
 ######################################################## Series의 Type 변경
 list_from_series=s2.tolist()
@@ -140,7 +131,7 @@ index={0:'a',1:'b',2:'c',3:'d',4:'e',5:'f',6:'g',7:'h'}
 df.rename(columns=columns, index=index, inplace=True)
 
 ######################################################## indexing
-######## iloc/loc/at
+######## iloc/loc/at  슬라이싱 시 iloc은 끝점 포함 X, loc는 끝점 포함
 ## integer location / label location [3, 'name'] 이렇게 섞어서는 error
 df.iloc[0,1];		iloc[0:2,0:2]
 df.loc['a','B']; 	df.loc['a':'b','A':'B']
@@ -162,6 +153,8 @@ df5[df5['Age']>=25]
 ############################# None/NaN이 있으면 컬럼의 mean 값으로 update
 for column in columns:
   df1[column].fillna(df1[column].mean(), inplace=True)
+######## lambda 이용 결측치를 제외한 각 컬럼의 평균(axis=0) 을 결측치에 반영
+df_f_mean=df.apply(lambda x:x.fillna(x.mean()), axis=0)
 
 ############################# 데이터프레임에서 숫자형 데이터 타입을 
 ############################# 가진 열들만 선택해서 컬럼의 mean 값으로 update
@@ -203,13 +196,14 @@ list1=df2.values.tolist()
 ######################################################## 유용한 함수
 .sum(axis=0)						## column의 합계
 .sum(axis=1)						## 행의 합계
-.mean(); .max(); .min(); .add(); .sub(); .div(); .mul() 
+.mean(); .median(); .max(); .min(); .add(); .sub(); .div(); .mul() 
 
 ############################# 계산 인자를 뒤집어서 계산
 df.rdiv(1) / r.rsub()				## .mul() .add() 는 교환법칙 성립하고 값도 동일하므로 의미 X
 
 ############################# 정보/컬럼/index 정보 이용
 df.info()       ## null 수, 컬럼, 인덱스, type 등의 정보
+df.describe()
 df.columns      ## 컬럼 label 출력 ==> Index(['Name', 'Math', 'English', 'Science', 'History'], dtype='object')
 df.index
 df1=df.copy()	### df1=df[:] 과는 다름 df.copy는 df1을 수정/업데이트해도 df에 영향이 X 반면,  df1=df[:] df1이 수정되면 df도 함께 수정
@@ -232,13 +226,18 @@ df4['A']=df4['A'].astype(int) 				## 'A'열을 정수형(int)으로 변환
 df4['B']=df4['B'].astype(float)				## 'B'열을 부동소수점(float)으로 변환
 df4['C']=pd.to_datetime(df4['C'])			## 'C'열을 datetime 형식으로 변환
 
-############################# is null 계산 None or np.nan
+############################# 결측치 처리 방법 
+######### is null 계산 None or np.nan
 numNull=df.isnull().sum()           ## 이렇게 하면 column별 null 값을 반환
 numNull=df.isnull().sum().sum()     ## 두번해야지 전체 df null 값을 반환
 numNull=df.iloc[:,0].isnull().sum()           ## 1st column별 null 값을 반환
 numNull=df.iloc[0].isnull().sum()           ## 이렇게 하면 1st 열 null 값을 반환
 filled_df=df.fillna(0)  or df.fillna(0, inplace=True)
-.dropna();    .fillna(0)
+.dropna(axis=1);    			## 열삭제 vs. default: axis=0 (행삭제)
+.fillna(0)
+df_f=df.fillna(method='ffill')		## 행기준 앞의 값으로 채움
+df_b=df.fillna(method='bfill')		## 행기준 뒤의 값으로 채움
+df_rz=df.replace(np.nan, 0); df_rv=df.replace(np.nan, -1)
 
 ############################# DF의 data가 대상별로 나눠져 있지 않을때..연산
       Name  Subject  Score
@@ -335,9 +334,31 @@ df['F']=df[['A','C','E']].mean(axis=1)
 ######## DataFrame의 두 개의 열을 더한 값이 다른 한 개의 열보다 큰 경우에는 1, 작은 경우에는 0으로 값을 정하는 새로운 열을 생성
 df['F'] = (df['A'] + df['B'] > df['C']).astype(int)
 
+
+
+#####################################################################################################
+########################################### Numpy제공 random 함수 ####################################
+#####################################################################################################
+- np.random.seed : seed를 통한 난수 생성
+- np.random.randint : 정수 난수 1개 생성
+- np.random.rand : 0부터 1사이의 균일분포에서 난수 매트릭스 배열 생성
+- np.random.randn : 가우시안 표준 정규분포에서 난수 매트릭스 배열 생성
+- np.random.shuffle : 기존의 데이터의 순서 바꾸기
+- np.random.choice : 기존 데이터에서 sampling
+
 #####################################################################################################
 ############################################### File I/O ############################################
 ##################################################################################################### 
 file_data=pd.DataFrame({ 'col1':[1,2,3,4,5,6], 'col2':['A','A','B','B','C', 'C']})
 file_data.to_csv('file_data.csv', index=None)
 file_data=pd.read_csv('file_data.csv')
+
+#####################################################################################################
+############################################ seaborn data load ######################################
+#####################################################################################################
+import seaborn as sns
+# Titanic 데이터셋에서 age, sex, 등 5개 열을 선택하여 데이터 프레임 만들기
+titanic = sns.load_dataset('titanic')
+#df=titanic.loc[:, ['age', 'sex', 'class', 'fare', 'survived']]
+df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
+
