@@ -223,7 +223,9 @@ df1=tdf[['gender']].replace(['female', 'male'], [1,0])		## gender 컬럼의 값�
 con1=pd.concat([df1,df2],axis=0, ignore_index=True)
 con1=pd.concat([df1,df2],axis=1)
 
-######## merge() on을 통해서 join이 제대로 수행
+######## merge() on을 통해서 SQL처럼 join이 제대로 수행
+DataFrame.merge(right, how='inner', on=None, left_on=None, right_on=None, left_index=False, right_index=False, sort=False, suffixes=('_x', '_y'), copy=True, indicator=False, validate=None)
+
 df1=
 	a	b	c	d	e	ind
 0	1	2	3	4	5	1
@@ -249,8 +251,8 @@ pd.merge(df1,df2, on='ind', how='outer')
 4	NaN	NaN	NaN	NaN	NaN	5	27	28	29	30
 df1=df1.drop('ind', axis=1)
 
-######## JOIN() 기준이 될 
-df.join(other, on=None, how='left', lsuffix='', rsuffix='', sort=False)
+######## JOIN() 기준이 될 index를 설정해줘야 함. 그래야 제대로 join이 이뤄짐
+DataFrame.join(other, on=None, how='left', lsuffix='', rsuffix='', sort=False)
 lsuffix는 self의 열에 붙을 접미사고, rsuffix는 other의 열에 붙을 접미사입니다.
 df1.join(df2,lsuffix="_1", rsuffix='_2', how='outer')    left가 default
 ==> 
@@ -805,8 +807,8 @@ tdf['Age_Cate']=tdf['age'].map(lambda x: GroupAge(x))
 tdf['Age_Cate2']=tdf['age'].apply(GroupAge)
 tdf['Age_Cate3']=tdf['age'].map(lambda x: "Baby" if x <= 10 else ("Child" if x <= 10 else ('Teenager' if x <= 19 else ('Young Adult' if x <= 30 else ('Adult' if x <= 50 else 'Elderly')))))
 ###
-category = ['Baby', 'Child', 'Teenager', 'Young Adult', 'Adult', 'Elderly']
-tdf['Age_Cate4']= pd.cut(tdf['age'], bins = [0,1,10,25,35,50,100], labels=category)
+labels = ['Baby', 'Child', 'Teenager', 'Young Adult', 'Adult', 'Elderly']
+tdf['Age_Cate4']= pd.cut(tdf['age'], bins = [0, 3, 10, 19, 30, 50, float('inf')], labels=labels)
 
 #####################################################################################################
 ########################################### Numpy제공 random 함수 ####################################
@@ -841,8 +843,6 @@ df = pd.read_csv(file_path)
 from google.colab import files
 # file 업로드
 uploaded = files.upload()
-
-
 
 #####################################################################################################
 ############################################ seaborn data load ######################################
