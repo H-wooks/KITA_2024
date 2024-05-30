@@ -1,1 +1,139 @@
-###########################################################################################
+#####################################################################################################
+############################################### Encoding ############################################
+##################################################################################################### 
+
+##################################################################### Label Encoding
+from sklearn.preprocessing import LabelEncoder
+le=LabelEncoder()
+features=['gender','age']
+for feature in features:
+  tdf[feature]=le.fit_transform(tdf[feature])
+##################################################################### OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder        ### 문자 형태에서는 지양
+tdf2=tdf[['gender', 'class']]
+oh = OneHotEncoder(sparse=False)
+features=['gender','class']
+for feature in features:
+  feature_data = tdf2[feature].values.reshape(-1, 1)
+  feature_encoded = pd.DataFrame(oh.fit_transform(feature_data), columns=oh.categories_[0])
+  tdf2 = pd.concat([tdf2, feature_encoded], axis=1)
+
+##################################################################### OneHotEncoder 유사
+tdf2=tdf[['gender', 'class']]
+tdf2.head()
+pd.get_dummies(tdf2).head()
+##################################################################################################### 
+
+
+#####################################################################################################
+############################################### MATPLOTLIB ##########################################
+##################################################################################################### 
+import matplotlib.pyplot as plt
+
+##################################################################### 라인그래프
+ts=pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2020', periods=1000)); ts = ts.cumsum()
+ts.plot(); plt.title("Cummulative Sum Line Graph"); plt.show()
+
+##################################################################### 막대 그래프
+df=pd.DataFrame({'A': np.random.rand(5),'B': np.random.rand(5)}, index=['one', 'two', 'three', 'four', 'five'])
+df.plot.bar(); plt.title('Bar Graph'); plt.show()
+
+##################################################################### 히스토그램
+df=pd.DataFrame({'A': np.random.randn(1000),'B': np.random.randn(1000)})
+df.plot.hist(alpha=0.5,bins=30); plt.title('HistoGram'); plt.show()
+
+##################################################################### SUB-PLOT
+df=pd.DataFrame({'A': np.random.randn(1000),'B': np.random.randn(1000)})
+
+# 그래프의 크기 설정
+plt.figure(figsize=(12, 5))
+
+# 첫 번째 히스토그램 (A)
+plt.subplot(1, 2, 1)
+df['A'].plot.hist(alpha=0.5, bins=30, color='blue')
+plt.title('Histogram of A')
+
+# 두 번째 히스토그램 (B)
+plt.subplot(1, 2, 2)
+df['B'].plot.hist(alpha=0.5, bins=30, color='green')
+plt.title('Histogram of B')
+# 레이아웃을 조정합니다.
+plt.tight_layout()
+plt.show()
+
+#####################################################################################################
+###############################################  ############################################
+##################################################################################################### 
+
+
+##################################################################################################### 
+#####################################################################
+#######################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################################################################################################
+########################################### Numpy제공 random 함수 ####################################
+#####################################################################################################
+- np.random.seed : seed를 통한 난수 생성
+  np.random.seed(0) 
+- np.random.randint : 정수 난수 1개 생성
+- np.random.rand : 0부터 1사이의 균일분포에서 난수 매트릭스 배열 생성
+- np.random.randn : 가우시안 표준 정규분포에서 난수 매트릭스 배열 생성
+- np.random.shuffle : 기존의 데이터의 순서 바꾸기
+- np.random.choice : 기존 데이터에서 sampling
+
+#####################################################################################################
+############################################### File I/O ############################################
+##################################################################################################### 
+file_data=pd.DataFrame({ 'col1':[1,2,3,4,5,6], 'col2':['A','A','B','B','C', 'C']})
+file_data.to_csv('file_data.csv', index=None)
+file_data=pd.read_csv('file_data.csv')
+
+###################################################### 엑셀 loading
+import pandas as pd
+filepath1='/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/stock price.xlsx'
+filepath2='/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/stock valuation.xlsx'
+df1=pd.read_excel(filepath1, engine='openpyxl', index_col='id')
+df2=pd.read_excel(filepath2, engine='openpyxl', index_col='id')
+
+###################################################### CSV loading
+file_path = '/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/titanic3.csv'
+df = pd.read_csv(file_path)
+
+###################################################### local file loading
+from google.colab import files
+# file 업로드
+uploaded = files.upload()
+
+#####################################################################################################
+############################################ seaborn data load ######################################
+#####################################################################################################
+import seaborn as sns
+# Titanic 데이터셋에서 age, sex, 등 5개 열을 선택하여 데이터 프레임 만들기
+titanic = sns.load_dataset('titanic')
+#df=titanic.loc[:, ['age', 'sex', 'class', 'fare', 'survived']]
+df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
+
