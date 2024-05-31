@@ -1,4 +1,43 @@
 #####################################################################################################
+############################################# Correlation ###########################################
+##################################################################################################### 
+selected_columns = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'gender', 'survived']
+df = df[selected_columns]
+correlations = df.corr()['survived'].drop(['survived']).sort_values(ascending=False)
+
+##################################################################### Matrix로 볼 때
+correlation_matrix=numeric_df.corr()
+print(correlation_matrix, '\n')
+survival_correlation=correlation_matrix['survived'].sort_values(ascending=False)
+print(survival_correlation)
+## 하나만
+correlations = df[['survived', 'family_size']].corr().iloc[0,1]
+
+#####################################################################################################
+################################################## 군집도 ############################################
+##################################################################################################### 
+import seaborn as sns
+sns.pairplot(df[['pclass', 'age', 'sibsp', 'parch', 'fare', 'gender', 'survived']], hue='survived')
+plt.show()
+
+
+
+#####################################################################################################
+########################################## 유용한 함수/기능 ##########################################
+##################################################################################################### 
+####################################### 숫자형만 선택
+numeric_df=df.select_dtypes(include=[np.number])
+
+####################################### 수치화 할때 유용
+df['with_family'] = (df['sibsp'] + df['parch'] > 0).astype(int)
+df['family_enc']=df['family'].map(lambda x: 1 if x >= 1 else 0)
+
+############################################## END ##################################################
+########################################## 유용한 함수/기능 ##########################################
+##################################################################################################### 
+
+
+#####################################################################################################
 ############################################### Encoding ############################################
 ##################################################################################################### 
 
@@ -29,6 +68,8 @@ pd.get_dummies(tdf2).head()
 ############################################### MATPLOTLIB ##########################################
 ##################################################################################################### 
 import matplotlib.pyplot as plt
+##################################################################### thicks angle setup
+plt.xticks(rotation=60)
 
 ##################################################################### 라인그래프
 ts=pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2020', periods=1000)); ts = ts.cumsum()
@@ -37,6 +78,29 @@ ts.plot(); plt.title("Cummulative Sum Line Graph"); plt.show()
 ##################################################################### 막대 그래프
 df=pd.DataFrame({'A': np.random.rand(5),'B': np.random.rand(5)}, index=['one', 'two', 'three', 'four', 'five'])
 df.plot.bar(); plt.title('Bar Graph'); plt.show()
+plt.bar(PV1.index, PV1['survived'])                # From DF
+################################ EX
+df_grouped=df.groupby('pclass')['survived'].mean().sort_values()
+df_grouped.plot(kind='bar', color=['r','b'])        # From DF_Groupby
+
+################################ EX: Encoding 후
+df['age_enc']=pd.cut(df['fare'],bins=[0,50,100,150,200,250,300,350,400,450,500])
+DF_G=df.groupby('age_enc')['survived'].mean()
+DF_G.plot(kind="bar", color='g')
+plt.title('Survival Rate versus Fare_encode'); plt.xlabel('Fare_encoded'); plt.xticks(rotation=60); plt.show()
+
+##################################################################### SEABORN COUNTPLOT
+plt.bar(PV1.index, PV1['survived']) 
+==> sns.countplot(x='pclass', hue='survived', data=df)      # 나머지 setting은 동일
+EX) Using Titanic (Histo + KDE)
+
+################################ EX: Histo와 KDE using SEABORN
+# 나이와 생존, 사망자수 관계 시각화
+plt.figure(figsize=(10,6))
+sns.histplot(df[df['survived']==1]['age'], bins=30, kde=True, color='b', label='Survived')
+sns.histplot(df[df['survived']==0]['age'], bins=30, kde=True, color='skyblue', label='Not Survived')
+plt.title('Age Distribution by Survival'); plt.xlabel('Age'); plt.xlabel('count'); plt.legend(); plt.show()
+
 
 ##################################################################### 히스토그램
 df=pd.DataFrame({'A': np.random.randn(1000),'B': np.random.randn(1000)})
@@ -44,31 +108,77 @@ df.plot.hist(alpha=0.5,bins=30); plt.title('HistoGram'); plt.show()
 
 ##################################################################### SUB-PLOT
 df=pd.DataFrame({'A': np.random.randn(1000),'B': np.random.randn(1000)})
-
-# 그래프의 크기 설정
 plt.figure(figsize=(12, 5))
 
-# 첫 번째 히스토그램 (A)
 plt.subplot(1, 2, 1)
 df['A'].plot.hist(alpha=0.5, bins=30, color='blue')
 plt.title('Histogram of A')
-
-# 두 번째 히스토그램 (B)
 plt.subplot(1, 2, 2)
 df['B'].plot.hist(alpha=0.5, bins=30, color='green')
 plt.title('Histogram of B')
-# 레이아웃을 조정합니다.
-plt.tight_layout()
-plt.show()
 
-#####################################################################################################
-###############################################  ############################################
+plt.tight_layout(); plt.show()
+
+##################################################################### SUB-PLOT - 2
+fig, axs = plt.subplots(3, 2, figsize=(15, 15))
+
+axs[0, 0].plot(PV1.index, PV1['survived'], marker='o', linestyle='-')
+axs[0, 0].set_title('Survival Rate by Family Size')
+axs[0, 0].set_xlabel('Family Size')
+axs[0, 0].set_ylabel('Survival Rate')
+axs[2, 0].plot(PV5.index, PV5['survived'], marker='o', linestyle='-')
+axs[2, 0].set_title('Survival Rate by Average Fare per Class')
+axs[2, 0].set_xlabel('Average Fare per Class')
+axs[2, 0].set_ylabel('Survival Rate')
+fig.delaxes(axs[2,1]); plt.tight_layout(); plt.show()
+
+
+##################################################################### Box Plot
+df=pd.DataFrame(np.random.rand(10,5), columns=list("ABCDE"))
+df.plot.box(); plt.title("Box Plot"); plt.show()
+##################################################################### Scatter Plot
+df.plot.scatter(x="A",y="B"); plt.title("Scatter Plot"); plt.show()
+
+##################################################################### Correlation Scatter Plot
+df=pd.DataFrame(np.random.rand(50,4), columns=list("ABCD"))
+
+####################################### 양의 상관관례
+df["C"]=df["A"]*2+np.random.rand(50)*0.5
+####################################### 음의 상관관례
+df["D"]=-df["A"]*2+np.random.rand(50)*0.5
+
+fig, axs = plt.subplots(1,2,figsize=(14,6))
+axs[0].scatter(df['A'], df['C'], color='b')
+axs[0].set_title('Positive Correlation')
+axs[0].set_xlabel('A')
+axs[0].set_ylabel('C')
+axs[1].scatter(df['A'], df['D'], color='r')
+axs[1].set_title('Negative Correlation')
+axs[1].set_xlabel('A')
+axs[1].set_ylabel('D')
+plt.suptitle('Scatter Plots of Positive and Negative Correlations'); plt.legend(); plt.show()
+
+##################################################################### KDE Plot
+data=pd.DataFrame({"A": np.random.randn(1000), 'B': np.random.randn(1000) + 1})
+data['A'].plot.kde(label='A')
+data['B'].plot.kde(label='B')
+plt.title("Kernel Density Estimate (KDE) Plot")
+plt.xlabel('Value'); plt.ylabel('Density'); plt.legend(); plt.show()
+
+##################################################################### HISTO + KDE Plot
+data=pd.Series(np.random.randn(10000))
+ax=data.plot.hist(bins=50, alpha=0.5, density=True, label='Histogram')
+data.plot.kde(ax=ax, label='KDE')
+plt.title("Histogram and KDE Plot"); plt.xlabel('Value'); plt.ylabel('Density'); plt.legend(); plt.show()
+
+################################################# END ###############################################
+############################################### MATPLOTLIB ##########################################
 ##################################################################################################### 
 
 
-##################################################################################################### 
-#####################################################################
-#######################################
+
+
+
 
 
 
