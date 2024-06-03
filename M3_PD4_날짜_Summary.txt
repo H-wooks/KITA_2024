@@ -61,16 +61,46 @@ df['day_of_week']=df['New_Date'].dt.dayofweek
 period_data = pd.Series(['2023-01', '2023-02', '2023-03'], name='period'); period_date = pd.to_datetime(period_data)
 date_only_list=[date.strftime('%Y-%m-%d %H:%M:%S') for date in period_date]; print(date_only_list)
 
+################## 주어진 월간 데이터를 timestamp로 변환하고 변환된 결과를 출력
+# 문자열을 Period로 변환
+period_data = pd.Series(['2023-01', '2023-02', '2023-03'], name='period')     ## 주어진 string type SR
+
+period_data = period_data.astype('period[M]')    ## <== type을 STRING에서 datetime형태로 바꾸는것.. period M으로
+print(period_data)
+timestamp = period_data.apply(lambda x: x.to_timestamp())
+print(timestamp)
+
+##################     날짜 데이터 시리즈를 분기로 변환하고, 각 분기별로 데이터의 개수를 출력 (강사님)
+date_series = pd.Series(pd.date_range('2023-01-01', '2023-12-31', freq='M'))
+q_data=date_series.dt.to_period("Q")
+quarter_cnt=q_data.value_counts().sort_index()        # 갯수 count
+
+################## CF: 날짜 데이터 시리즈를 분기로 변환하고, 각 분기별로 데이터의 개수를 출력 (Mine)
+date_series = pd.Series(pd.date_range('2023-01-01', '2023-12-31', freq='M'))
+print(date_series, "\n")
+
+## Option-1
+quarterly_series = pd.Series(pd.date_range('2023-01-01', '2023-12-31', freq='q'))
+print(quarterly_series, "\n")
+
+## Option-2
+#### resample ('Q')를 사용하면, 재샘플링 되면서 그룹의 첫번째값과 마지막 값을 기준으로 분기 되는데, 
+# 이를 선택해서 사용할 수 있고, 이를 위해 first(), last()를 선택할 수 있음
+date_series.index = pd.DatetimeIndex(date_series)
+quarterly_series2 = date_series.resample('Q').first()
+print(quarterly_series2[0])
+
+quarterly_series2 = date_series.resample('Q').last()
+print(quarterly_series2[0])
+
+print(len(quarterly_series2))
+
 ##################################################################### 
 
 #################################################### END ############################################ 
 ################################################# 날짜 시간 ##########################################
 ##################################################################################################### 
 
-
-################################################# END ###############################################
-############################################### MATPLOTLIB ##########################################
-##################################################################################################### 
 
 #####################################################################################################
 ############################################### File I/O ############################################
