@@ -78,4 +78,15 @@ titanic = sns.load_dataset('titanic')
 #df=titanic.loc[:, ['age', 'sex', 'class', 'fare', 'survived']]
 df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
 
+#####################################################################################################
+############################################## Colab에서 Image 넣기 ##################################
+#####################################################################################################
+from PIL import Image
+import matplotlib.pyplot as plt
+
+# Replace 'image_name.jpg' with your image file's name
+image = Image.open('/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/Numpy/자료/데이터형태.jpg')
+plt.imshow(image)
+plt.axis('off')  # Turn off axis numbers
+plt.show()
 
