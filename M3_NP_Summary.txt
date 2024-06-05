@@ -1,1 +1,140 @@
-ㄴㅇㄹ
+#####################################################################################################
+################################################# NP Array ##########################################
+##################################################################################################### 
+############################################### Creation ############################################
+a=np.array([1,2,3])
+b=np.array([4,5,6])              ### type출력해보면, <class 'numpy.ndarray'> <class 'list'>와는 다름
+z=np.arange(5)
+np.random.randn(2,3)
+...
+print(np.zeros(10))
+print(np.ones((3,6)))
+print(np.empty(shape=(10,), dtype=np.int64))
+print(np.zeros(shape=(10,), dtype=np.int64))
+print(np.empty(10, dtype='u4'))
+ar=np.array([1,2,3,4], dtype='S')
+num_str=np.array(['1.25', '-9.5', '42'], dtype=np.string_)        # np.string_은 배열의 데이터 타입이 바이트 문자열임을 명시 "S" 동일
+
+##################################################################### Reference Array와 동일 구조로 생성 
+a=np.arange(10).reshape(2,5)
+z=np.zeros_like(a)
+o=np.ones_like(a)
+f=np.full_like(a,5)
+
+####################################### NDARRAY vs. LIST
+
+생성:         np.array([1,2,3])                  [1,2,3]        ## np.array()로 하거나 np.arange()로
+표기:         [3  6  9 12]                       [1,2,3]        ## 쉼표가 없이 공백으로만 구분  
+
+<2차원 배열>
+              [[ 0  1  2  3  4]
+               [ 5  6  7  8  9]
+               [10 11 12 13 14]]
+
+<2차원 LIST>
+ [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14]]        ## 쉼표로 구분
+
+####################################### 다차원 (3차원)
+##### 차원 구분마다 [] 로 구분
+array3=np.array(
+    [[[1,2,3,4,5],[6,7,8,9,10]],
+     [[1,2,3,4,5],[6,7,8,9,10]],
+     [[1,2,3,4,5],[6,7,8,9,10]]])
+
+==> [[[ 1  2  3  4  5]
+  [ 6  7  8  9 10]]
+
+[[ 1  2  3  4  5]
+  [ 6  7  8  9 10]]
+
+ [[ 1  2  3  4  5]
+  [ 6  7  8  9 10]]] 
+############################################### Operation ############################################
+print("Addition: ", a+b)           # addition
+print("Subtraction: ", a-b)        # sub
+print("Multiplication: ", a*b)     # Multiplication
+print("Division: ", a/b)           # Division
+print("Square: ", a**2)            # Squared
+
+############################################ Array 구조 수정 ###########################################
+a=np.arange(10).reshape(2,5)
+print("1차원 ==> 2차원: ", arr.reshape(3,-1),"\n")
+print("1차원 ==> 2차원: ", arr.reshape(3,4), "\n")
+print("1차원 ==> 3차원: ", arr.reshape(3,2,-1), "\n")
+print("1차원 ==> 3차원: ", arr.reshape(3,2,2), "\n")
+
+# Resizing    # reshape와 기능적으로 동일
+resized=np.resize(a, (3,2))
+print("resized Array: \n", resized)
+
+##################################################################### Reference Array와 동일 구조로 생성 
+a=np.arange(10).reshape(2,5)
+z=np.zeros_like(a)
+o=np.ones_like(a)
+f=np.full_like(a,5)
+
+##################################################################### SPLIT / CONCATENATE / STACK
+## Spliting: 여러 하위 배열로 SPLIT
+ar=np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+split1, split2, split3 = np.split(ar,3)
+
+## Concatenation
+conn_1=np.concatenate((a1,a2), axis=1)
+conn_0=np.concatenate((a1,a2), axis=0)
+
+## Stacking
+stacked=np.vstack((a,b))
+stacked=np.vstack((a,b,a,b))
+
+##################################################################### 통계 처리 & 수학 처리
+print("Average: ",np.mean(data))
+print("Median: ",np.median(data))
+print("std-3sig: ",np.std(data))
+angles=np.array([0, np.pi/2, np.pi])
+print("SINE: \n", np.sin(angles))
+print("COSINE: \n", np.cos(angles))
+print("EXP: \n", np.exp([1,2,3]))
+
+##################################################################### ARRAY 데이터 타입
+arr1=np.array([1,2,3], dtype=np.float64)
+arr2=np.array([1,2,3], dtype=np.int32)
+int_array=int_array.astype(calibers.dtype)
+
+##################################################################### LIST로 변환
+li=array3d.tolist()
+
+
+
+#####################################################################################################
+#################################################  RANDOM  ##########################################
+##################################################################################################### 
+[Numpy Random 함수]  
+- np.random.seed()       # seed를 통한 난수 생성
+- np.random.randint    # 균일분포의 정수 난수 1개 생성
+  * random_fields = np.random.randint(2, size=1000)
+- np.random.rand       # 0부터 1사이의 균일분포에서 난수 매트릭스 array 생성
+  * np.random.randn(3)
+- np.random.randn      # 가우시안 표준 정규 분포에서 난수 매트릭스 array 생성
+  * np.random.randn(12,1)
+- np.random.shuffle    # 기존의 데이터의 순서 바꾸기
+- np.random.choice     # 기존의 데이터에서 sampling
+  * np.random.choice(2, size=1000)
+
+[파이썬 내장 Random 함수]  
+#### 난수/통계 관련 - random module
+- random.random(): 0~1 부동소수점 숫자 반환
+- random.randint(a, b): a~b 정수(b 포함) 반환
+- random.randrange(start, stop[, step]): 정수를 반환. step 간격 조정
+- random.choice(sequence): (리스트, 튜플 등) 아이템 선택
+- random.shuffle(list): 리스트 섞는다
+- random.sample(population, k): (리스트, 튜플 등) k개 항목==> list ## 중복 없이
+- random.uniform(a, b): a~b Float 균등 분포
+- random.gauss(mu, sigma): mu, sigma 정규 분포
+
+##################################################################### 
+
+########################################### END Encoding ############################################
+
+#####################################################################################################
+########################################## 유용한 함수/기능 ##########################################
+##################################################################################################### 
