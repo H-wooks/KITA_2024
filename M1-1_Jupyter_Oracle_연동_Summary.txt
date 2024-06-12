@@ -1,0 +1,129 @@
+###########################################################################################
+################################# Python Oracle 연동동 #####################################
+###########################################################################################
+!pip install cx_Oracle -q
+## dataframe으로 불러오기
+import cx_Oracle
+import pandas as pd
+
+## 데어터베이스 연결 (사용자계정,PW,호스트이름:포트/SID)
+con = cx_Oracle.connect("c##hr","hr","localhost:1521/xe")
+
+## 데이터베이스와의 상호작용을 위한 커서를 생성
+cur=con.cursor()
+
+## employees table의 모든 데이터를 선택하는 쿼리를 실행.
+cur.execute('select * from EMPLOYEES')
+
+## 쿼리 결과를 모두 가져와 res변수에 저장
+res=cur.fetchall()
+
+## data를 df로 변환
+df=pd.DataFrame(res)
+
+## EMPLOYEES 테이블의 컬럼 이름을 조회하는 쿼리를 실행
+## col=[('EMPLOYEE_ID',),('FIRST_NAME',),('LAST_NAME,),(SALARY',)...]
+cur.execute("select column_name from user_tab_columns where table_name='EMPLOYEES'")
+
+## 컬럼 이름 결과를 모두 가져와 COL 변수에 저장
+col=cur.fetchall()
+
+## 컬럼 이름 리스트 생성
+li = []
+for i in col:
+    #print(i)
+    for j in i:
+        #print(j)
+        li.append(j)
+## 데이터프레임 컬럼 이름 설정
+df.columns =li
+print(df.head())
+
+##커서를 닫는다
+cur.close()
+## 데이터베이스 연결을 닫는다
+con.close()
+
+df.head()
+
+
+## 통계 요약본을 보여주는 함수
+df.describe()
+df.SALARY.plot(kind='hist')
+
+############################################ Drop
+# drop
+import cx_Oracle
+con = cx_Oracle.connect("c##hr","hr","localhost:1521/xe")
+cur=con.cursor()
+sql='drop table sample1'
+cur.execute(sql)
+cur.close()
+con.commit()
+con.close()
+############################################ Create
+# create
+import cx_Oracle
+con = cx_Oracle.connect("c##hr","hr","localhost:1521/xe")
+cur=con.cursor()
+sql='create table sample1(id varchar2(10), score number)'
+cur.execute(sql)
+############################################ Insert
+# insert
+sql='insert into sample1(id, score) values(1,100)'
+cur.execute(sql)
+##################### insert(여러개)
+# :1과 :2는 바인딩 변수로, 나중에 값을 대채하여 사용
+for i in range(10):
+    sql='insert into sample1 values(:1,:2)'
+    cur.execute(sql,(i,100*i))
+con.commit()
+
+cur.execute('select * from sample1')
+# 쿼리 결과를 모두 가져와 res변수에 저장
+res=cur.fetchall()
+df=pd.DataFrame(res)
+df.head()
+
+## update (0번체 행의 score 값이 50으로 업데이트)
+sql="update sample1 set score=50 where id='0'"
+cur.execute(sql)
+cur.close()
+con.commit()
+con.close()
+
+
+
+###########################################################################################
+################################# Jupyter 기본 명령어 #####################################
+###########################################################################################
+
+!python --version
+
+!where python
+%pwd
+%ls
+!dir
+
+# 새파일 생성 쓰기
+with open('example.txt','w') as file:
+    file.write("this is an example file")
+
+with open('example.txt','r') as file:
+    file.read()
+    
+!del example.txt
+
+!mkdir test_dir
+!rmdir /s /q test_dir
+
+
+%cd test_dir
+%pwd
+
+!pip install pickleshare
+
+!copy new_example.txt .\test_dir\copy_example.txt
+
+!cd ../
+

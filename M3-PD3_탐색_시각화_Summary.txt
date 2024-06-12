@@ -1,0 +1,307 @@
+#####################################################################################################
+############################################# Correlation ###########################################
+##################################################################################################### 
+selected_columns = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'gender', 'survived']
+df = df[selected_columns]
+correlations = df.corr()['survived'].drop(['survived']).sort_values(ascending=False)
+
+correlation=np.corrcoef(df['광고비'], df['매출'])
+correlation1=np.corrcoef(df['광고비'], df['매출'])[0,1]
+##################################################################### Params 선정
+df_cor=df.corr(); target_variable='mpg'; correlation_threshold=0.5
+corr_features=df_cor[target_variable][abs(df_cor[target_variable]) > correlation_threshold].index.tolist()
+
+##################################################################### Matrix로 볼 때
+correlation_matrix=numeric_df.corr()
+print(correlation_matrix, '\n')
+survival_correlation=correlation_matrix['survived'].sort_values(ascending=False)
+print(survival_correlation)
+## 하나만
+correlations = df[['survived', 'family_size']].corr().iloc[0,1]
+##################################################################### Correlation Heat Map
+plt.figure(figsize=(6,4)); sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0)
+plt.title('Correlation Matrix'); plt.show()
+
+
+
+#####################################################################################################
+########################################## 유용한 함수/기능 ##########################################
+##################################################################################################### 
+####################################### 숫자형만 선택
+numeric_df=df.select_dtypes(include=[np.number])
+perc=np.percentile(Salary['Indv Salary'], [25, 50, 75])
+
+####################################### 수치화 할때 유용
+df['with_family'] = (df['sibsp'] + df['parch'] > 0).astype(int)
+df['family_enc']=df['family'].map(lambda x: 1 if x >= 1 else 0)
+labels = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+df['fare_enc']=pd.cut(df['fare'],bins=[0,50,100,150,200,250,300,350,400,450,500], labels=labels)
+
+####################################### values replace
+df1=tdf[['gender']].replace(['female', 'male'], [1,0])		## gender 컬럼의 값을 치환
+
+############################################## END ##################################################
+########################################## 유용한 함수/기능 ##########################################
+##################################################################################################### 
+
+
+#####################################################################################################
+############################################### Encoding ############################################
+##################################################################################################### 
+
+##################################################################### Label Encoding
+from sklearn.preprocessing import LabelEncoder
+le=LabelEncoder()
+features=['gender','age']
+for feature in features:
+  tdf[feature]=le.fit_transform(tdf[feature])
+##################################################################### OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder        ### 문자 형태에서는 지양
+tdf2=tdf[['gender', 'class']]
+oh = OneHotEncoder(sparse=False)
+features=['gender','class']
+for feature in features:
+  feature_data = tdf2[feature].values.reshape(-1, 1)
+  feature_encoded = pd.DataFrame(oh.fit_transform(feature_data), columns=oh.categories_[0])
+  tdf2 = pd.concat([tdf2, feature_encoded], axis=1)
+
+##################################################################### 표준화 standardization
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+columns_to_scale = ['cyl','hp','drat','wt','ppw', 'cpd']
+scaled_df[columns_to_scale] = scaler.fit_transform(df[columns_to_scale])
+
+##################################################################### 최소-최대 스케일링(Min-Max Scaling)
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+columns_to_scale = ['cyl','hp','drat','wt','ppw', 'cpd']
+scaled_df[columns_to_scale] = scaler.fit_transform(df[columns_to_scale])
+
+##################################################################### OneHotEncoder 유사
+tdf2=tdf[['gender', 'class']]
+tdf2.head()
+pd.get_dummies(tdf2).head()
+########################################### END Encoding ############################################
+
+
+#####################################################################################################
+############################################### MATPLOTLIB ##########################################
+##################################################################################################### 
+import matplotlib.pyplot as plt
+##################################################################### DF 전체 Plot
+num_columns=len(df.columns)
+plt.figure(figsize=(12,12))
+for i, column in enumerate(df.columns):
+  plt.subplot(4,3,i+1)
+  df.boxplot(column=column)
+  plt.title(column)
+plt.tight_layout(); plt.show()
+
+##################################################################### DF 전체 SUB-Plot
+columns=['cyl', 'disp', 'hp', 'drat', 'wt', 'vs', 'am', 'carb']; target='mpg'
+fig, axes=plt.subplots(nrows=2, ncols=4, figsize=(20, 10))
+for i, col in enumerate(columns):
+  row,col_idx = divmod(i,4)
+  df.plot(kind='scatter', x=col, y=target, ax=axes[row, col_idx], alpha=0.5)
+  axes[row,col_idx].set_title(f"{target} vs {col}")
+fig.suptitle(f'{target} vs Selected features', fontsize=16); plt.tight_layout(rect=[0, 0.03, 1, 0.95]); plt.show()
+
+##################################################################### thicks angle setup
+plt.xticks(rotation=60)
+axes[1].set_xlim(0, 10)
+axes[1].set_xticks(np.arange(1, 11, 1))
+##################################################################### 라인그래프
+ts=pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2020', periods=1000)); ts = ts.cumsum()
+ts.plot(); plt.title("Cummulative Sum Line Graph"); plt.show()
+
+##################################################################### 막대 그래프
+df=pd.DataFrame({'A': np.random.rand(5),'B': np.random.rand(5)}, index=['one', 'two', 'three', 'four', 'five'])
+df.plot.bar(); plt.title('Bar Graph'); plt.show()
+plt.bar(PV1.index, PV1['survived'])                # From DF
+################################ EX
+df_grouped=df.groupby('pclass')['survived'].mean().sort_values()
+df_grouped.plot(kind='bar', color=['r','b'])        # From DF_Groupby
+
+################################ EX: Encoding 후
+df['age_enc']=pd.cut(df['fare'],bins=[0,50,100,150,200,250,300,350,400,450,500])
+DF_G=df.groupby('age_enc')['survived'].mean()
+DF_G.plot(kind="bar", color='g')
+plt.title('Survival Rate versus Fare_encode'); plt.xlabel('Fare_encoded'); plt.xticks(rotation=60); plt.show()
+
+##################################################################### SEABORN COUNTPLOT
+plt.bar(PV1.index, PV1['survived']) 
+==> sns.countplot(x='pclass', hue='survived', data=df)      # 나머지 setting은 동일
+EX) Using Titanic (Histo + KDE)
+
+################################ EX: Histo와 KDE using SEABORN
+# 나이와 생존, 사망자수 관계 시각화
+plt.figure(figsize=(10,6))
+sns.histplot(df[df['survived']==1]['age'], bins=30, kde=True, color='b', label='Survived')
+sns.histplot(df[df['survived']==0]['age'], bins=30, kde=True, color='skyblue', label='Not Survived')
+plt.title('Age Distribution by Survival'); plt.xlabel('Age'); plt.xlabel('count'); plt.legend(); plt.show()
+
+
+##################################################################### 히스토그램
+df=pd.DataFrame({'A': np.random.randn(1000),'B': np.random.randn(1000)})
+df.plot.hist(alpha=0.5,bins=30); plt.title('HistoGram'); plt.show()
+
+##################################################################### SUB-PLOT
+df=pd.DataFrame({'A': np.random.randn(1000),'B': np.random.randn(1000)})
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+df['A'].plot.hist(alpha=0.5, bins=30, color='blue')
+plt.title('Histogram of A')
+plt.subplot(1, 2, 2)
+df['B'].plot.hist(alpha=0.5, bins=30, color='green')
+plt.title('Histogram of B')
+
+plt.tight_layout(); plt.show()
+
+##################################################################### SUB-PLOT - 2
+fig, axs = plt.subplots(3, 2, figsize=(15, 15))
+
+axs[0, 0].plot(PV1.index, PV1['survived'], marker='o', linestyle='-')
+axs[0, 0].set_title('Survival Rate by Family Size')
+axs[0, 0].set_xlabel('Family Size')
+axs[0, 0].set_ylabel('Survival Rate')
+axs[2, 0].plot(PV5.index, PV5['survived'], marker='o', linestyle='-')
+axs[2, 0].set_title('Survival Rate by Average Fare per Class')
+axs[2, 0].set_xlabel('Average Fare per Class')
+axs[2, 0].set_ylabel('Survival Rate')
+fig.delaxes(axs[2,1]); plt.tight_layout(); plt.show()
+
+
+##################################################################### Box Plot
+df=pd.DataFrame(np.random.rand(10,5), columns=list("ABCDE"))
+df.plot.box(); plt.title("Box Plot"); plt.show()
+
+################################ 이상치/Outlier
+print("percentile:", perc)
+q1_salary=perc[0]
+q3_salary=perc[2]
+iqr_salary=perc[2]-perc[0]
+print(f"Q1: {q1_salary}, Q3: {q3_salary}, IQR: {iqr_salary}")
+
+### 이상치 확인
+lower_bound=q1_salary-1.5*iqr_salary
+upper_bound=q3_salary+1.5*iqr_salary
+print(f"Lower Bound: {lower_bound}, Upper Bound: {upper_bound}")
+outliers=Salary[(Salary['Indv Salary']<lower_bound)|(Salary['Indv Salary']>upper_bound)]
+print("Outliers: ",outliers)
+
+##################################################################### Scatter Plot
+df.plot.scatter(x="A",y="B"); plt.title("Scatter Plot"); plt.show()
+
+#################################################### 1차 선형 추세
+coeff = np.polyfit(df['광고비'], df['매출'], 1)  # 1=linear
+m = coeff[0]
+b = coeff[1]
+print(f"기울기:{m}, 절편: {b}")
+df.plot.scatter(x='광고비', y='매출')
+plt.plot(df['광고비'], m*df['광고비']+b)
+##################################################################### Correlation Scatter Plot
+df=pd.DataFrame(np.random.rand(50,4), columns=list("ABCD"))
+
+####################################### 양의 상관관례
+df["C"]=df["A"]*2+np.random.rand(50)*0.5
+####################################### 음의 상관관례
+df["D"]=-df["A"]*2+np.random.rand(50)*0.5
+
+fig, axs = plt.subplots(1,2,figsize=(14,6))
+axs[0].scatter(df['A'], df['C'], color='b')
+axs[0].set_title('Positive Correlation')
+axs[0].set_xlabel('A')
+axs[0].set_ylabel('C')
+axs[1].scatter(df['A'], df['D'], color='r')
+axs[1].set_title('Negative Correlation')
+axs[1].set_xlabel('A')
+axs[1].set_ylabel('D')
+plt.suptitle('Scatter Plots of Positive and Negative Correlations'); plt.legend(); plt.show()
+
+##################################################################### KDE Plot
+data=pd.DataFrame({"A": np.random.randn(1000), 'B': np.random.randn(1000) + 1})
+data['A'].plot.kde(label='A')
+data['B'].plot.kde(label='B')
+plt.title("Kernel Density Estimate (KDE) Plot")
+plt.xlabel('Value'); plt.ylabel('Density'); plt.legend(); plt.show()
+
+##################################################################### HISTO + KDE Plot
+data=pd.Series(np.random.randn(10000))
+ax=data.plot.hist(bins=50, alpha=0.5, density=True, label='Histogram')
+data.plot.kde(ax=ax, label='KDE')
+plt.title("Histogram and KDE Plot"); plt.xlabel('Value'); plt.ylabel('Density'); plt.legend(); plt.show()
+
+##################################################################################################### 
+################################################## 군집도 ############################################
+import seaborn as sns
+sns.pairplot(df[['pclass', 'age', 'sibsp', 'parch', 'fare', 'gender', 'survived']], hue='survived')
+plt.show()
+
+##################################################################### Hue 없이도 가능
+sns.pairplot(df[['pclass', 'age', 'sibsp', 'parch', 'fare', 'gender', 'survived']])
+
+##################################################################### Heat Map
+plt.figure(figsize=(6,4)); sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0)
+plt.title('Correlation Matrix'); plt.show()
+
+
+################################################# END ###############################################
+############################################### MATPLOTLIB ##########################################
+##################################################################################################### 
+
+
+#####################################################################################################
+########################################### Numpy제공 random 함수 ####################################
+#####################################################################################################
+- np.random.seed : seed를 통한 난수 생성
+  np.random.seed(0) 
+- np.random.randint : 정수 난수 1개 생성
+- np.random.rand : 0부터 1사이의 균일분포에서 난수 매트릭스 배열 생성
+- np.random.randn : 가우시안 표준 정규분포에서 난수 매트릭스 배열 생성
+- np.random.shuffle : 기존의 데이터의 순서 바꾸기
+- np.random.choice : 기존 데이터에서 sampling
+
+#####################################################################################################
+############################################### File I/O ############################################
+##################################################################################################### 
+file_data=pd.DataFrame({ 'col1':[1,2,3,4,5,6], 'col2':['A','A','B','B','C', 'C']})
+file_data.to_csv('file_data.csv', index=None)
+file_data=pd.read_csv('file_data.csv')
+
+###################################################### 엑셀 loading
+import pandas as pd
+filepath1='/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/stock price.xlsx'
+filepath2='/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/stock valuation.xlsx'
+df1=pd.read_excel(filepath1, engine='openpyxl', index_col='id')
+df2=pd.read_excel(filepath2, engine='openpyxl', index_col='id')
+
+###################################################### CSV loading
+file_path = '/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/titanic3.csv'
+df = pd.read_csv(file_path)
+
+###################################################### local file loading
+from google.colab import files
+# file 업로드
+uploaded = files.upload()
+file_path='mtcars.csv'; df=pd.read_csv(file_path,index_col=0)
+
+#####################################################################################################
+############################################ seaborn data load ######################################
+#####################################################################################################
+import seaborn as sns
+# Titanic 데이터셋에서 age, sex, 등 5개 열을 선택하여 데이터 프레임 만들기
+titanic = sns.load_dataset('titanic')
+#df=titanic.loc[:, ['age', 'sex', 'class', 'fare', 'survived']]
+df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
+
+#####################################################################################################
+############################################# 한글 폰트 Install ######################################
+#####################################################################################################
+!sudo apt-get install -y fonts-nanum
+!sudo fc-cache -fv
+!rm ~/.cache/matplotlib -rf
+
+import matplotlib.pyplot as plt
+plt.rc('font', family='NanumBarunGothic')
+plt.rcParams['axes.unicode_minus'] =False

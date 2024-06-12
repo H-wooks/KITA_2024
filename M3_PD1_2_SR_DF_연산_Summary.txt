@@ -1,0 +1,858 @@
+#####################################################################################################
+############################################# NP Array Series #######################################
+#####################################################################################################
+np.arange(12.)  ==>  array([ 0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11.])
+arr=np.arange(12.).reshape(3,4) ==> 
+array([[ 0.,  1.,  2.,  3.],
+       [ 4.,  5.,  6.,  7.],
+       [ 8.,  9., 10., 11.]])
+######################################################## Broadcasting
+arr - arr[0]              ## arr[0]=array([0, 1, 2, 3])
+==> 연산시 행 확장되어 계산
+array([[0, 0, 0, 0],
+       [4, 4, 4, 4],
+       [8, 8, 8, 8]])
+
+#####################################################################################################
+############################################# Pandas Series #########################################
+#####################################################################################################
+######################################################## 생성
+list_data=['2019-07-02', 3.14, 'ABC', 100, True]
+sr=pd.Series(list_data, index=list('abcde'))
+tp_data=('hwooks',96, 46, '남', '1978.01.18',True)
+sr=pd.Series(tp_data, index=['name','학번', '나이','성별', '생년월일','bool'])
+dict_data = {'aaa' : 10, 'bbb' : 20, 'ccc' : 30}
+sr=pd.Series(dict_data)
+######################################################## index 와 value 보기
+idx=sr.index
+val=sr.values
+######################################################## indexing
+### index에 특정 string을 설정하더라도 
+### numerical indexing도 여전히 가능
+print(sr['성별'])
+print(sr[[3,4]])             				## 복수개의 indexing; 일반 리스트에서는 지원 X, 
+print(S1[['b','d']])         				## 시리즈에서 위치 기반 인덱싱을 사용해서 여러 요소를 선택 가능
+print(sr[1:5]) 
+
+######################################################## Series에 전체 title과 index의 name 설정
+SR1.name='population'
+SR1.index.name='state'
+
+######################################################## 결손 data 처리
+SR1.Califonia=np.nan                  		## np.nan은 NaN(부동소수점으로 취급) 결과를 반환하는 반면, None은 TypeError를 반환
+null_mask = SR1.isnull()  			## 각 요소에 대해 True, Faulse로 반환
+filled_series=SR1.fillna(0) 			## NaN과 None type 결손 data에 0을 채움
+SR1.isnull().sum()				##  결손 data count
+dropped_series=SR1.dropna()			## 결손 data drop
+.isna() 도 가능
+
+######################################################## Series의 mapping
+######## map for SR
+sr=pd.Series([1,2,3,4,5]); sr_mapped=sr.map(lambda x: x+2)
+
+######################################################## Series의 Type 변경
+list_from_series=s2.tolist()
+dict_from_series=s2.to_dict()
+df_from_series=s2.to_frame(name='value')
+
+
+#####################################################################################################
+############################################# DataFrame #############################################
+#####################################################################################################
+
+######################################################## 생성
+######## NP Array
+np.random.seed(0) 						## random seed 설정해서 난수 control
+data = np.random.randint(100,120,size=(3,3))			## 100~199까지 수에서 난수 발생
+df = pd.DataFrame(data,index=['d1','d2','d3'],columns=['pd','sales','inv'])
+######## 
+frame = pd.DataFrame(np.random.randn(4,3),columns=list('bde'),
+
+######## Dict
+dict_data = {'a':[1,2,3,4,5], 'b':[4,5,6,7,8], 'c':[7,8,9,10,11], 'd':[10,11,12,13,14], 'e':[13,14,15,16,17]}
+df = pd.DataFrame(dict_data, index=['r0','r1','r2','r3','r4'])
+
+######## concatenate NP Array
+id=np.arange(1,1001); i1=pd.Series(id)
+gender = np.random.randint(2,size=1000); g1=pd.Series(gender)
+age=np.random.randint(1,101,size=1000); a1=pd.Series(age)
+region=np.random.randint(1,11,size=1000); r1=pd.Series(region)
+df=pd.concat([i1, g1,a1,r1], axis=1)  ### 열 방향으로 쌓는다 (컬럼이 추가)
+
+######## concatenate NP Array + reshape
+np.arange(12.).reshape((3,4))              # 12는 정수, 12.은 실수 type으로
+df2=pd.DataFrame(np.arange(12.).reshape((3,4)), columns=list('abcd'))
+==> 
+	a	  b	  c	  d
+0	0.0	1.0	2.0	3.0
+1	4.0	5.0	6.0	7.0
+2	8.0	9.0	10.0	11.0
+######## concatenate하고 나서 index가 섞여서.. index를 재정비할때 ignore_index=True 사용
+######## axis=1일 때 columns에도 마찬가지로 적용
+con1=pd.concat([df1,df2],axis=0, ignore_index=True)            # 컬럼 관련해서 중복된 컬럼 'd', 'e'를 제외한 결손 data는 NaN으로...
+
+################################### PD series SR 를 concatenate 한 DF와 SR를 directly DF로 만들면 행/열 방향이 취환된 다른 형태로 생
+st1=pd.Series({'국어':100, '영어':80, '수학':90})
+st2=pd.Series({'수학':80, '국어':90, '영어':90})
+==> 
+국어    100
+영어     80
+수학     90
+add=st1+st2; sub=st1-st2; mul=st1*st2; div=round((st1/st2), 2)
+df=pd.concat([add, sub,mul,div], axis=1)
+==> 
+      0   1     2     3
+국어  190  10  9000  1.11
+수학  170  10  7200  1.12
+영어  170 -10  7200  0.89
+
+df=pd.DataFrame([add, sub,mul,div], index=['덧셈', '뺄셈','곱','나눗셈'])
+==> 
+	    국어	수학	영어
+덧셈	190.00	170.00	170.00
+뺄셈	10.00	  10.00	  -10.00
+곱	  9000.0	7200.0	7200.00
+나눗셈	 1.11	  1.12	  0.89
+################################################################################################### 생성 END
+
+######################################################## index 설정
+df1.set_index('ID', inplace=True)		## 특정 컬럼을 index로 설정: 컬럼이름이 "ID"인 컬럼을 index로 설정정
+df1.index.name=None
+df2_new.reset_index(inplace=True)
+
+df1=df.copy();
+df1['col_name']=list('가나다라마')      # 인덱스로 쓸 내용을 컬럼에 추가
+df2=df1.set_index('col_name')          # 인덱스를 위해 추가된 컬럼이 index로 설정됨
+#### 원복해서 기본 (0/1/2~)로 변경되고 index를 위한 컬럼은 다시 일반 컬럼으로 변경
+df3=df2.reset_index()
+#### index 위에는 컬럼 네임이 필요 없는데 있을 때 이를 삭제.
+df22=df3.set_index('col_name')
+df22.index.name=None			## index위 레이블 삭제
+
+######## REINDEX
+new_index=['r0','r1','r2','r3','r4', 'r5','r6']
+df5=df.reindex(new_index,fill_value=0)            # 새로게 추가되는 행에 대해서는 NaN이 채워지지만 fill_value=0로 하면,  0으로
+
+######## 원래 있던 index와 column을 다른 값으로 재정의
+#### dic형태로 만들어 놓고.. 'a'/'b'/... ==> '국어'/'영어'/..., 0/1/2..==> 'a'/'b'/'c'/... 변경
+columns={'a':'국어','b':'영어','c':'수학','d':'과학','e':'음악'}
+index={0:'a',1:'b',2:'c',3:'d',4:'e',5:'f',6:'g',7:'h'}
+df.rename(columns=columns, index=index, inplace=True)
+tdf.rename(columns={'sex':'gender', 'fare':'ticket'}, inplace=True)
+df.rename(str.upper, axis=1, inplace=True)	## columns 소문자 ==> 대문자
+
+######## concatenate하고 나서 index가 섞여서.. index를 재정비할때 ignore_index=True 사용
+######## axis=1일 때 columns에도 마찬가지로 적용
+con1=pd.concat([df1,df2],axis=0, ignore_index=True)            # 컬럼 관련해서 중복된 컬럼 'd', 'e'를 제외한 결손 data는 NaN으로...
+
+######## 컬럼 순서 변경
+df2.columns 로 참고해서 아래와 같이 순서 변경
+columns_customed=['pclass','sex','age','survived']
+df2[columns_customed].head()
+######## 컬럼 타입 변경
+tdf1=tdf1.astype({'age':"int", 'ticket':'int'})
+
+
+######################################################## indexing
+######## iloc/loc/at  슬라이싱 시 iloc은 끝점 포함 X, loc는 끝점 포함
+## integer location / label location [3, 'name'] 이렇게 섞어서는 error
+df.iloc[0,1];		iloc[0:2,0:2]
+df.loc['a','B']; 	df.loc['a':'b','A':'B']
+df.iloc[1]			# [1] 하나만 있으면 행,열 중에 행을 가리키는것  
+df.loc['d2']) 			# -> index 이름이 d2인것
+df.iloc[1,:] 			# 행은 1이고 열은 전부다
+df.loc['d2',:] 			# 행은 d2이고 열은 전부다
+df.at[5,'id']  			## <=== df.loc[5,'id']과 기능적으로 동일 but 단일 값을 접근할때는 속도가 빠름
+
+######## column 선택 indexing
+df5['Name']
+df5[['Name','Age']]
+############################# 불린 indexing: 조건에 맞는 행이 선택됨
+df5[df5['Age']>=25]
+df5=df4[(df4['eps']< 3000) | (df4['stock_name']=='이마트')]			## or는 X (&와 | 사용)
+idx=df1[df1.a>10].index								## 해당 index를 반환
+############################ 여러조건식으로
+cond1=df.a > 10; cond2=df.b == 16; cond3=df.e > 15
+df2=df[cond1 & cond2 & cond3]
+df[cond1][['a','b']]					## 다시 특정 columns 만
+
+######################################################## Value 추가 및 업데이트
+
+############################# 데이터프레임에서 모든 컬럼을 for-loop로 acess해서 
+############################# None/NaN이 있으면 컬럼의 mean 값으로 update
+for column in columns:
+  df1[column].fillna(df1[column].mean(), inplace=True)
+######## lambda 이용 결측치를 제외한 각 컬럼의 평균(axis=0) 을 결측치에 반영
+df_f_mean=df.apply(lambda x:x.fillna(x.mean()), axis=0)
+
+############################# 데이터프레임에서 숫자형 데이터 타입을 
+############################# 가진 열들만 선택해서 컬럼의 mean 값으로 update
+for column in df2.select_dtypes(include=[np.number]).columns:
+  df2[column].fillna(df2[column].mean(), inplace=True)
+
+inplace=True 			# ==> 원본에 반영할 건지.. True는 반영
+
+df.drop(['gender'], axis=1, inplace=True) ## axis=1 ==> 열 기준으로... (열을 drop시킬 때)
+df.drop([0], axis=0, inplace=True)        ## axis=0 ==> 행 기준으로... (행을 drop시킬때)
+df1.drop(df1.index[0],inplace=True)       ## 동일
+df1=df5.drop(df5.index[5:9])
+######## index를 찾고 drop
+idx=df1[df1.a>10].index; df1.drop(idx)
+
+######## 업데이트
+df.loc[1,'d4']=0
+df.loc['d4']=0  ## 행의 모든 값도 업데이트 가능
+
+## n/n DateFrame에서  
+### r5,r6 두개의 행을 추가하고 값은 0을 적용하여 출력
+df.loc['r5']=0; 
+df.loc['r6']=0; 
+################ reindex
+####### 아래아 같이 새로운 index 추가된 data로 reindex하면 없는 data는 NaN으로 채워짐
+index=['r0','r1','r2','r3','r4']
+new_index=['r0','r1','r2','r3','r4', 'r5','r6']
+df5=df.reindex(new_index,fill_value=0)            # 새로게 추가되는 행에 대해서는 NaN이 채워지지만 fill_value=0로 하면,  0으로
+####### 더 적은 field의 index를 reindex로 적용하면 'r4'와 같이 누락된 행의 경우 drop이 되는 효
+new_index=['r0','r1','r2','r3']
+
+################## values replace
+df1=tdf[['gender']].replace(['female', 'male'], [1,0])		## gender 컬럼의 값을 치환
+
+######################################################## CONCAT / MERGE / JOIN
+######## concat()
+con1=pd.concat([df1,df2],axis=0, ignore_index=True)
+con1=pd.concat([df1,df2],axis=1)
+
+######## merge() on을 통해서 SQL처럼 join이 제대로 수행 index 기준 merge에 사용
+DataFrame.merge(right, how='inner', on=None, left_on=None, right_on=None, left_index=False, right_index=False, sort=False, suffixes=('_x', '_y'), copy=True, indicator=False, validate=None)
+
+df1=
+	a	b	c	d	e	ind
+0	1	2	3	4	5	1
+1	6	7	8	9	10	2
+2	11	12	13	14	15	3
+3	16	17	18	19	20	4
+df2=
+	d	e	h	i	ind
+0	11	12	13	14	1
+1	15	16	17	18	2
+2	19	20	21	22	3
+3	23	24	25	26	4
+4	27	28	29	30	5
+
+pd.merge(df1,df2, on='ind')       # default는 inner
+pd.merge(df1,df2, on='ind', how='outer') 
+==> 
+	a	b	c	d_x	e_x	ind	d_y	e_y	h	i
+0	1.0	2.0	3.0	4.0	5.0	1	11	12	13	14
+1	6.0	7.0	8.0	9.0	10.0	2	15	16	17	18
+2	11.0	12.0	13.0	14.0	15.0	3	19	20	21	22
+3	16.0	17.0	18.0	19.0	20.0	4	23	24	25	26
+4	NaN	NaN	NaN	NaN	NaN	5	27	28	29	30
+df1=df1.drop('ind', axis=1)
+
+######## JOIN() 기준이 될 index를 설정해줘야 함. 그래야 제대로 join이 이뤄짐
+DataFrame.join(other, on=None, how='left', lsuffix='', rsuffix='', sort=False)
+lsuffix는 self의 열에 붙을 접미사고, rsuffix는 other의 열에 붙을 접미사입니다.
+df1.join(df2,lsuffix="_1", rsuffix='_2', how='outer')    left가 default
+==> 
+	a	b	c	d_1	e_1	d_2	e_2	h	i
+0	1.0	2.0	3.0	4.0	5.0	11	12	13	14
+1	6.0	7.0	8.0	9.0	10.0	15	16	17	18
+2	11.0	12.0	13.0	14.0	15.0	19	20	21	22
+3	16.0	17.0	18.0	19.0	20.0	23	24	25	26
+4	NaN	NaN	NaN	NaN	NaN	27	28	29	30
+
+df3=df1.join(df2) 			## default: left 주 DF 기준
+df3=df1.join(df2, how='left'); df3=df1.join(df2, how='inner'); df3=df1.join(df2, how='right')
+
+######################################################## Data Type 변환 DF ==> Arrary/Dict/List
+## 배열로 변환
+array1=df2.to_numpy()
+
+## Dict로 변환
+dict1=df2.to_dict(orient='list')
+
+## List로 변환
+list1=df2.values.tolist()
+
+######################################################## 기본 연산, 필터 / 그룹 연산
+.sum(axis=0)						## column의 합계
+.sum(axis=1)						## 행의 합계
+.mean(); .median(); .max(); .min(); .add(); .sub(); .div(); .mul() 
+df1.add(df2,fill_value=0)				## df간 연산. 이때 결측치는 0로 채운다
+ADD=SR1.add(SR2, SR3, fill_value=0)
+.cumsum()						## 누적 합계
+## DataFrame.expanding(min_periods=1, center=None, axis=0, method='single')
+.expanding().sum()					## 누적 합계 == .cumsum() 
+.expanding().mean()
+
+############################# 계산 인자를 뒤집어서 계산
+df.rdiv(1) / r.rsub()					## .mul() .add() 는 교환법칙 성립하고 값도 동일하므로 의미 X
+
+############################# filtering
+df2_filtered=df2[df2['Math']>=80]
+filtered_df5 = df5[df5.index < '2024-01-03']
+filtered_df6=df5[(df5.index >= '2024-01-01') & (df5.index < '2024-01-03')]
+
+############################# sort
+df2_sorted=df2_filtered.sort_values(by='English', ascending=False)
+df1_s=df1.sort_index(ascending=False)
+
+######################################################## 그룹 연산
+#### 그룹 연산에 특화된 AGG/TRANSFORM
+df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
+grouped=df1.groupby(['class'])
+for key,group in grouped:			## key는 groupby 처리된 기준 column의 레이블이 할당
+#### 그룹화 연산
+average=grouped.mean()				## 여기서는 axis=0로 계산되어 열기준 평균치
+## 개별 그룹 선택하기
+group3=grouped.get_group('Third'); print(group3.head())
+# 클래스 열, sex열을 기준으로 분할 (여러열을 기준으로 분할)
+grouped_2=df2.groupby(['class','sex'])
+###################################### 여러 연산
+grouped = df.groupby(['class'])
+mean_all=grouped.mean()				## 그룹별로 모든 열의 평균을 집계하여 DF로 반환
+std_all=grouped.std()				## 그룹별로 모든 열의 표준편차를 집계하여 DF로 반환
+std_fare=grouped.fare.std()			## 그룹별 fare 열(.fare) 선택한 후 함수 실행해서 PD SR로 반환
+std_fare=grouped.fare.std(): fare 컬럼만의 SR로 반환 vs. std_fare=grouped.std(): 모든 열의 연산 결과를 DF로 반환
+
+############### FILTER(): lambda 함수를 이용한 filtering하여 DF로 반환
+grouped_f=grouped.filter(lambda x:len(x)>=200)
+==> 데이터 수 200개 이상인 1st/3rd group만 선택되어 출력
+      age     sex  class     fare  survived
+0    22.0    male  Third   7.2500         0
+1    38.0  female  First  71.2833         1
+2    26.0  female  Third   7.9250         1 
+## 클래스별 value 갯수 count
+grouped_f.value_counts('class')
+
+############### (MAP/APPLY/APPLYMAP/TRANSFORM) Mapping 
+cf) sr=pd.Series([1,2,3,4,5]); sr_mapped=sr.map(lambda x: x+2)
+
+####### MAP : map함수는 SR에만 적용
+format =lambda x: '%.2f' %x; df['e'].map(format)
+
+######## APPLY for DF (DF의 열과 행단위로만 연산 vs. APPLYMAP은 DF의 모든 요소에 대해서 연산 가능)
+df_ap_col=df.apply(lambda x: x.max(), axis=0)		## 각 열에 대해 최대값을 구하는 함수
+df_ap_row=df.apply(lambda x: x.sum(), axis=1)		## 각 행에 대해 합계를 구하는 함수
+df_ap_row=df.apply(lambda x: sum(x), axis=1)		## 위와 동일
+df.apply(lambda x: x.a+x.b+x.c+x.d+x.e,axis=1)		## 위와 동일
+f=lambda x: x.max()-x.min(); df.apply(f)		## 각 열에 대해 min/max 차 구하는 함수		
+f=lambda x: x.max()-x.min(); df.apply(f,axis=1)		## 각 행에 대해 min/max 차 구하는 함수 (axis='columns' 도 동일)
+f1=lambda x: round(x*10); df.apply(f1, axis=1)
+### 여러값을 가지는 SR로 반환
+print(df)
+def f(x): return pd.Series([x.min(), x.max()], index=['min', 'max'])
+df.apply(f)						 ## 각각의 열 위치와 상응해서  min/max
+df=
+               b         d         e
+Utah    1.331587  0.715279 -1.545400
+Ohio   -0.008384  0.621336 -0.720086
+Texas   0.265512  0.108549  0.004291
+Oregon -0.174600  0.433026  1.203037
+==>
+	b	d	e
+min	-0.174600	0.108549	-1.545400
+max	1.331587	0.715279	1.203037
+
+
+######## APPLYMAP for DF: 상수를 더하거나 value 전체의 format을 설정할 때 사용하면 적당 (series에는 적용 불가)
+## applymap은 은 DF에만 적용되며, 각 요소에 함수를 적용
+df_apmap=df.applymap(lambda x: x+2)
+
+cf) map함수를 쓰면 아래와 같이 특정 열을 선택해줘야 하지만.
+format =lambda x: '%.2f' %x; df['e'].map(format)
+format =lambda x: '%.2f' %x; df.applymap(format) 			# DF에 전체 적용 가능
+
+############################################# APPLY VS. APPLYMAP #############################################
+EX) df.apply는 DataFrame의 각 행(row) 또는 열(column)에 함수 적용 vs. applymap은 DataFrame의 모든 요소에 대해 함수를 적용
+df = pd.DataFrame({ "Values": [5, 10, 15, 20, 25]})
+df['NewCol']=df.Values.apply(lambda x: 2*x if x > 10 else x)
+but df['NewCol']=df.apply(lambda x: 2*x if x > 10 else x) ==> X
+반면, 
+df['NewCol']=df.applymap(lambda x: 2*x if x > 10 else x) ==> 가능
+##############################################################################################################
+
+############### AGG(): 그룹 객체에 agg() 메서드를 적용 - 사용자 정의 함수를 인수로 전달
+def min_max(x): return x.max() - x.min()
+# 각 그룹의 최대값과 최소값의 차이를 계산하여 그룹별로 집계
+agg_minmax=grouped.agg(min_max)			## 그룹별로 그룹안에서 min/max 차이를 그룹별로 집계하여 반환
+==> 
+          age      fare  survived
+First   79.08  512.3292         1
+Second  69.33   73.5000         1
+Third   73.58   69.5500         1
+
+# 모든열에 여러 함수를 매핑: group객체. agg([함수1, 함수2, 함수3,...])
+agg_all=grouped.agg(['min','max','mean',min_max])
+
+# 각 열마다 다른 함수를 매핑: group객체.agg({'열1':함수1, '열2':함수2,...})
+agg_sep=grouped.agg({'age':'min','fare':['min','max', min_max],'survived':'mean'})
+
+###################################### TRANSFORM for DF: 원소의 본래 행 인덱스와 열 이름을 기준으로 연산 결과를 반환
+def z_score(x): return (x-x.mean())/x.std()
+df_z=df.a.transform(z_score)
+df=
+	a	b	c	d	e	f
+0	45	48	65	68	68	294
+1	10	84	22	37	88	241
+2	71	89	89	13	59	321
+3	66	40	88	47	89	330
+4	82	38	26	78	73	297
+==> df.a.transform(z_score) 결과
+0   -0.344827
+1   -1.576351
+2    0.570020
+3    0.394088
+4    0.957070
+############################## Apply 쓰면 (이 경우는 연산의 방향성에 문제가 없어서.. 열과 행에 그대로 반환)
+df_z=df.apply(z_score)					## df_z=df.apply(lambda x: z_score(x)) 도 동일
+==> 
+a	b	c	d	e	f
+0	-0.344827	-0.477299	0.215257	0.754401	-0.570413	-0.074984
+1	-1.576351	0.978867	-1.107037	-0.451085	0.971244	-1.603498
+2	0.570020	1.181112	0.953282	-1.384365	-1.264159	0.703693
+3	0.394088	-0.800891	0.922531	-0.062219	1.048327	0.963252
+4	0.957070	-0.881789	-0.984033	1.143268	-0.184999	0.011536
+
+############### PIVOT: 긴 형식의 DF를 넓은 형식으로 특정 차원에서 데이터를 재구성.
+PIVOT: index, columns, values    vs. PIVOT: index, columns, values, aggfunc='sum'/'mean'.., fill_value=0
+PV=df.pivot_table(index='Month', columns='Employee', values='Hours', aggfunc='sum', fill_value=0)
+
+##################################################################################### Exercise
+############################# DF의 data가 대상별로 나눠져 있지 않을때..연산
+      Name  Subject  Score
+0    Alice     Math     85
+1      Bob     Math     79
+2  Charlie     Math     88
+3    David     Math     90
+4      Eve     Math     76
+5    Alice  English     92
+6      Bob  English     85
+7  Charlie  English     89
+8    David  English     93
+9      Eve  English     80
+
+############################# groupby를 이용해서 AVG
+df_avg=df.groupby('Name')['Score'].mean() ===> Alice: 88.5
+df_avg=df3['Score'].groupby(df3['Name']).mean()  ==> 동일 결과
+
+############################# PIVOT 사용
+df3.pivot_table(index='Name', columns='Subject', values='Score',aggfunc='mean')
+==> 
+Subject	English	Math
+Name		
+Alice	92	85
+Bob	85	79
+Charlie	89	88
+David	93	90
+Eve	80	76
+df3_pivot=df3.pivot_table(index='Name', columns='Subject', values='Score',aggfunc='mean').reset_index()
+==> 
+Subject	Name	English	Math
+0	Alice	92	85
+1	Bob	85	79
+2	Charlie	89	88
+3	David	93	90
+4	Eve	80	76
+df3_pivot.columns.name=None
+==> 
+      Name  English  Math
+0    Alice       92    85
+1      Bob       85    79
+2  Charlie       89    88
+3    David       93    90
+4      Eve       80    76
+
+
+
+
+######################################################## 유용한 함수
+############################# PERCENTILE
+print(np.percentile(Math, [25, 50, 75]))
+
+
+############################# 정보/컬럼/index 정보 이용
+df.info()       ## null 수, 컬럼, 인덱스, type 등의 정보
+df.describe()
+df.columns      ## 컬럼 label 출력 ==> Index(['Name', 'Math', 'English', 'Science', 'History'], dtype='object')
+df.index
+df1=df.copy()	### df1=df[:] 과는 다름 df.copy는 df1을 수정/업데이트해도 df에 영향이 X 반면,  df1=df[:] df1이 수정되면 df도 함께 수정
+
+############################# 갯수 Count
+df.value_counts('class')
+################### 컬럼의 value별 counts 반환
+tdf.age.value_counts()
+tdf.age.unique()			# unique한 값들만 반환
+
+############################# date형식으로 array 만들기
+dates = pd.date_range('2024-01-01', periods=4, freq='D')
+
+############################# value의 type 변환
+df4['A']=df4['A'].astype(int) 				## 'A'열을 정수형(int)으로 변환
+df4['B']=df4['B'].astype(float)				## 'B'열을 부동소수점(float)으로 변환
+df4['C']=pd.to_datetime(df4['C'])			## 'C'열을 datetime 형식으로 변환
+
+############################# 결측치 처리 방법 
+######### is null 계산 None or np.nan
+numNull=df.isnull().sum()           ## 이렇게 하면 column별 null 값을 반환
+numNull=df.isnull().sum().sum()     ## 두번해야지 전체 df null 값을 반환
+numNull=df.iloc[:,0].isnull().sum()           ## 1st column별 null 값을 반환
+numNull=df.iloc[0].isnull().sum()           ## 이렇게 하면 1st 열 null 값을 반환
+filled_df=df.fillna(0)  or df.fillna(0, inplace=True)
+.dropna(axis=1);    			## 열삭제 vs. default: axis=0 (행삭제)
+.fillna(0)
+df_f=df.fillna(method='ffill')		## 행기준 앞의 값으로 채움
+df_b=df.fillna(method='bfill')		## 행기준 뒤의 값으로 채움
+df_rz=df.replace(np.nan, 0); df_rv=df.replace(np.nan, -1)
+
+########## DF의 열/행에 대해서 max 값의 index를 반환 
+DataFrame.idxmax(axis=0, skipna=True)		
+
+#################################### DF 전치 (Transpose)
+df1_t=df1.transpose()        ## or df1_t=df1.T
+df_transpose=df6.set_index('Year').T
+
+##################################### Broadcasting
+frame = pd.DataFrame(np.arange(12.).reshape(4,3),columns=list('bde'),index = ['Utah','Ohio','Texas','Oreg'])
+==> 
+	    b	  d	  e
+Utah	0.0	1.0	2.0
+Ohio	3.0	4.0	5.0
+Texas	6.0	7.0	8.0
+Oreg  9.0	10.0	11.0
+series=frame.iloc[0]; frame-series
+==> 
+	b	d	e
+Utah	0.0	0.0	0.0
+Ohio	3.0	3.0	3.0
+Texas	6.0	6.0	6.0
+Oregon	9.0	9.0	9.0
+
+#####################################################################################################
+################################################# EX ################################################
+#####################################################################################################
+##################################################################################################### 
+####### 주어진 DataFrame의 각 요소에 대해 행/열 단위로 계산해서 열/행을 추가
+df = pd.DataFrame({"A": [1, 2, 3, 4], "B": [5, 6, 7, 8]})
+### 특정 열(행)을 선택해서 SR로 만든 후에는 map을 써도 괜찮지만... DF는 apply를 사용
+df["RowSum"]=df.apply(lambda row: row.sum(), axis=1)		    # 이 경우엔 map/transform 적용 x
+df.loc["ColSum"]=df.apply(lambda col: col.sum(), axis=0)            # 이 경우엔 map/transform 적용 x
+
+
+##################################################################################################### 
+######## DataFrame의 N열에서 Series 값을 빼고 결과를 새로운 열 O에 저장
+df = pd.DataFrame({"M": [15, 25, 35, 45, 55],"N": [100, 200, 300, 400, 500]})
+s = pd.Series([5, 10, 15, 20, 25])
+df['O']=df.loc[:,'N']-s                  ## 새로운 열 "O"에 df 특정열과 series열간 차를 저장
+df['O']=df['N']-s                  ## 새로운 열 "O"에 df 특정열과 series열간 차를 저장
+
+##################################################################################################### 
+######## DataFrame의 여러 열에 대해 각기 다른 Series를 더하고, 결과를 새로운 DataFrame으로 반환, 각 행의 합계를 새로운 열에 추가
+df = pd.DataFrame({"A": [1, 2, 3, 4, 5], "B": [10, 20, 30, 40, 50], "C": [100, 200, 300, 400, 500]})
+s1 = pd.Series([5, 5, 5, 5, 5]); s2 = pd.Series([10, 10, 10, 10, 10]); s3 = pd.Series([15, 15, 15, 15, 15])
+df_new=df.copy()
+df_new['A']=df['A']+s1
+df_new['B']=df['B']+s2
+df_new['C']=df['C']+s3
+df_new['D']=df_new.sum(axis=1)
+
+or 
+df_new = pd.DataFrame({"A": df["A"] + s1,"B": df["B"] + s2,"C": df["C"] + s3})
+df_new['D']=df_new.sum(axis=1)
+
+##################################################################################################### 
+######## df에서 세 열 ('A','C','E')의 값을 더하여 새로운 컬럼을 생성
+df['F']=df[['A','C','E']].sum(axis=1)
+or
+df['F']=df['A']+df['C']+df['E']
+
+##################################################################################################### 
+######## df에서 세 열 ('A','C','E')의 평균값으로 새로운 컬럼을 생성
+df['F']=df[['A','C','E']].mean(axis=1)
+
+##################################################################################################### 
+######## DataFrame의 두 개의 열을 더한 값이 다른 한 개의 열보다 큰 경우에는 1, 작은 경우에는 0으로 값을 정하는 새로운 열을 생성
+df['F'] = (df['A'] + df['B'] > df['C']).astype(int)
+
+##################################################################################################### 
+###### 주어진 DataFrame에서 열별/그룹별 평균값
+grouped_m=df.groupby('Category')['Value'].mean().reset_index()
+
+##################################################################################################### 
+####### 주어진 DataFrame에서 열별/그룹별 누적 합계
+df["cummulativeSum"]=df.groupby('Category')['Value'].cumsum()
+
+##################################################################################################### 
+####### 주어진 DataFrame에서 'Category'별로 그룹화하여 각 그룹의 'Value' 열의 합계, 평균, 최대값, 최소값을 계산
+df_g=df.groupby('Category'); df_agg=df_g.agg({'Value':['sum','mean','max','min']})
+or
+df_agg=df.groupby('Category')['Value'].agg(['sum','mean','max','min']).reset_index()
+
+##################################################################################################### 
+####### 주어진 DataFrame에서 category별로 가장 자주 등장하는 value를 찾아서 새로운 열의 값으로 적용한 후 출력하세요.
+## option-1
+most_frequent_values = df.groupby('Category')['Value'].apply(lambda x: x.value_counts().idxmax())
+df['most_frequent_value'] = df['Category'].map(most_frequent_values)
+
+## option-2
+def most_frequent(x): return x.mode().iloc[0]
+df['most_frequent_value'] = df.groupby('Category')['Value'].transform(most_frequent)
+
+#### option-1의 설명
+df=
+  Category  Value
+0        A     10
+1        A     15
+2        B     10
+3        B     20
+4        A     10
+5        B     30
+6        B     50
+7        A     10
+8        B     20
+9        A     15
+df['Value'].idxmax()				## ==> 50의 index 6을 반환
+df.groupby('Category')['Value'].apply(lambda x: x.value_counts())
+==> Value 값들의 counts 반환
+Category    
+A         10    3
+          15    2
+B         20    2
+          10    1
+          30    1
+          50    1
+most_freq = df.groupby('Category')['Value'].apply(lambda x: x.value_counts().idxmax()))
+==> Category A: 최빈값 10, B:20 을 가지는 DF 반환
+Category
+A    10
+B    20
+df['최빈값'] = df['Category'].map(most_freq)
+==> '최빈값' 컬럼 생성 후 df 카테고리에 맞게 최빈 값이 할당.
+
+##################################################################################################### 
+####### 주어진 DataFrame에서 각 그룹별로 누적 평균을 계산하여 새로운 열로 추가
+# Transform을 써야 원래 열/행에 그대로 결과가 출력
+df['누적평균']=df.groupby('Category')['Value'].transform(lambda x: x.expanding().mean())
+# 반면, apply를 쓰면, DF으로 나오기 때문에 df['누적평균']= 이렇게 directly 넣어줄수도 없고, 원래 행/열에 반환 X 
+==>  결과는 제대로 나오지만, 카테고리별로 group화 되서 나오는 문제가 있음 
+Category   
+A         0    10.000000
+          1    12.500000
+          4    11.666667
+          7    11.250000
+          9    12.000000
+B         2    10.000000
+          3    15.000000
+          5    20.000000
+          6    27.500000
+          8    26.000000
+
+##################################################################################################### 
+####### 주어진 DataFrame의 특정 열에 대해 map을 사용하여 등급을 부여
+df = pd.DataFrame({"Name": ["Alice", "Bob", "Charlie", "David", "Eve"],"Score": [85, 90, 95, 80, 75]})
+# Option1
+df['Grade']=df['Score'].map(lambda x: "A" if x >= 90 else ("B" if x >= 80 else ('C' if x >= 70 else 'D')))
+# Option2
+df['Grade']=df['Score'].apply(lambda x: "A" if x >= 90 else ("B" if x >= 80 else ('C' if x >= 70 else 'D')))
+# Option3
+df['Grade']=df['Score'].transform(lambda x: "A" if x >= 90 else ("B" if x >= 80 else ('C' if x >= 70 else 'D')))
+# Option4
+def Grade(x):
+  if x >= 90:  return "A"
+  elif x >= 80:  return "B"
+  elif x >= 70:  return "C"
+  else: return "D"
+df['Grade']=df['Score'].apply(Grade)
+# Option5
+df['Grade']=df.Score.map(Grade)
+# Option6
+df['Grade']=df.Score.apply(Grade)
+# Option7
+df['Grade']=df.Score.transform(Grade)
+
+##################################################################################################### 
+####### 주어진 DataFrame의 특정 열에 대해 제곱을 구해서 새로운 열에 추가
+df = pd.DataFrame({"Numbers": [1, 2, 3, 4, 5]})
+
+# Option-1
+df["Square"]=df.mul(df)
+# Option-2
+df["Square"]=df["Numbers"].map(lambda x: x*x)
+# Option-3
+df["Square"]=df.apply(lambda x: x*x)
+# Option-4
+df["Square"]=df.transform(lambda x: x*x)
+
+##################################################################################################### 
+####### 주어진 DataFrame의 각 열의 값을 합하는 함수를 적용하여 새로운 열을 생성
+# Option-1
+df["Sum"]=df.sum(axis=1)
+# Option-2
+df["Sum"]=df.apply(lambda x: x.sum(), axis=1)
+# Option-3
+df["Sum"]=df.apply(lambda x: x.A+x.B, axis=1)
+
+##################################################################################################### 
+####### 주어진 DataFrame의 10보다 크면 2배, 그렇지 않으면 원래의 수 
+df['NewCol']=df['Values'].map(lambda x: 2*x if x > 10 else x) 		## 새로운 열
+df['NewCol']=df.Values.apply(lambda x: 2*x if x > 10 else x)		## 새로운 열
+df=df.Values.apply(lambda x: 2*x if x > 10 else x)			## Values 컬럼 치환
+df=df.transform(lambda x: 2*x if x > 10 else x)				## Values 컬럼 치환
+
+##################################################################################################### 
+####### 주어진 DataFrame에서 특정 열을 그룹화한 후 각 그룹에 대해 그룹별로 평균 값
+### Option-1
+df["그룹평균1"]=df.groupby("Category")["Value"].transform(lambda x: x.mean())
+### Option-2
+### (i) map안의 df.groupby("Category")["Value"].mean()는 Category A/B/C에 따른 mean 값 (ii) 그걸 Category에 따라 map
+df["그룹평균2"]=df['Category'].map(df.groupby("Category")["Value"].mean())
+
+##################################################################################################### 
+####### 주어진 DataFrame의 특정 열에 대해 제곱과 제곱근을 계산하는 함수들을 동시에 적용하여 새로운 열을 생성
+def SQ_SQRT(x):  return round(x*x,2), round(x**0.5,2)
+# Option1
+df[['SQ', 'SQRT']] =df['Numbers'].transform(lambda x: pd.Series(SQ_SQRT(x)))        ## Apply나 Transform이나 동일
+# Option2   --> 복수의 lambda 결과는 tuple에 들어가 있어 SR로 변환해서 새로운 열로 추가
+df[['SQ', 'SQRT']] = df['Numbers'].apply(lambda x: (round(x*x,2), round(x**0.5,2))).apply(pd.Series)
+# Option3 
+def pow(x):  return x**2
+def sqrt(x):  return np.sqrt(x)
+res = df.Numbers.agg([pow, sqrt])
+df = pd.concat([df,res], axis=1)
+# Option4
+result=df['Numbers'].agg([lambda x: x**2, lambda x: x**0.5])
+result.columns=['Squared','Square_Root']
+df=df.join(result)
+##################################################################################################### 
+####### 주어진 DataFrame의 각 요소에 대해 제곱하는 함수를 적용하여 값을 변환
+def SQ(x):  return x*x
+df=df.transform(SQ)
+
+##################################################################################################### 
+####### 주어진 데이터프레임에서 각 그룹별로 Value 열을 표준화하여 새로운 열로 추가하여 출력(apply, transform)
+data = {'Category': ['A', 'A', 'B', 'B', 'A', 'B', 'B', 'A', 'B', 'A'],'Value': [10, 15, 10, 20, 10, 30, 50, 10, 20, 15]}
+df = pd.DataFrame(data)
+ef z_score(x):  return round((x-x.mean())/x.std(),2)
+
+## Option-1 Using TRANSFORM
+df["그룹평균"]=df.groupby("Category")["Value"].transform(lambda x: round(x.mean(),2))
+df["STD"]=df.groupby("Category")["Value"].transform(lambda x: round(x.std(),2))
+df["Z-Score"]=df.groupby("Category")["Value"].transform(z_score)
+
+## Option-2 Using MAP
+CatMean=round(df.groupby("Category")["Value"].mean(),2)
+CatStd=round(df.groupby("Category")["Value"].std(),2)
+df["그룹평균"]=df["Category"].map(CatMean)
+df["STD"]=df["Category"].map(CatStd)
+df["Z-score"] = round((df["Value"] - df["그룹평균"]) / df["STD"],2)
+
+## Option-3 Using APPLY()
+def M_S_Z(df_g):
+    df_g['그룹평균'] = round(df_g["Value"].mean(),2)
+    df_g['STD'] = round(df_g["Value"].std(),2)
+    df_g['Z-score'] = round((df_g["Value"] - df_g["그룹평균"]) / df_g['STD'],2)
+    return df_g
+df = df.groupby('Category', group_keys=False).apply(M_S_Z)
+
+##################################################################################################### 
+####### 날짜 (date)를 인덱스로, 도시(city)를 열로 온도(temperature)를 값으로 사용 하여 피벗 테이블을 생성
+pivot_df=df.pivot(index='date', columns='city', values='temperature')
+
+##################################################################################################### 
+####### 중복된 값을 평균으로 처리하여 피벗 테이블을 생성
+pivot_tb_df=df.pivot_table(index='date', columns='city', values='temperature', aggfunc='mean')
+
+##################################################################################################### 
+####### 다중 인덱스와 다중 값을 사용: 날짜별로 온도와 습도의 다중 값을 처리하여 피벗 테이블 생성
+pivot_mul_df=df.pivot(index='date', columns='city')
+
+##################################################################################################### 
+####### 매출 데이터에서 각 연도와 각 제품별로 총 매출액을 계산하세요
+pivot_df=df.pivot(index='Year', columns='Product', values='Sales')
+
+##################################################################################################### 
+####### 매출 데이터에서 각 연도와 각 제품별로 총 매출액을 계산
+pivot_df=df.pivot_table(index='Year', columns='Product', values='Sales', aggfunc='sum', fill_value=0)
+
+##################################################################################################### 
+####### 직원 근무시간 데이터에서 각 직원별로 각 월의 총 근무시간을 계산
+PV2=df.pivot_table(index='Employee', columns='Month', values='Hours', aggfunc='sum', fill_value=0)
+
+##################################################################################################### 
+####### 주어진 DF에서 중복 컬럼 삭제 후 불린인덱싱 이용 eps가 3000보다 적거나 stock_name이 이마트인 DF 생성 
+df4.drop(['name'], axis=1,inplace=True)
+df5=df4[(df4['eps']< 3000) | (df4['stock_name']=='이마트')]
+
+##################################################################################################### 
+####### 주어진 DF에서 다양한 조건의 불린인덱싱 이용
+cond1=df.a > 10; cond2=df.b == 16; cond3=df.e > 15; 
+df2=df[cond1 & cond2 & cond3]; df[cond1 | cond2 | cond3]; df[cond1][['a','b']]
+
+##################################################################################################### 
+####### 주어진 DF에서 column 설정 및 value 수정
+tdf.rename(columns={'sex':'gender', 'fare':'ticket'}, inplace=True)
+df1=tdf[['gender']].replace(['female', 'male'], [1,0])
+tdf.rename(str.upper, axis=1, inplace=True)
+
+##################################################################################################### 
+####### Key feature를 발굴한 후 범주화
+def GroupAge(x):
+  if x <= 3: Cate='Baby'
+  elif x < 10: Cate='Child'
+  elif x < 19: Cate='Teenager'
+  elif x < 30: Cate='Young Adult'
+  elif x < 50: Cate='Adult'
+  else: Cate='Elderly'
+  return Cate
+
+tdf['Age_Cate']=tdf['age'].map(lambda x: GroupAge(x))
+tdf['Age_Cate2']=tdf['age'].apply(GroupAge)
+tdf['Age_Cate3']=tdf['age'].map(lambda x: "Baby" if x <= 10 else ("Child" if x <= 10 else ('Teenager' if x <= 19 else ('Young Adult' if x <= 30 else ('Adult' if x <= 50 else 'Elderly')))))
+###
+labels = ['Baby', 'Child', 'Teenager', 'Young Adult', 'Adult', 'Elderly']
+tdf['Age_Cate4']= pd.cut(tdf['age'], bins = [0, 3, 10, 19, 30, 50, float('inf')], labels=labels)
+
+#####################################################################################################
+########################################### Numpy제공 random 함수 ####################################
+#####################################################################################################
+- np.random.seed : seed를 통한 난수 생성
+  np.random.seed(0) 
+- np.random.randint : 정수 난수 1개 생성
+- np.random.rand : 0부터 1사이의 균일분포에서 난수 매트릭스 배열 생성
+- np.random.randn : 가우시안 표준 정규분포에서 난수 매트릭스 배열 생성
+- np.random.shuffle : 기존의 데이터의 순서 바꾸기
+- np.random.choice : 기존 데이터에서 sampling
+
+#####################################################################################################
+############################################### File I/O ############################################
+##################################################################################################### 
+file_data=pd.DataFrame({ 'col1':[1,2,3,4,5,6], 'col2':['A','A','B','B','C', 'C']})
+file_data.to_csv('file_data.csv', index=None)
+file_data=pd.read_csv('file_data.csv')
+
+###################################################### 엑셀 loading
+import pandas as pd
+filepath1='/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/stock price.xlsx'
+filepath2='/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/stock valuation.xlsx'
+df1=pd.read_excel(filepath1, engine='openpyxl', index_col='id')
+df2=pd.read_excel(filepath2, engine='openpyxl', index_col='id')
+
+###################################################### CSV loading
+file_path = '/content/drive/MyDrive/00_KITA_2404/M3_분석라이브러리/pandas/dataset/titanic3.csv'
+df = pd.read_csv(file_path)
+
+###################################################### local file loading
+from google.colab import files
+uploaded = files.upload()
+
+#####################################################################################################
+############################################ seaborn data load ######################################
+#####################################################################################################
+import seaborn as sns
+# Titanic 데이터셋에서 age, sex, 등 5개 열을 선택하여 데이터 프레임 만들기
+titanic = sns.load_dataset('titanic')
+#df=titanic.loc[:, ['age', 'sex', 'class', 'fare', 'survived']]
+df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
+
