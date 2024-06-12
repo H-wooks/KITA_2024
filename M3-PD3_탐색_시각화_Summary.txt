@@ -5,6 +5,8 @@ selected_columns = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'gender', 'surviv
 df = df[selected_columns]
 correlations = df.corr()['survived'].drop(['survived']).sort_values(ascending=False)
 
+correlation=np.corrcoef(df['광고비'], df['매출'])
+correlation1=np.corrcoef(df['광고비'], df['매출'])[0,1]
 ##################################################################### Params 선정
 df_cor=df.corr(); target_variable='mpg'; correlation_threshold=0.5
 corr_features=df_cor[target_variable][abs(df_cor[target_variable]) > correlation_threshold].index.tolist()
@@ -27,6 +29,7 @@ plt.title('Correlation Matrix'); plt.show()
 ##################################################################################################### 
 ####################################### 숫자형만 선택
 numeric_df=df.select_dtypes(include=[np.number])
+perc=np.percentile(Salary['Indv Salary'], [25, 50, 75])
 
 ####################################### 수치화 할때 유용
 df['with_family'] = (df['sibsp'] + df['parch'] > 0).astype(int)
@@ -105,7 +108,8 @@ fig.suptitle(f'{target} vs Selected features', fontsize=16); plt.tight_layout(re
 
 ##################################################################### thicks angle setup
 plt.xticks(rotation=60)
-
+axes[1].set_xlim(0, 10)
+axes[1].set_xticks(np.arange(1, 11, 1))
 ##################################################################### 라인그래프
 ts=pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2020', periods=1000)); ts = ts.cumsum()
 ts.plot(); plt.title("Cummulative Sum Line Graph"); plt.show()
@@ -171,9 +175,31 @@ fig.delaxes(axs[2,1]); plt.tight_layout(); plt.show()
 ##################################################################### Box Plot
 df=pd.DataFrame(np.random.rand(10,5), columns=list("ABCDE"))
 df.plot.box(); plt.title("Box Plot"); plt.show()
+
+################################ 이상치/Outlier
+print("percentile:", perc)
+q1_salary=perc[0]
+q3_salary=perc[2]
+iqr_salary=perc[2]-perc[0]
+print(f"Q1: {q1_salary}, Q3: {q3_salary}, IQR: {iqr_salary}")
+
+### 이상치 확인
+lower_bound=q1_salary-1.5*iqr_salary
+upper_bound=q3_salary+1.5*iqr_salary
+print(f"Lower Bound: {lower_bound}, Upper Bound: {upper_bound}")
+outliers=Salary[(Salary['Indv Salary']<lower_bound)|(Salary['Indv Salary']>upper_bound)]
+print("Outliers: ",outliers)
+
 ##################################################################### Scatter Plot
 df.plot.scatter(x="A",y="B"); plt.title("Scatter Plot"); plt.show()
 
+#################################################### 1차 선형 추세
+coeff = np.polyfit(df['광고비'], df['매출'], 1)  # 1=linear
+m = coeff[0]
+b = coeff[1]
+print(f"기울기:{m}, 절편: {b}")
+df.plot.scatter(x='광고비', y='매출')
+plt.plot(df['광고비'], m*df['광고비']+b)
 ##################################################################### Correlation Scatter Plot
 df=pd.DataFrame(np.random.rand(50,4), columns=list("ABCD"))
 
