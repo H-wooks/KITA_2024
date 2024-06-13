@@ -290,3 +290,68 @@ weekdays_df=df[df['day of week'] < 5]
 #################################################### END ############################################ 
 ################################################# 날짜 시간 ##########################################
 ##################################################################################################### 
+
+##################################################################################################### 
+################################################# Examples ##########################################
+##################################################################################################### 
+################################## Q. 2023년 1월 1일부터 2023년 12월 31일까지의 날짜 범위를 생성하고, 이 날짜 범위에서 매월 첫 번째 날만 포함하는 데이터프레임을 작성
+rng=pd.date_range('2023-01-01',end='2023-12-31', freq='MS')       # M: Month-End Frequency
+DF=pd.DataFrame(np.random.randn(12,1), index=rng, columns=["values"])
+DF.head(20)
+################################## Q. 2020년부터 2025년까지의 분기별 기간 범위를 생성하고, 각 분기의 시작과 끝 날짜를 포함하는 데이터프레임을 작성
+rng1 = pd.date_range(start='2020-01-01', end='2025', freq='Q')            # 분기 끝일
+rng2 = pd.date_range(start='2020-01-01', end='2025', freq='QS-JAN')       # 분기 시작일
+# rng2=rng1.dt.to_period("QS-JAN") ==> SR로 변환한다음에 사용 가능
+
+# 두 DatetimeIndex를 리스트로 묶어서 합치기
+rng = pd.DatetimeIndex(list(rng1) + list(rng2)).sort_values()
+DF=pd.DataFrame(np.random.randn(41,1), index=rng, columns=["values"])
+DF.head(10)
+#### 강사님 답안
+dates = pd.period_range(start='2020-01-01', end='2025', freq='Q')
+### pd.date_range vs. pd_period_range
+
+df2=pd.DataFrame({
+    'quarter': dates,
+    'start_date': dates.start_time.date,
+    'end_date': dates.end_time.date
+
+})
+
+################################## Q.0일부터 10일까지의 시간 범위를 12시간 간격으로 생성하고, 각 간격에 대해 누적 시간을 계산하여 데이터프레임을 작성
+time_delta_range = pd.timedelta_range(start='0', end='100 days', freq='12H')
+df = pd.DataFrame({
+    'timedelta': time_delta_range,
+    'cumulated_time': [timedelta.total_seconds()/3600 for timedelta in time_delta_range]
+})
+################################## Q.주어진 df 에서 특정 날짜 이후의 데이터를 필터링
+df = pd.DataFrame({
+    'date': ['2022-01-01', '2022-01-02', '2022-01-03', '2022-01-04', '2022-01-05'],
+    'value': [1, 2, 3, 4, 5]
+})
+df['date'] = pd.to_datetime(df['date'])
+df
+
+filtered_df=df[df['date']> '2022-01-02']
+################################## Q.df에서 월별로 데이터의 합계를 계산하세요.
+df = pd.DataFrame({
+    'date': ['2022-01-01', '2022-01-15', '2022-02-01', '2022-02-15', '2022-03-01'],
+    'value': [1, 2, 3, 4, 5]
+})
+df['date'] = pd.to_datetime(df['date']); df['month'] = df['date'].dt.to_period('M')
+monthly_sum = df.groupby('month')['value'].sum().reset_index()
+################################## Q. 데이터프레임에서 주말(토요일과 일요일) 데이터를 필터링하세요.
+df = pd.DataFrame({
+    'date': ['2022-01-01', '2022-01-02', '2022-01-03', '2022-01-08', '2022-01-09'],
+    'value': [1, 2, 3, 4, 5]
+})
+df['date'] = pd.to_datetime(df['date'])
+df['day of week']=df['date'].dt.dayofweek
+weekend_df=df[df['day of week'] >= 5]
+################################## Q.주어진 df에서 분기별 데이터의 평균을 계산
+df['date'] = pd.to_datetime(df['date']); df['quarter']=df['date'].dt.to_period('Q'); quarterly_mean=df.groupby('quarter')['value'].mean().reset_index()
+################################## Q.df에서 작업 일자(월요일부터 금요일)만 남기고 필터링
+df['date'] = pd.to_datetime(df['date']); df['day of week']=df['date'].dt.dayofweek; weekdays_df=df[df['day of week'] < 5]
+################################## Q.
+################################## Q.
+

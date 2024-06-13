@@ -263,6 +263,55 @@ plt.title('Correlation Matrix'); plt.show()
 - np.random.choice : 기존 데이터에서 sampling
 
 #####################################################################################################
+############################################### Examples ############################################
+##################################################################################################### 
+
+############################### Q. 나이와 생존, 사망자수 관계 시각화
+plt.figure(figsize=(10,6)); sns.histplot(df[df['survived']==1]['age'], bins=30, kde=True, color='b', label='Survived')
+sns.histplot(df[df['survived']==0]['age'], bins=30, kde=True, color='skyblue', label='Not Survived')
+plt.title('Age Distribution by Survival'); plt.xlabel('Age'); plt.xlabel('count'); plt.legend(); plt.tight_layout(); plt.show()
+
+############################### Q.Fare와 생존율 관계를 시각화하여 출력하세요.
+df['fare_enc']=pd.cut(df['fare'],bins=[0,50,100,150,200,250,300,350,400,450,500]); DF_G=df.groupby('fare_enc')['survived'].mean()
+DF_G.plot(kind="bar", color='g'); plt.title('Survival Rate versus Fare_encode'); plt.xlabel('Fare_encoded'); 
+plt.xticks(rotation=60); plt.tight_layout(); plt.show()
+
+plt.figure(figsize=(10,6))
+sns.histplot(df[df['survived']==1]['fare'], bins=30, kde=True, color='b', label='Survived')
+sns.histplot(df[df['survived']==0]['fare'], bins=30, kde=True, color='skyblue', label='Not Survived')
+plt.title('Fare Distribution by Survival'); plt.xlabel('Fare'); plt.xlabel('count'); plt.legend(); plt.show()
+
+############################### Q.고객 정보 데이터프레임과 구매 내역 데이터프레임을 결합하여 각 고객이름(name) 별 총 지출을 계산하여 출력
+MergedDF=pd.merge(customers,purchases, on='customer_id', how='left'); total_spent=MergedDF.groupby("name"); 
+total_spent=MergedDF.groupby("name")["amount"].sum().reset_index()
+############################### Q.학생 성적 데이터프레임과 과목 데이터프레임을 결합하여 각 과목별 평균 성적을 계산
+grades = pd.DataFrame({'student_id': [1, 2, 3, 4, 1, 2, 3, 4],'subject_id': [101, 101, 102, 102, 103, 103, 101, 103],'grade': [85, 90, 78, 88, 92, 95, 80, 85]})
+subjects = pd.DataFrame({'subject_id': [101, 102, 103],'subject_name': ['Math', 'Science', 'History']})
+MergedDF=pd.merge(grades,subjects, on='subject_id', how='left');AVG_GRD=MergedDF.groupby("subject_name")["grade"].mean().reset_index()
+############################### Q.데이터프레임에서 age가 30 이상이고 spending이 500 이상인 고객을 찾아 출력
+C_F=customers[(customers['spending'] >= 500) & (customers['age']>= 30)]
+############################### Q.학생 성적 데이터프레임에서 math_score가 80 이상 90 이하인 학생을 찾아 출력
+S_F=students[(students['math_score'] > 80) & (students['math_score'] <= 90)]
+############################### Q.titanic3 데이터셋에서 survived 열을 사용하여 생존자와 비생존자의 수를 계산
+survival_counts = df['survived'].value_counts(); Nom_Null=df.survived.isnull().sum()
+############################### Q.데이터셋에서 pclass 열을 기준으로 각 객실 등급의 평균 운임(fare)을 계산하여 출력
+avgfare_class=df.groupby('pclass')['fare'].mean()
+############################### Q.titanic3 각 변수의 상관계수를 통해 각 변수와 목표 변수(생존 여부) 간의 관계를 파악
+df.rename(columns={'sex': 'gender'}, inplace=True)
+df['gender'] = df['gender'].map({'female': 1, 'male': 0})
+numeric_df=df.select_dtypes(include=[np.number])
+correlation_matrix=numeric_df.corr()
+survival_correlation=correlation_matrix['survived'].sort_values(ascending=False)
+############################### Q.승객의 가족 크기(동반한 형제자매/배우자 수와 부모/자녀 수의 합)가 생존에 영향을 미치는지를 탐색하여 결과를 출력
+df['family_size'] = df['sibsp'] + df['parch']
+correlations = df[['survived', 'family_size']].corr().iloc[0,1]
+family_survival_rate = df.groupby('family_size')['survived'].mean()
+############################### Q.mean_fare_by_pclass라는 파생 변수
+mean_fare_by_pclass=df.groupby('pclass')['fare'].mean().to_dict()
+df["mean_fare_by_pclass"]=df["pclass"].map(mean_fare_by_pclass)
+df[['pclass', 'fare',"mean_fare_by_pclass" ]].head()
+mean_fare_by_pclass_correlation=df[["mean_fare_by_pclass",'survived']].corr().iloc[0,1]
+#####################################################################################################
 ############################################### File I/O ############################################
 ##################################################################################################### 
 file_data=pd.DataFrame({ 'col1':[1,2,3,4,5,6], 'col2':['A','A','B','B','C', 'C']})

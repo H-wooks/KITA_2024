@@ -59,7 +59,6 @@ df_from_series=s2.to_frame(name='value')
 #####################################################################################################
 ############################################# DataFrame #############################################
 #####################################################################################################
-
 ######################################################## 생성
 ######## NP Array
 np.random.seed(0) 						## random seed 설정해서 난수 control
@@ -501,12 +500,12 @@ numNull=df.isnull().sum().sum()     ## 두번해야지 전체 df null 값을 반
 numNull=df.iloc[:,0].isnull().sum()           ## 1st column별 null 값을 반환
 numNull=df.iloc[0].isnull().sum()           ## 이렇게 하면 1st 열 null 값을 반환
 filled_df=df.fillna(0)  or df.fillna(0, inplace=True)
-.dropna(axis=1);    			## 열삭제 vs. default: axis=0 (행삭제)
 .fillna(0)
 df_f=df.fillna(method='ffill')		## 행기준 앞의 값으로 채움
 df_b=df.fillna(method='bfill')		## 행기준 뒤의 값으로 채움
 df_rz=df.replace(np.nan, 0); df_rv=df.replace(np.nan, -1)
-
+df_f_mean=df.apply(lambda x:x.fillna(x.mean()), axis=0)         ## null 값을 각 열의 평균값으로 채우기
+df_d_rows=df.dropna(); df_d_cols=df.dropna(axis=1)              ## 결측치 행/열 삭제제
 ########## DF의 열/행에 대해서 max 값의 index를 반환 
 DataFrame.idxmax(axis=0, skipna=True)		
 
@@ -531,10 +530,106 @@ Texas	6.0	6.0	6.0
 Oregon	9.0	9.0	9.0
 
 #####################################################################################################
-################################################# EX ################################################
+############################################### EXAMPLE #############################################
 #####################################################################################################
 ##################################################################################################### 
-####### 주어진 DataFrame의 각 요소에 대해 행/열 단위로 계산해서 열/행을 추가
+################################################### Q. 시리즈에서 null 값을 2개 입력후 그 값을 0으로 대체한 후 null값 여부를 확인
+s = pd.Series([5, 15, 25, 35, 45], index=['x', 'y', 'z', 'w', 'v']);
+no_nan=s.isnull().sum(); s.y=np.nan; s.v=np.nan; print(s); no_nan=s.isnull().sum(); print(no_nan,"\n")
+f_s=s.fillna(0); print(f_s); no_nan=f_s.isnull().sum() print(no_nan,"\n")
+################################################### Q. 주어진 리스트 [1, 2, 3, 4, 5]를 Pandas Series로 변환하고, 각 원소에 10을 add 
+data_list = [1, 2, 3, 4, 5]; S1=pd.Series(data_list,name='TEST'); S2=S1+10
+################################################### Q.Series 생성 후 인덱스 설정후 인덱스를 기준으로 Series를 정렬
+data_list = [10, 20, 30, 40, 50];  S1=pd.Series(data_list,index=list('cdeab'), name='TEST'); S2=S1.sort_index()
+################################################### Q.Series 인덱스 'b', 'd'에 해당하는 원소를 선택하여 출력
+data = [1, 2, 3, 4, 5]; index1 = ['a', 'b', 'c', 'd', 'e']; S1=pd.Series(data,index=index1, name='TEST'); print(S1[['b','d']])
+
+################################################### Q.4개의 Series를 결합하여 데이터프레임을 생성, 5개의 데이터를 인덱싱하여 출력, null값을 3개 추가- null값의 개수를 확인하고 삭제, 2개 데이터 수정, 1개 행 삭제
+id = np.arange(1, 1001); i1 = pd.Series(id);gender = np.random.randint(2, size=1000);g1 = pd.Series(gender)
+age = np.random.randint(1, 101, size=1000);a1 = pd.Series(age);region = np.random.randint(1, 11, size=1000)
+r1 = pd.Series(region);df = pd.concat([i1, g1, a1, r1], axis=1);df.rename(columns={0: 'id', 1: 'gender', 2: 'age', 3: 'region'}, inplace=True);
+print(df.iloc[[0, 1, 2, 3, 4]]); df.loc[0, 'age'] = np.nan; df.loc[1, 'gender'] = np.nan; df.loc[2, 'region'] = np.nan;
+null_counts = df.isnull().sum();print( null_counts,'\n') df.dropna(inplace=True); print(df.head(7)); 
+df.loc[3, 'age'] = 50; df.loc[4, 'region'] = 5; df.drop(index=5, inplace=True); print(df.head(7))
+
+################################################### Q.학생별 성적 데이터셋으로 의미있게 데이터 셋을 수정: S1 ~ S10은 평균 점수를 기준으로 1등급에서 10등급이고 등급간 점수 차는 5점; 결시자가 국어 3명, 수학 2명 있음; 영어, 수학의 평균 점수가 국어 대비 5점 낮음
+df = np.random.randint(1,5,size=(10,5)); df=pd.DataFrame(df,index=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10']; columns=['국어','영어','수학','과학','사회']); 
+for i in range(10): df.iloc[i]=90-i*5
+for i in range(10): df.iloc[i,1:3]=df.iloc[i,0]-5
+a=df.copy(); a.iloc[7:,0]=np.nan; a.iloc[8:,2]=np.nan
+################################################### Q.df1에서 결측값 처리 후 딕셔너리, 리스트로 변환하여 출력
+df1.info()
+df1.columns; df2=df1.copy(); columns=['Math', 'English', 'Science', 'History']; 
+for column in columns: df2[column].fillna(df2[column].mean(), inplace=True)
+df2=df1.copy()
+for column in df2.select_dtypes(include=[np.number]).columns:               ### DF에서 숫자형 데이터 타입 열들만 선택처리
+  df2[column].fillna(df2[column].mean(), inplace=True)
+array1=df2.to_numpy(); dict1=df2.to_dict(orient='list'); list1=df2.values.tolist()
+################################################### Q.데이터 필터링 및 정렬 후 배열, 딕셔너리, 리스트로 변환하여 출력하세요.
+# - Math 점수가 80 이상인 학생만 선택 # - English 점수를 기준으로 내림차순 정렬
+f2_filtered=df2[df2['Math']>=80]; df2_sorted=df2_filtered.sort_values(by='English', ascending=False)
+################################################### Q. 각 학생의 평균 점수 계산 후 배열, 딕셔너리, 리스트로 변환하여 출력
+df3_avg=df3.groupby('Name')['Score'].mean(); df3_pivot=df3.pivot_table(index='Name', columns='Subject', values='Score',aggfunc='mean').reset_index(); df3_pivot.columns.name=None; array3=df3_pivot.to_numpy(); dict3=df3_pivot.to_dict(orient='list'); list3=df3_pivot.values.tolist()
+################################################### Q.특정 열의 데이터 타입을 변환한 후 변환된 타입을 확인
+df4['A']=df4['A'].astype(int); df4['B']=df4['B'].astype(float); df4['C']=pd.to_datetime(df4['C'])
+################################################### Q. df에서 나이가 25 이상인 행을 출력
+subset=df5[df5['Age']>=25]; print("\n나이가 25세이상인 행:\n \n", subset)
+################################################### Q.df_1과 df_2를 행방향과 열방향으로 병합하여 출력
+df_3=pd.concat([df_1,df_2], axis=1); df_4=pd.concat([df_1,df_2], axis=0)
+################################################### Q. 열이름과 행이름 변경
+columns={'a':'국어','b':'영어','c':'수학','d':'과학','e':'음악'}
+index={0:'a',1:'b',2:'c',3:'d',4:'e',5:'f',6:'g',7:'h'}
+df.rename(columns=columns, index=index, inplace=True)
+################################################### Q.reindex를 사용하여 인덱스를 변경하고 결측치를 0으로 채운 데이터프레임을 출력
+new_index=[0, 1, 2, 3, 4]; df4_new=df4.reindex(new_index,fill_value=0)
+################################################### Q.reindex를 사용하여 특정 날짜 범위로 인덱스를 재설정하여 출력
+df5 = pd.DataFrame({'Value': [10, 20, 30, 40]}, index=dates); filtered_df5 = df5[df5.index < '2024-01-03']
+filtered_df6=df5[(df5.index >= '2024-01-01') & (df5.index < '2024-01-03')]
+################################################### Q.df를 전치하고, 연도별 판매량 데이터를 제품별로 나열하여 출력
+data = {'Year': ['2020', '2021', '2022'],'Product_A': [500, 600, 700],'Product_B': [400, 500, 600],'Product_C': [300, 400, 500]}
+df6 = pd.DataFrame(data); df_transposed=df6.set_index('Year').T; df_transposed.reset_index(inplace=True)
+df_transposed.rename(columns={'index':'Product'}, inplace=True)
+################################################### Q.연산메소드 이용 및 NaN 값을 0으로 대체 후 사칙연산을 수행한 후 결과를 출력
+SR1 = pd.Series({'국어':np.nan,'영어':80,'수학':90}); SR2 = pd.Series({'수학':80,'한국사':None, '과학': 70}); SR3 = pd.Series({'국사':72,'수학':65,'문학':69, '영어': 30}); ADD=SR1.add(SR2, SR3, fill_value=0); SUB=SR1.sub(SR2, SR3, fill_value=0)
+MUL=SR1.mul(SR2, SR3, fill_value=0); DIV=SR1.div(SR2, SR3, fill_value=0); df=pd.DataFrame([ADD,SUB,MUL,DIV], index=['덧셈','뺄셈','곱셈','나눗셈']); df.fillna(0, inplace=True)
+################################################### Q.DataFrame의 N열에서 Series s값을 빼고 결과를 새로운 열 O에 저장 후 출력
+s = pd.Series([5, 10, 15, 20, 25]); SR_new=df.loc[:,'N']-s; SR_new=df['N']-s; df['O']=SR_new
+################################################### Q.DF열에 대해 Series를 더하고, 각 행의 합계를 계산하여 새로운 열에 추가
+s1 = pd.Series([5, 5, 5, 5, 5]); s2 = pd.Series([10, 10, 10, 10, 10]); s3 = pd.Series([15, 15, 15, 15, 15]); df_new=df.copy()
+df_new['A']=df['A']+s1; df_new['B']=df['B']+s2; df_new['C']=df['C']+s3; df_new['D']=df_new.sum(axis=1)
+################################################### Q.df에서 세 열의 값을 더하여 새로운 컬럼을 생성한 후 출력
+df['F']=df[['A','C','E']].sum(axis=1); df['F']=df['A']+df['C']+df['E']
+################################################### Q.세 열의 값을 평균하여 새로운 컬럼을 생성 후 출력
+df['F']=df[['A','C','E']].mean(axis=1)
+################################################### Q.두 열을 더한 값이 나머지 열보다 큰경우에는 1, 작은 경우에는 0 새로운 열로
+df['F'] = (df['A'] + df['B'] > df['C']).astype(int)
+################################################### Q. 여러 열을 선택해서 새로운 DF로
+df = titanic.loc[:, ['age','class', 'fare', 'survived']]
+################################################### Q.각 그룹에 대한 fare 열의 표준 편차를 집계하여 시리즈로 반환
+std_fare=grouped.fare.std(); print(std_fare, "\n", type(std_fare))
+################################################### Q.모든열에 여러 함수를 매핑: group객체. agg([함수1, 함수2, 함수3,...])
+agg_all=grouped.agg(['min','max','mean',min_max])
+################################################### Q.각 열마다 다른 함수를 매핑: group객체.agg({'열1':함수1, '열2':함수2,...})
+agg_sep=grouped.agg({'age':'min','fare':['min','max', min_max],'survived':'mean'})
+################################################### Q. 열에 대해 최대값을 구하는 함수
+df_ap_col=df.apply(lambda x: x.max(), axis=0)
+################################################### Q.'Category'별로 그룹화하여 각 그룹의 'Value' 열의 누적 합을 계산하세요.
+df_g=df.groupby('Category')
+df_g_sum=df_g.cumsum()                  ## 카테로리별로 열기준 sum
+df_g_v_sum=df_g.Value.cumsum()          ## 특정열로 선택한 후에 sum도 가능 이경우 DF가 아닌 SR로 반환
+################################################### Q.'Category'별로 그룹화하여 각 그룹의 'Value' 열의 합계, 평균, 최대값, 최소값을 계산
+df_g=df.groupby('Category'); df_agg=df_g.agg({'Value':['sum','mean','max','min']})
+df_agg=df.groupby('Category')['Value'].agg(['sum','mean','max','min'])              ## aother option
+################################################### Q.
+
+################################################### Q.
+
+################################################### Q.
+
+################################################### Q.
+
+
+################################################### Q. 주어진 DataFrame의 각 요소에 대해 행/열 단위로 계산해서 열/행을 추가
 df = pd.DataFrame({"A": [1, 2, 3, 4], "B": [5, 6, 7, 8]})
 ### 특정 열(행)을 선택해서 SR로 만든 후에는 map을 써도 괜찮지만... DF는 apply를 사용
 df["RowSum"]=df.apply(lambda row: row.sum(), axis=1)		    # 이 경우엔 map/transform 적용 x
@@ -819,12 +914,12 @@ tdf['Age_Cate4']= pd.cut(tdf['age'], bins = [0, 3, 10, 19, 30, 50, float('inf')]
 #####################################################################################################
 - np.random.seed : seed를 통한 난수 생성
   np.random.seed(0) 
-- np.random.randint : 정수 난수 1개 생성
+- np.random.randint(1,10, size=10 or size=(3,5)) : 정수 난수 1개 생성
 - np.random.rand : 0부터 1사이의 균일분포에서 난수 매트릭스 배열 생성
 - np.random.randn : 가우시안 표준 정규분포에서 난수 매트릭스 배열 생성
-- np.random.shuffle : 기존의 데이터의 순서 바꾸기
-- np.random.choice : 기존 데이터에서 sampling
-
+- np.random.shuffle() : 기존의 데이터의 순서 바꾸기
+- np.random.choice([1,2,3,4,5]) : 기존 데이터에서 sampling
+- np.random.sample([1,2,3,4,5],3) # 리스트 요소를 중복이 안되게 리턴
 #####################################################################################################
 ############################################### File I/O ############################################
 ##################################################################################################### 
