@@ -98,6 +98,21 @@ for i, column in enumerate(df.columns):
 plt.tight_layout(); plt.show()
 
 ##################################################################### DF 전체 SUB-Plot
+###################################################### 2 x 2 subplots
+import matplotlib.pyplot as plt
+
+fig = plt.figure(figsize = (10,6))
+ax1 = fig.add_subplot(2,2,1)
+ax2 = fig.add_subplot(2,2,2)
+ax3 = fig.add_subplot(2,2,3)
+ax4 = fig.add_subplot(2,2,4)
+
+ax1.plot(np.arange(20),(np.arange(20)*2 + np.random.randn(20)*10),color='blue',marker='o',markersize=3)
+ax2.hist(np.random.rand(100), bins = 20)
+ax3.scatter(x = np.arange(100), y = np.arange(100) + np.random.randn(100)*20)
+ax4.bar(np.arange(10),np.random.randint(15,30, 10))
+#####################################################
+
 columns=['cyl', 'disp', 'hp', 'drat', 'wt', 'vs', 'am', 'carb']; target='mpg'
 fig, axes=plt.subplots(nrows=2, ncols=4, figsize=(20, 10))
 for i, col in enumerate(columns):
