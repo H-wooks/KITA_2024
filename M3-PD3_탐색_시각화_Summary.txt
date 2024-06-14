@@ -13,7 +13,6 @@ corr_features=df_cor[target_variable][abs(df_cor[target_variable]) > correlation
 
 ##################################################################### Matrix로 볼 때
 correlation_matrix=numeric_df.corr()
-print(correlation_matrix, '\n')
 survival_correlation=correlation_matrix['survived'].sort_values(ascending=False)
 print(survival_correlation)
 ## 하나만

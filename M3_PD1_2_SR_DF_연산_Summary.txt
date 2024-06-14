@@ -38,14 +38,13 @@ print(sr[1:5])
 SR1.name='population'
 SR1.index.name='state'
 
-######################################################## 결손 data 처리
+######################################################## 결측, 결손 data 처리
 SR1.Califonia=np.nan                  		## np.nan은 NaN(부동소수점으로 취급) 결과를 반환하는 반면, None은 TypeError를 반환
 null_mask = SR1.isnull()  			## 각 요소에 대해 True, Faulse로 반환
 filled_series=SR1.fillna(0) 			## NaN과 None type 결손 data에 0을 채움
 SR1.isnull().sum()				##  결손 data count
 dropped_series=SR1.dropna()			## 결손 data drop
 .isna() 도 가능
-
 ######################################################## Series의 mapping
 ######## map for SR
 sr=pd.Series([1,2,3,4,5]); sr_mapped=sr.map(lambda x: x+2)
@@ -113,6 +112,13 @@ df=pd.DataFrame([add, sub,mul,div], index=['덧셈', '뺄셈','곱','나눗셈']
 곱	  9000.0	7200.0	7200.00
 나눗셈	 1.11	  1.12	  0.89
 ################################################################################################### 생성 END
+
+####################################################### 결측/결손 처리
+rows_with_na = IntegOrders_Mod[IntegOrders_Mod['OrderTimeGroup'].isna()]
+print(rows_with_na)
+
+IntegOrders_Mod.loc[IntegOrders_Mod['OrderTimeGroup'].isna(), 'OrderTimeGroup'] = 'DayBreak'
+
 
 ######################################################## index 설정
 df1.set_index('ID', inplace=True)		## 특정 컬럼을 index로 설정: 컬럼이름이 "ID"인 컬럼을 index로 설정정
