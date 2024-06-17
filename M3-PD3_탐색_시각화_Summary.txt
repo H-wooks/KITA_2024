@@ -86,6 +86,55 @@ pd.get_dummies(tdf2).head()
 #####################################################################################################
 ############################################### MATPLOTLIB ##########################################
 ##################################################################################################### 
+plt.style.available             # matplotlib에서 적용가능한 plot들을 보여준다
+plt.style.use('ggplot'); 
+x=df_auto.mpg; y=df_auto.weight; plt.figure(figsize=(8,6)); plt.scatter(x,y, color='b'); plt.grid(True)
+plt.title('Scatter Plot Matplotlib', size=20); plt.xlabel('MPG', size=10); plt.ylabel('WEIGHT', size=10); plt.show()
+
+
+
+################################################# 9-types Plots #####################################
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+## 데이터 생성
+np.random.seed(0)
+df=pd.DataFrame({'A':np.random.randn(1000),'B':np.random.randn(1000),'C':np.random.randn(1000)*100,'D':np.random.randint(1,100, 1000)})
+
+fig, axes = plt.subplots(3,3, figsize=(18,15))                                                  ## 데이터 프레임을 3행 3열 형태로 플롯
+df['A'].plot(, title='Line Plot')                                                   ## Line
+df['A'].plot(kind='hist', bins=30, ax=axes[0,1], title='Histogram')                             ## 히스토그램
+df['A'].plot(kind='box', ax=axes[0,2], title='box Plot')                                        ## 박스
+df.plot(kind='scatter', x='A', y='B', ax=axes[1,0], title='Scatter Plot')                       ## 산점도
+df[['A','B']].cumsum().plot(kind='area', ax=axes[1,1], title='Area Plot', stacked=False)        ## 면적그래프 (stacked =False는 두 시리즈가 겹치지 않도록 하는 옵션)
+df['D'].plot(kind='bar', ax=axes[1,2], title='Bar Plot')                                        ## 막대 그래프
+df['D'].value_counts().head(10).plot(kind='pie', ax=axes[2,0], title='Pie Chart')               ## 파이 차트 (상위 10개만 plot)
+df['A'].plot(kind='kde', ax=axes[2,1], title='KDE Plot')                                        ## 커널 밀도 추정 그래프
+df['D'].value_counts().head(10).plot(kind='barh', ax=axes[2,2], title='Horizontal Bar Plot')    ## 수평 막대 그래프
+plt.tight_layout(); plt.show()
+################################################# 9-types Plots ################################# End
+
+
+############################################ Matplotlib & Seaborn Plots #####################################
+## matplotlib
+- histogram : plt.hist(x, bins= )
+- line plot : plt.plot(x,y)
+- plt.bar(x,y, width= , color='')
+- scatter plot : plt.scatter(x, y):
+
+## seaborn
+- sns.distplot(data, bins=, color=, kde=), histplot, displot으로 변경
+- sns.boxplot(x, y, data, color)
+- sns.violinplot(x, y, data, color)
+- sns.barplot(x, y, data, color)
+- sns.jointplot(x, y, data, color)
+- sns.pairplot(data, hue, palette)
+- sns.lmplot(x,y,data,color)
+- sns.regplot(x,y,data,fig_reg=False)
+- sns.heatmap(data,)
+############################################ Matplotlib & Seaborn Plots ################################# end
+
 import matplotlib.pyplot as plt
 ##################################################################### DF 전체 Plot
 num_columns=len(df.columns)
@@ -361,10 +410,56 @@ df=titanic[['age', 'sex', 'class', 'fare', 'survived']]
 #####################################################################################################
 ############################################# 한글 폰트 Install ######################################
 #####################################################################################################
-!sudo apt-get install -y fonts-nanum
-!sudo fc-cache -fv
-!rm ~/.cache/matplotlib -rf
+!sudo apt-get install -y fonts-nanum # NanumBarunGothic 글꼴 설치 ** 설치 후 세션 다시 시작
+!sudo fc-cache -five                 # 글꼴 캐시 새로 고침
+!rm ~/.cache/matplotlib -rf          # Matplotlib 캐시를 지움
 
 import matplotlib.pyplot as plt
-plt.rc('font', family='NanumBarunGothic')
-plt.rcParams['axes.unicode_minus'] =False
+plt.rc('font', family='NanumBarunGothic')       # 한글 폰드 설정
+plt.rcParams['axes.unicode_minus'] =False       # 마이너스 부호 출력 설정
+
+
+
+#####################################################################################################
+################################################# EXAMPLES ##########################################
+##################################################################################################### 
+
+######################################################## Q. 통계요약표 및 시각화를 수행 (컬럼명: "Num")
+data=np.random.randn(1000000)
+df=pd.DataFrame(data, columns=['Num']); print(df.head(), '\n'); print(df.describe()); print(df.plot(kind='hist', bins=100))
+
+######################################################## Q. 통계요약표 및 시각화를 수행 (컬럼명: "Num")
+## 통계 요약표 및 시각화 수행
+from scipy import stats
+np.random.seed(1)
+sample1=stats.norm.rvs(loc=10, scale=2, size=10000)
+df1=pd.DataFrame(sample1, columns=['Num'])
+print(df1.head(), '\n')
+print(df1.describe())
+print(df1.plot(kind='hist', bins=100))
+
+######################################################## Q. df에 대해서 수직 막대 그래프, 수평 막대그래프, 수직 스택막대, 수평 스택 막대 그래프
+df=pd.DataFrame(np.random.rand(8,3), index=['P1','P2','P3','P4','P5','P6','P7','P8'],columns=pd.Index(['A','B','C'], name='Species'))
+df.plot(kind='bar', alpha=0.7)
+df.plot(kind='barh', alpha=0.7)
+df.plot(kind='bar', stacked=True, alpha=0.7)
+df.plot(kind='barh', stacked=True, alpha=0.7)
+######################################################## Q. df에 대해서 수직 막대 그래프, 수평 막대그래프, 수직 스택막대, 수평 스택 막대 그래프 using subplot
+df=pd.DataFrame(np.random.rand(8,3), index=['P1','P2','P3','P4','P5','P6','P7','P8'],columns=pd.Index(['A','B','C'], name='Species'))
+#fig, axes = plt.subplots(4,1, figsize=(8,16))    
+fig, axes = plt.subplots(nrows=4,ncols=1, figsize=(8,16))    
+
+df.plot(kind='bar', alpha=0.7, ax=axes[0])
+axes[0].set_title('Bar Chart')
+df.plot(kind='barh', alpha=0.7, ax=axes[1])
+axes[1].set_title('Horizontal Bar Chart')
+df.plot(kind='bar', stacked=True, alpha=0.7, ax=axes[2])
+axes[2].set_title('Stacked Bar Chart')
+df.plot(kind='barh', stacked=True, alpha=0.7, ax=axes[3])
+axes[3].set_title('Stacked Horizontal Bar Chart')
+######################################################## Q. 
+
+######################################################## Q. 
+
+######################################################## Q. 
+
