@@ -1,3 +1,6 @@
+
+
+python, live server... install
 python 가상환경 설정
 
 python --version
@@ -45,9 +48,12 @@ window Key + --> 치면 화면 분할
 
     #### 사용
     View/command palette click
-    중앙 창에서 python: Select Interpreter에서 내 가상환경 click
+    중앙 창에서 python: Select Interpreter에서 내 가상환경 click + new terminal
 
     새로 만들기에서 XXX.ipynb 하던지 xx.html을 하면 되고 
     html에서는 !tab을 치면 source code로 들어가고 
     여기서 마우스 오른쪽 클릭해서 "Open with Live Server" 하면 html 출력 창 나온다..
     여기서 이원화 split 창 만들어서 작업하면서 보고 싶으면 window key + 오른쪽 방향키 누르면 된다.
+
+
+웹문서에서 F12 누르면 소스 코드 볼 수 있음

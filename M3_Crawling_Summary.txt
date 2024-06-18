@@ -1,0 +1,111 @@
+#####################################################################################################
+############################################## BeautifullSoup #######################################
+#####################################################################################################
+######################################################### URL로부터 TAG 정보 가져오기
+from bs4 import BeautifulSoup
+import requests
+
+url='http://example.com'
+response=requests.get(url)                                  ### 아무런 문제 없이 URL 가져오면 200을 출력
+#print(response.text)                                       ==> html의 source code 정보
+#print(response.content)                                    # 얘는 binary로 가져오니까
+#print(response.text)                                       # TEXT로
+soup = BeautifulSoup(response.text,'html.parser')           # html parser를 커쳐서 정보를 정제
+soup.find_all('html')
+
+# 모든 <a> 태그 추출 anchor
+links=soup.find_all('a')
+for link in links:
+    print(link.get('href'))
+==>
+<a href="https://www.iana.org/domains/example">More information...</a>
+href ==>
+https://www.iana.org/domains/example
+
+# 모든 <div> 태그 추출
+divs=soup.find_all('div')
+for div in divs:
+    print(div.text)    
+==>
+[<div>
+ <h1>Example Domain</h1>
+ <p>This domain is for use in illustrative examples in documents. You may use this
+     domain in literature without prior coordination or asking for permission.</p>
+ <p><a href="https://www.iana.org/domains/example">More information...</a></p>
+ </div>]
+div.text ==>
+Example Domain
+This domain is for use in illustrative examples in documents. You may use this
+    domain in literature without prior coordination or asking for permission.
+More information...
+
+# 모든 <h1> 태그 추출
+h1s=soup.find_all('h1')
+for h1 in h1s:
+    print(h1.text)
+h1==>
+[<h1>Example Domain</h1>]
+h1.txt ==>
+Example Domain
+
+# 모든 <meta> 태그 추출
+metas=soup.find_all('meta')
+for meta in metas:
+    print(meta)
+    print(meta.attrs)
+meta ==> 
+[<meta charset="utf-8"/>,
+ <meta content="text/html; charset=utf-8" http-equiv="Content-type"/>,
+ <meta content="width=device-width, initial-scale=1" name="viewport"/>]
+meta.attrs ==> 
+{'charset': 'utf-8'}
+{'http-equiv': 'Content-type', 'content': 'text/html; charset=utf-8'}
+{'name': 'viewport', 'content': 'width=device-width, initial-scale=1'}
+
+# 클래스가 sister인 모든 태그를 추출
+sister_tags = soup.find_all(class_='sister')
+# ID가 link1인 태그를 추출
+ID_tags = soup.find_all(id='link1')
+
+## 모든 텍스트를 추출
+soup = BeautifulSoup(html_doc,'html.parser')
+all_text = soup.get_text()
+
+## 부모 태그 추출
+soup = BeautifulSoup(html_doc, 'html.parser')
+tag_link1 = soup.find(id='link1')
+print("ID가 link1인 태그: \n")
+print(tag_link1)
+parent_tag = tag_link1.parent
+print("\n\n부모 태그: \n")
+print(parent_tag,'\n')
+print("부모 태그의 name: \n")
+print(parent_tag.name)
+print("부모 태그의 class: \n")
+print(parent_tag.get('class'))
+print("부모 태그의 ID: \n")
+print(parent_tag.get('id'))
+print("부모 태그의 text: \n")
+print(parent_tag.text)
+
+## 다음 형제 태그 추출
+soup = BeautifulSoup(html_doc, 'html.parser')
+tag_link1 = soup.find(id='link1')
+# 다음 형제 태그 추출
+next_sibling_tag = tag_link1.find_next_sibling()
+print("ID가 link1인 태그의 다음 형제 태그: \n")
+print(next_sibling_tag)
+print("다음 형제 태그의 name: \n")
+print(next_sibling_tag.name)
+print("다음 형제 태그의 class: \n")
+print(next_sibling_tag.get('class'))
+print("다음 형제 태그의 ID: \n")
+print(next_sibling_tag.get('id'))
+print("다음 형제 태그의 text: \n")
+print(next_sibling_tag.text)
+
+#####################################################################################################
+################################################ EXAMPLES ###########################################
+#####################################################################################################
+
+#########################################################
