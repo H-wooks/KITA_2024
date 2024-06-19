@@ -291,13 +291,86 @@ ad_timeboard_response=soup.select_one('script#ad-timeboard-response')
 banner_size=ad_timeboard_response['data-gfp-banner-size'] if ad_timeboard_response else 'No data-gfp-banner-size found'
 print(banner_size)
 
-################################################################# Q.
+################################################################# Q.selenium 사용해서 네이버 사이트에서 뉴스스탠드 찾기
+## 동적 컨텐츠 로딩: selenium 사용
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
 
-################################################################# Q.
+options = Options()
+options.add_argument("--start-maximized")
+options.add_experimental_option("detach", True)
 
-################################################################# Q.
+driver=webdriver.Chrome(options=options)
+url='https://www.naver.com/'                        # 네이버 사이트 접속
+driver.get(url)                                         
 
-################################################################# Q.
+# 페이지 로딩 대기
+time.sleep(2)
+
+# 뉴스 스탠드 링크 찾기
+# #newsstand > div.ContentHeaderView-module__content_header___nSgPg > div > ul > li:nth-child(1) > span > a:nth-child(1)
+
+try:
+    newsstand_link=driver.find_element(By.CSS_SELECTOR, '#newsstand > div.ContentHeaderView-module__content_header___nSgPg > div > ul > li:nth-child(1) > span > a:nth-child(1)')
+    print(newsstand_link.text)
+except:
+    print("뉴스 스탠드 링크를 찾을 수 없습니다.")
+
+driver.quit()
+
+################################################################# Q.XPATH 사용해서 네이버 사이트에서 ## 뉴스스탠드 찾기---그냥은 안된다
+## 동적 컨텐츠 로딩: selenium 사용
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
+
+from lxml import html
+
+options = Options()
+options.add_argument("--start-maximized")
+options.add_experimental_option("detach", True)
+
+driver=webdriver.Chrome(options=options)
+
+url='https://www.naver.com/'
+driver.get(url) # 네이버 사이트 열기
+
+newsstand_link=driver.find_element(By.XPATH, '//*[@id="newsstand"]/div[1]/div/ul/li[1]/span/a[1]')
+print(newsstand_link.text)
+driver.quit()
+
+################################################################# Q. 네이버 뉴스 추출
+
+import requests
+from bs4 import BeautifulSoup 
+
+## 예시 네이버 뉴스 페이지 URL
+url='https://news.naver.com'
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'http://example.com'
+}
+response=requests.get(url, headers=headers)
+
+soup=BeautifulSoup(response.text, 'html.parser')
+print(soup.prettify())
+### 네이버 뉴스 찾기
+## title 태그만으로 찾기
+news_titles=soup.find('title')
+news_titles.text
+news_titles.get_text()
+news_titles.string
+#tag1=soup.select('#browserTitleArea')
+#print(tag1[0].text.strip())   
+
+################################################################# Q.### 네이버 뉴스에서 언론사별 ... 카테고리 출력
+cats=soup.find_all(class_='Nitem_link_menu')
+for idx,cat in enumerate(cats):
+    print(f"{idx+1}: {cat.get_text().strip()}")
 
 ################################################################# Q.
 
