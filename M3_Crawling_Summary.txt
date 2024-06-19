@@ -13,7 +13,38 @@ response=requests.get(url)                                  ### 아무런 문제
 soup = BeautifulSoup(response.text,'html.parser')           # html parser를 커쳐서 정보를 정제
 soup.find_all('html')
 
-# 모든 <a> 태그 추출 anchor
+###########################################    CSS Selector    ####################################
+CSS 셀렉터: 크롤링 시 특정 요소를 선택할 때 유용
+- #id: 특정 id를 가진 요소를 선택합니다.
+- .class: 특정 클래스를 가진 요소를 선택합니다.
+- tagname: 특정 태그명을 가진 요소를 선택합니다.
+
+
+##############################################    XPATH    #######################################
+XPath는 XML 문서의 경로를 지정하기 위한 언어로, HTML 문서에서도 사용할 수 있습니다. 예:
+
+```
+//div[@id='main']: id가 'main'인 모든 <div> 요소를 선택합니다.
+//a/text():
+- //: 문서의 어디에서든 지정한 요소를 찾습니다. 즉, 루트 요소부터 시작해서 모든 자식 요소를 포함하여 탐색합니다.
+- a: 찾고자 하는 요소의 이름입니다. 여기서는 <a> 태그를 의미합니다.
+- /text(): 지정한 요소의 텍스트 노드를 선택합니다. <a> 태그 내부의 텍스트를 의미합니다.
+```
+
+
+#####################################################################################################
+################################################ EXAMPLES ###########################################
+#####################################################################################################
+html_doc = """
+    <html><head><title>The Dormouse's story</title></head>
+    <body>
+        <p class="title"><b>The Dormouse's story</b></p>
+        <a href="http://example.com/elsie" class="sister" id="link1">Elsie</a>
+        <a href="http://example.com/lacie" class="sister" id="link2">Lacie</a>
+        <a href="http://example.com/tillie" class="sister" id="link3">Tillie</a>
+    </body></html>
+"""
+################################################################# Q. 모든 <a> 태그 추출 anchor
 links=soup.find_all('a')
 for link in links:
     print(link.get('href'))
@@ -22,7 +53,7 @@ for link in links:
 href ==>
 https://www.iana.org/domains/example
 
-# 모든 <div> 태그 추출
+################################################################# Q. 모든 <div> 태그 추출
 divs=soup.find_all('div')
 for div in divs:
     print(div.text)    
@@ -39,7 +70,7 @@ This domain is for use in illustrative examples in documents. You may use this
     domain in literature without prior coordination or asking for permission.
 More information...
 
-# 모든 <h1> 태그 추출
+################################################################# Q. 모든 <h1> 태그 추출
 h1s=soup.find_all('h1')
 for h1 in h1s:
     print(h1.text)
@@ -48,7 +79,7 @@ h1==>
 h1.txt ==>
 Example Domain
 
-# 모든 <meta> 태그 추출
+################################################################# Q. 모든 <meta> 태그 추출
 metas=soup.find_all('meta')
 for meta in metas:
     print(meta)
@@ -62,16 +93,16 @@ meta.attrs ==>
 {'http-equiv': 'Content-type', 'content': 'text/html; charset=utf-8'}
 {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'}
 
-# 클래스가 sister인 모든 태그를 추출
+################################################################# Q. 클래스가 sister인 모든 태그를 추출
 sister_tags = soup.find_all(class_='sister')
 # ID가 link1인 태그를 추출
 ID_tags = soup.find_all(id='link1')
 
-## 모든 텍스트를 추출
+################################################################# Q. 모든 텍스트를 추출
 soup = BeautifulSoup(html_doc,'html.parser')
 all_text = soup.get_text()
 
-## 부모 태그 추출
+################################################################# Q. 부모 태그 추출
 soup = BeautifulSoup(html_doc, 'html.parser')
 tag_link1 = soup.find(id='link1')
 print("ID가 link1인 태그: \n")
@@ -88,7 +119,7 @@ print(parent_tag.get('id'))
 print("부모 태그의 text: \n")
 print(parent_tag.text)
 
-## 다음 형제 태그 추출
+################################################################# Q. 다음 형제 태그 추출
 soup = BeautifulSoup(html_doc, 'html.parser')
 tag_link1 = soup.find(id='link1')
 # 다음 형제 태그 추출
@@ -104,8 +135,182 @@ print(next_sibling_tag.get('id'))
 print("다음 형제 태그의 text: \n")
 print(next_sibling_tag.text)
 
-#####################################################################################################
-################################################ EXAMPLES ###########################################
-#####################################################################################################
+################################################################# Q. 이전 형제 태그 추출
+soup = BeautifulSoup(html_doc, 'html.parser')
+tag_link2 = soup.find(id='link2')
+prev_sibling_tag = tag_link2.find_previous_sibling()
+print("ID가 link2인 태그의 이전 형제 태그: \n")
+print(prev_sibling_tag)
+print("이전 형제 태그의 name: \n")
+print(prev_sibling_tag.name)
+print("이전 형제 태그의 class: \n")
+print(prev_sibling_tag.get('class'))
+print("이전 형제 태그의 ID: \n")
+print(prev_sibling_tag.get('id'))
+print("이전 형제 태그의 text: \n")
+print(prev_sibling_tag.text)
 
-#########################################################
+################################################################# Q. 부모 태그가 같은지 확인
+soup = BeautifulSoup(html_doc, 'html.parser')
+## <p>, <a> 태그의 부모 태그 확인
+p_tag=soup.find('p')
+a_tag=soup.find('a')
+parent_p=p_tag.parent.name
+parent_a=a_tag.parent.name
+are_siblings=p_tag.find_next_sibling() == a_tag
+print(f"<p> 태그의 부모 태그: {parent_p}")
+print(f"<a> 태그의 부모 태그: {parent_a}")
+print(f"<p> 태그와 <a> 태그는 형제 태그인가요? {'예' if are_siblings else '아니요'}")
+
+################################################################# Q. 자식 태그 확인
+p_tag=soup.find('p', class_='title')
+print(p_tag)
+children_p=p_tag.children
+for child in children_p:
+    print(child.name)
+
+################################################################# Q. 주어진 HTML 문서에서 ID가 link1인 태그의 href 속성 값을 추출
+soup = BeautifulSoup(html_doc, 'html.parser')
+tag_link1 = soup.find(id='link1')
+#href_value = tag_link1.get('href')
+href_value = tag_link1['href']
+print("ID가 link1인 태그의 href 속성 값: \n")
+print(href_value)
+################################################################# Q.주어진 html 문서에서 모든 링크의  url을 추출
+soup=BeautifulSoup(html_doc, 'html.parser')
+a_tags=soup.select('.sister')
+for tag in a_tags:
+    print(tag['href'])
+==>
+http://example.com/elsie
+http://example.com/lacie
+http://example.com/tillie
+################################################################# Q.주어진 html 문서에서 ID가 link1인 태그를 추출
+link1_tag=soup.select_one('#link1')
+print(link1_tag)
+
+################################################################# Q.주어진 html 문서에서 <p> 태그의 모든 자식 태그를 추출
+p_tag=soup.select_one('p')
+children=p_tag.findChildren()
+for child in children:
+    print(child)
+
+################################################################# Q.주어진 html 문서에서 ID가 link1인 태그의 부모 태그 추출
+link1_tag=soup.select_one('#link1')
+print(link1_tag.find_parent())
+
+################################################################# Q.주어진 html 문서에서 ID가 link1인 태그의 다음 형제 태그 추출
+link1_tag=soup.select_one('#link1')
+print(link1_tag.find_next_sibling())
+
+print(link1_tag.find_previous_sibling())
+
+######################################################## XPATH #############################################################
+from lxml import html
+
+html_doc = """
+<html>
+  <head><title>The Dormouse's story</title></head>
+  <body>
+    <p class="title"><b>The Dormouse's story</b></p>
+    <a href="http://example.com/elsie" class="sister" id="link1">Elsie</a>
+    <a href="http://example.com/lacie" class="sister" id="link2">Lacie</a>
+    <a href="http://example.com/tillie" class="sister" id="link3">Tillie</a>
+  </body>
+</html>
+"""
+################################################################# Q.<a> tag의 모든 text 추출
+tree=html.fromstring(html_doc)      # html 문서를 xml 요소로 변환
+a_texts=tree.xpath('//a/text()')
+for text in a_texts:
+    print(text)
+
+################################################################# Q.주어진 html 문서에서 ID가 link1인 태그를 추출
+link1_tag=tree.xpath("//*[@id='link1']")[0]
+print(html.tostring(link1_tag).decode('utf-8'))
+==>
+<a href="http://example.com/elsie" class="sister" id="link1">Elsie</a>
+################################################################# Q.네이버 사이트에서 ID가 'wrap'인 영역 크롤링
+import requests
+from bs4 import BeautifulSoup
+url='https://www.naver.com/'
+response=requests.get(url)
+print(response.status_code)
+soup = BeautifulSoup(response.text, 'html.parser')
+wrap=soup.find(id='wrap')                               # ID를 사용하여 'wrap' 영역 크롤링
+#print(wrap)
+print(wrap.prettify())                                  # 좀 더 정렬해서 보기 좋게
+
+
+################################################################# Q.네이버 사이트에서 <a> 태그의 텍스트와 href 속성 추출
+url='https://www.naver.com/'
+response=requests.get(url)
+print(response.status_code)
+soup = BeautifulSoup(response.text, 'html.parser')
+links_a=soup.find_all('a')
+for link in links_a:
+    print("#######################")
+    print(link.get_text())          # link.text로 해도 된다
+    print(link.get('href'))
+
+################################################################# Q.네이버 사이트에서 search_area class와 ID로 찾기
+url='https://www.naver.com/'
+response=requests.get(url)
+print(response.status_code)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+class_tag=soup.select_one('.search_area')
+print(class_tag)
+
+ID_tag=soup.select_one('#search_area')
+print(ID_tag)
+
+################################################################# Q. 네이버 사이트에서 search_area class와 ID로 찾기
+search_area=soup.find(class_='search_area')
+print(search_area)
+print(search_area.prettify())
+
+################################################################# Q.# 네이버 사이트에서 data-gfp-banner-size 속성을 가진 추출
+# data-gfp-banner-size 자체가지고는 TAG가 아니라 속성이라 아래 처럼 Dict로 crawling
+
+#banners=soup.find_all(attrs={'data-gfp-banner-size': '830x130'})
+banners=soup.find_all(attrs={'id': 'ad-timeboard-response'})
+for banner in banners:
+    print(banner.prettify())
+
+################################################################# Q. 네이버 사이트에서 ID가 'u_skip'인 div 내부의 모든 a 태그 선택
+u_skip_links=soup.select('#u_skip a')             ## find_all, find는 TAG의 속성가지고 찾을때, select/select_on은 CSS select 으로 찾을 때 사용
+for link in u_skip_links:
+    print(link.text)
+################################################################# Q.## 네이버 사이트에서 ID가 'wrap'인 div 내부의 ID가 'header'인 div 선택
+header_div=soup.select_one('#wrap #header')          
+print(header_div.text if header_div else "no header div found")
+
+################################################################# Q.# 네이버 사이트에서 ID가 'ad-timeboard-response'인 script 태그의 data-gfp-banner-size 속성값 선택
+ad_timeboard_response=soup.select_one('script#ad-timeboard-response')
+banner_size=ad_timeboard_response['data-gfp-banner-size'] if ad_timeboard_response else 'No data-gfp-banner-size found'
+print(banner_size)
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
