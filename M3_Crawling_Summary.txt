@@ -13,6 +13,13 @@ response=requests.get(url)                                  ### 아무런 문제
 soup = BeautifulSoup(response.text,'html.parser')           # html parser를 커쳐서 정보를 정제
 soup.find_all('html')
 
+##############################################    HEADERS    #######################################
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'http://example.com'
+}
+
 ###########################################    CSS Selector    ####################################
 CSS 셀렉터: 크롤링 시 특정 요소를 선택할 때 유용
 - #id: 특정 id를 가진 요소를 선택합니다.
@@ -31,6 +38,103 @@ XPath는 XML 문서의 경로를 지정하기 위한 언어로, HTML 문서에�
 - /text(): 지정한 요소의 텍스트 노드를 선택합니다. <a> 태그 내부의 텍스트를 의미합니다.
 ```
 
+
+######################################### string, get_text, text 비교 #############################
+import requests
+from bs4 import BeautifulSoup 
+
+html = """
+<div class="example">
+    Single text node
+</div>
+<div class="example">
+    <p>Multiple</p> text <span>nodes</span>
+</div>
+"""
+
+soup=BeautifulSoup(html, 'html.parser')
+single_text_node=soup.find('div', class_='example').string
+multiple=soup.find_all('div', class_='example')
+
+multiple_text_nodes=soup.find_all('div', class_='example')[1].string
+
+print(single_text_node)
+print(multiple,'\n\n\n')
+print(multiple_text_nodes)          ## None 값 반환
+
+## get_text()로
+single_text_node=soup.find('div', class_='example').get_text(strip=True)
+multiple=soup.find_all('div', class_='example')
+multiple_text_nodes=soup.find_all('div', class_='example')[1].get_text(strip=True)
+print(single_text_node)
+print(multiple_text_nodes)          ## ==> Multipletextnodes
+
+# get_text() w/ separator
+multiple_text_nodes=soup.find_all('div', class_='example')[1].get_text(separator=' | ', strip=True)
+# ==> Multiple | text | nodes
+
+### ==> text: multiple node는 사용가능하지만 option은 사용 불가
+multiple_text_nodes=soup.find_all('div', class_='example')[1].text
+
+
+######################################### 정규 표현식 이용 이메일 추출 ##################################
+import requests
+from bs4 import BeautifulSoup 
+import re
+
+html = """
+<ul>
+<li>Email:example@example.com</li>
+<li>Contact:contact@sample.org</li>
+</ul>
+"""
+## 이메일 주소 추출
+email_pattern = r'[a-zA-z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+emails=re.findall(email_pattern,html)
+print(emails)
+######################################### 정규 표현식 이용 text 추출 ##################################
+html = '''
+<html>
+<body>
+<div>
+Hello,world!
+</div>
+<div>
+<p>
+Hello,<b>world!</b>
+</p>
+</div>
+</body>
+</html>
+'''
+
+soup=BeautifulSoup(html,'html.parser')
+bs=soup.body.text
+###### for Hello,world!Hello,world!
+new_bs=re.sub("\s+", "", bs)
+
+###### for 
+###### Hello,world!
+###### Hello,world!
+texts=re.findall('[^\s]+', bs)
+for t in texts:
+    print(t)
+
+################################################# urllib.request ##################################
+from bs4 import BeautifulSoup
+import requests
+url='https://news.naver.com/main/main.naver?mode=LSD&mid=shm&sid1=100'
+response=requests.get(url)
+html=response.text
+bs=BeautifulSoup(html,'html.parser')
+print(bs)
+
+==> 동일하게 urllib.request        ### text를 뽑아낼 필요 없이 바로 parsing 가능
+import urllib.request as rq
+url='https://news.naver.com/main/main.naver?mode=LSD&mid=shm&sid1=100'
+html=rq.urlopen(url)
+bs=BeautifulSoup(html,'html.parser')
+print(bs)
 
 #####################################################################################################
 ################################################ EXAMPLES ###########################################
@@ -371,6 +475,355 @@ news_titles.string
 cats=soup.find_all(class_='Nitem_link_menu')
 for idx,cat in enumerate(cats):
     print(f"{idx+1}: {cat.get_text().strip()}")
+
+################################################################# Q.다음 사항을 수행
+- 첫 번째로 매칭되는 'p' 태그 찾기
+- 모든 'p' 태그 찾기
+- 클래스가 'content'인 첫 번째 'p' 태그 찾기
+- 클래스가 'content'인 모든 'p' 태그 찾기
+- 특정 'p' 태그의 모든 부모 태그 찾기
+- 특정 'p' 태그의 첫 번째 부모 태그 찾기
+- 특정 'p' 태그의 다음 형제 태그 찾기
+- 특정 'p' 태그의 이전 형제 태그 찾기
+- 특정 'p' 태그 다음에 위치한 모든 태그나 문자열 찾기
+- 특정 'p' 태그 이전에 위치한 모든 태그나 문자열 찾기
+import requests
+from bs4 import BeautifulSoup 
+
+html_contents='<html><body><h1>Title</h1><p class="content">First paragraph.</p><p class="content">Second paragraph.</p></body></html>'
+soup=BeautifulSoup(html_contents,'html.parser')
+print(soup.prettify())
+## 1
+print("\n#1 첫 번째 'p' 태그")
+tag=soup.find('p')
+print(tag)
+print(tag.get_text())
+
+## 2
+print("\n#2 모든 'p' 태그")
+tags=soup.find_all('p')
+for tag in tags:
+    print(tag)
+
+## 3
+print("\n#3 클래스가 'content'인 첫 번째 'p' 태그")
+content_p=soup.find('p', class_='content')      
+print(content_p)
+# 강사님 답안
+first_content_p=soup.select_one('p.content')
+print(first_content_p.get_text())
+
+## 4
+print("\n#4 클래스가 'content'인 모든 'p' 태그")
+content_ps=soup.find_all('p', class_='content')      
+for content_p in content_ps:
+    print(content_p)
+# 강사님 답안
+all_content_p=soup.select('p.content')
+for content_p in all_content_p:
+    print(content_p.get_text())
+    
+## 5 [doc] ==> <html> ==> <body> ==> <p> : 최상위 요소에서 p태그까지 모든 부모 요소를 출력하게 됨
+print("\n#5 'p' 태그의 모든 부모 태그")
+content_ps=soup.find_all('p')      
+for content_p in content_ps:
+    parents=content_p.find_parents()                    # find_parents() vs. find_parent()
+    print(f"{content_p}의 부모 태그: {parents}")
+
+## 6
+print("\n#6 'p' 태그의 첫번째 부모 태그")
+content_ps=soup.find_all('p')      
+for content_p in content_ps:
+    parent=content_p.find_parent()
+    print(f"{content_p}의 부모 태그: {parent}")
+
+## 7
+print("\n#7 'p' 태그의 다음 형제 태그")
+content_ps=soup.find_all('p')      
+for content_p in content_ps:
+    next_sib=content_p.find_next_sibling()
+    print(f"{content_p}의 다음 형제 태그: {next_sib}")
+
+## 8
+print("\n#8 'p' 태그의 이전 형제 태그")
+content_ps=soup.find_all('p')      
+for content_p in content_ps:
+    prev_sib=content_p.find_previous_sibling()
+    print(f"{content_p}의 이전 형제 태그: {prev_sib}")
+
+## 9
+print("\n#9 'p' 태그의 다음에 위치한 모든 태그나 문자열 찾기")
+content_ps=soup.find_all('p')      
+for content_p in content_ps:
+    next_sibs=content_p.find_next_siblings()
+    print(f"{content_p}의 다음 형제 태그: {next_sibs}")
+
+## 10
+print("\n#10 'p' 태그의 이전에 위치한 모든 태그나 문자열 찾기")
+content_ps=soup.find_all('p')      
+for content_p in content_ps:
+    prev_sibs=content_p.find_previous_siblings()
+    print(f"{content_p}의 이전 형제 태그: {prev_sibs}")
+
+###################### 강사님 답안
+## 9
+print("\n#9 'p' 태그의 다음에 위치한 모든 태그나 문자열 찾기")
+specific_p=soup.find('p', class_='content')      
+nexts=specific_p.find_next()
+print(f"{specific_p}의 다음 모든 태그, 문자열: {nexts}")
+
+## 10
+print("\n#10 'p' 태그의 이전에 위치한 모든 태그나 문자열 찾기")
+specific_p=soup.find('p', class_='content')      
+prev=specific_p.find_previous()
+print(f"{specific_p}의 이전 모든 태그, 문자열: {prev}")
+
+################################################################# Q. ID를 이용해서 '네이버 뉴스' 추출
+url='https://news.naver.com'
+response=requests.get(url, headers=headers)
+soup=BeautifulSoup(response.text,'html.parser')
+NaverNews=soup.select_one('#browserTitleArea')
+## 강사님
+NaverNews=soup.find('title', id='browserTitleArea')
+NaverNews=soup.select_one('title#browserTitleArea')
+print(NaverNews.get_text())
+################################################################# Q. 네이버 뉴스에서 언론사별 ... 카테고리 출력 select 이용
+cats=soup.select('.Nitem_link_menu')
+for idx,cat in enumerate(cats):
+    print(f"{idx+1}: {cat.get_text().strip()}")
+    
+################################################################# Q.select_one을 이용해서 'https://news.naver.com'에서 "뉴스"를 출력
+url = 'https://news.naver.com'
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+#element = soup.select_one('a[href*="news.naver.com"]')
+# 강사님
+element=soup.select_one('span.Nicon_service')              # span 태그에서 Nicon_service 클래스
+
+if element:
+    print(element.text.strip())
+else:
+    print("해당 요소를 찾을 수 없습니다.")
+################################################################# Q.'https://news.naver.com'에서 아래 예시와 같이 뉴스 기사 제목을 모두 출력 (예시: 1: [속보] '훈련병 사망' 얼차려 지시~)
+headlines = soup.find_all(class_='cjs_t')
+i=1
+for headline in headlines:
+    print(f"{i}: {headline.text.strip()}")
+    i+=1
+## 강사님
+headlines = soup.select('.cjs_t')
+for idx,headline in enumerate(headlines):
+    print(f"{idx+1}: {headline.get_text().strip()}")
+    
+################################################################# Q.주어진 html에서 아래 사항을 수행
+# 모든 단어 추출
+# 이메일 주소 추출
+# URL 주소
+# 숫자 추출
+# HTML 태크 내 텍스트 추출
+
+html = '''
+<html>
+<head>
+<title>Sample Page</title>
+</head>
+<body>
+<div>
+Hello, world! 123
+</div>
+<div>
+<p>
+456 Hello, <b>789 world!</b> Visit us at <a href="http://example.com">example.com</a>
+</p>
+</div>
+<footer>
+Contact us at <a href="mailto:info@example.com">info@example.com</a>
+</footer>
+</body>
+</html>
+'''
+
+# 1. 모든 단어 추출
+print("1. 모든 단어 추출")
+soup=BeautifulSoup(html,'html.parser')
+words=re.findall(r'\b\w+\b',soup.text)
+words_list=''
+for i in words:
+    words_list += i
+    words_list += ' '
+print(words_list)
+
+# 2. 이메일 주소 추출
+email_pattern = r'[a-zA-z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+emails=re.findall(email_pattern,html)
+print("\n2. 이메일 주소 추출")
+for email in emails:
+    print(email)
+
+# 3. URL 주소 http://example.com
+print("\n3. URL 주소 추출")
+url_pattern = r'https?://[^\s<>"]+|www\.[^\s<>"]+'
+#url_pattern = r'https?:\/\/[^\s/$.?#].[^\s]*'
+urls = re.findall(url_pattern, html)
+print(urls)
+
+# 4. 숫자 추출
+print("\n4. 숫자 추출")
+num_pattern = r'\b\d+\b'
+nums=re.findall(num_pattern,html)
+num_list=''
+for num in nums:
+    num_list += num
+    num_list += ' '
+print(num_list)
+
+# 5. HTML 태크 내 텍스트 추출
+print("\n5. 텍스트 추출")
+soup=BeautifulSoup(html,'html.parser')
+bs=soup.body.text
+
+new_bs=re.sub("\s+", " ", bs)
+print(new_bs.strip())
+
+## 강사님
+print("\n강사님 5. 텍스트 추출")
+tag_texts=re.findall(r'>([^<]+)<',html)
+text_lists=' '.join(text.strip() for text in tag_texts)
+text_lists=re.sub(r'\s+', ' ', text_lists)
+print(text_lists.strip())
+
+################################################################# Q. soup.find_all: href의 속성에 정규 표현식 사용
+import requests
+from bs4 import BeautifulSoup 
+import re
+
+html = """
+<ul>
+  <li><a href="hoge.html">hoge</li>
+  <li><a href="https://example.com/fuga">fuga*</li>
+  <li><a href="https://example.com/foo">foo*</li>
+  <li><a href="http://example.com/aaa">aaa</li>
+</ul>
+"""
+soup=BeautifulSoup(html,'html.parser')
+li=soup.find_all(href=re.compile(r"^https://"))
+for e in li:print(e.attrs['href'])
+
+################################################################# Q. # 한글만 출력
+texts=response.text
+result=re.findall('[가-힣]+', texts)
+print(' '.join(result))
+
+################################################################# Q.inside out 제목 가져오기
+import requests
+import chardet
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'http://example.com'
+}
+
+url = "https://serieson.naver.com/v3/movie/ranking/realtime"
+
+response=requests.get(url, headers=headers)
+if response.status_code==200:
+    encoding=chardet.detect(response.content)['encoding']
+    soup = BeautifulSoup(response.text,'html.parser')  
+else:
+    print("HTTP request failed")
+#print(soup.prettify())
+#<span class="Title_title__s9o0D">인사이드 아웃(패키지상품 : 더빙판 + 부가영상 추가증정)</span>
+#insideout=soup.select_one('img.Thumbnail_image__TxHd0')
+#print(insideout['alt'])
+insideout=soup.select_one('span.Title_title__s9o0D')
+print(insideout.text)
+print(re.split('\(',insideout.text)[0])
+
+################################################################# Q. (위의 질문과 연장) 제목 여러개 추출 인덱싱까지..
+#1
+titles=soup.select('span.Title_title__s9o0D')
+for idx, title in enumerate(titles):
+    print(f"{idx+1}: {title.text}")
+    if idx==9: break
+#2
+print('\n')
+title_list=[]
+for idx, title in enumerate(titles):
+    title_list.append(title.text)
+
+for idx, title in enumerate(set(title_list)): 
+    print(f"{idx+1}: {title}")
+    if idx == 9: break
+#3
+print('\n')
+titles=soup.select('span.Title_title__s9o0D')
+for idx, title in enumerate(titles[:10]):
+    print(f"{idx+1}: {title.text}")
+
+################################################################# Q. 정치면에서 헤드라인 기사 제목 crawling해와서 DF로 출력
+url = "https://news.daum.net/politics#1"
+
+response=requests.get(url, headers=headers)
+if response.status_code==200:
+    encoding=chardet.detect(response.content)['encoding']
+    soup = BeautifulSoup(response.text,'html.parser')  
+else:
+    print("HTTP request failed")
+
+links=soup.select('a.link_txt')
+print(links)
+for idx, link in enumerate(links): pass
+    #print(f"{idx+1}: {link.get_text()}")
+articles=[line.text.strip() for line in links]
+df=pd.DataFrame({"Articles":articles})
+#df=pd.DataFrame({"Articles":links})
+df.head(len(df))
+
+################################################################# Q. copy/copy.selector 이용해서 아래와 같이 crawling 가능
+## 해당 title에서 F12/선택활성화/copy/copy.selector 로 가져오면 아래와 같음
+# body > div.container-doc.cont-category > main > section > div.main-sub > div.box_g.box_news_major > ul > li:nth-child(1) > strong > a
+titles=soup.select('body > div > main > section > div > div > ul > li > strong > a')
+for i, title in enumerate(titles, start=1):
+    print(f"{i}. {title.get_text().strip()}")
+################################################################# Q.위 예제에서 한글만 가져오기
+titles=soup.select('body > div > main > section > div > div > ul > li > strong > a')
+for i, tag in enumerate(titles, start=1):
+    text=tag.get_text().strip().replace(',', '')
+    matches = re.findall('[가-힣0-9]+',text)
+    print(f"{i}, {' '.join(matches)}")
+
+################################################################# Q. Query + Crawling 함께 진행하기
+# news_url.format(query): URL 문자열 내의 특정 부분을 query 변수의 값으로 대체
+# - news_url 변수에는 포맷 문자열 'https://news.example.com/search?query={}'가 저장
+# - news_url.format(query)는 포맷 문자열의 {} 부분을 query 변수의 값으로 대체
+# - 결과적으로, 포맷팅된 URL은 'https://news.example.com/search?query=politics'가 된다.
+
+import requests
+import chardet
+import pandas as pd
+import re
+from datetime import datetime
+import os
+
+query=input('검색 키워드를 입력하세요: ')
+query=query.replace(' ', '+')
+print(query)
+
+news_url='https://search.naver.com/search.naver?where=nexearch&sm=tab_jum&query={}'
+req=requests.get(news_url.format(query))
+
+html=req.text
+soup=BeautifulSoup(html, 'html.parser')
+links=soup.select('.news_tit')
+
+for link in links:
+    title=link.text
+    url=link.attrs['href']
+    print(title, '\n', url)
+
+################################################################# Q.
 
 ################################################################# Q.
 

@@ -370,12 +370,16 @@ S1 & S2: 교집합, S1 | S2: 합집합, S1-S2: 차집합
   - ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$
 
 
-- Email 형식
+- Email 이메일 형식
   - '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+  email_pattern = r'[a-zA-z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+  emails=re.findall(email_pattern,html)
 - 도메인 형식
   - '[a-zA-Z0-9][a-zA-Z0-9]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}'
 - 인터넷 URL
   - '(https?|ftp):\/\/[^\s/$.?#].[^\s]*'
+url_pattern = r'https?://[^\s<>"]+|www\.[^\s<>"]+'
+urls = re.findall(url_pattern, html)
 - 유선 전화
   - '0\d-\d{3,4}-\d{4}'
 - 휴대 전화
