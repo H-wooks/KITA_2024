@@ -13,8 +13,9 @@ df=pd.read_csv('test.csv')
 df=pd.read_csv('test.csv',index_col=0)
 
 ##################################################################### SAVE for Unnamed Index
-df.to_csv('test.csv', index=None)
-
+df.to_csv('test.csv', index=False)
+#### 한글 안깨지도록 저장
+df.to_csv('result.csv', encoding='utf-8-sig',index=False)
 
 
 #####################################################################################################

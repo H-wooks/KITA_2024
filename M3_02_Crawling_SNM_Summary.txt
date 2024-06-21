@@ -1,0 +1,158 @@
+#####################################################################################################
+################################################ SELENIUM ###########################################
+#####################################################################################################
+
+######################################################### 필요 패키기/함수 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
+options = Options()
+options.add_argument("--start-maximized")
+options.add_experimental_option("detach", True)
+
+######################################################### Basic 함수
+- https://goodthings4me.tistory.com/696
+- from selenium.webdriver.common.by import By
+- find_element(By.ID, " "): id 속성을 사용하여 접근
+- find_element(s)(By.CLASS_NAME, " "): 클래스를 사용하여 접근
+- find_element(s)(By.NAME, " "): name 속성을 사용하여 접근
+- find_element(s)(By.XPATH, " "): xpath 속성을 사용하여 접근
+- find_element(s)(By.LINK_TEXT, " "): 앵커태그(a 태그)에 사용되는 텍스트로 접근
+- find_element(s)(By.PARTIAL_LINK_TEXT, " "): 앵커태그(a 태그)에 사용되는 일부 텍스트로 접근
+- find_element(s)(By.TAG_NAME, " "): 태그를 사용하여 접근
+- find_element(s)(By.CSS_SELECTOR, " "): CSS 선택자를 사용하여 접근<br><br>
+셀레니움 사용법 : https://greeksharifa.github.io/references/2020/10/30/python-selenium-usage/ 
+######################################################### Basic 함수 END
+
+######################################################### 기본 사용 방법
+driver=webdriver.Chrome(options=options)
+url='https://www.naver.com/'                        # 네이버 사이트 접속
+driver.get(url)  
+
+######################### 1. find_element(By.ID, 'id_name'): id 속성을 사용하여 접근
+try:
+    element_by_id=driver.find_element(By.ID,'APjFqb')
+    print('Element found by ID:', element_by_id.get_attribute('name'))
+except:
+    print('Element not found by ID')
+
+######################### 2.  find_element(By.CLASS_NAME, 'class_name'): 클래스를 사용하여 접근
+try:
+    element_by_class_name=driver.find_element(By.CLASS_NAME,'gLFyf')
+    print('Element found by CLASS_NAME:', element_by_class_name.get_attribute('title'))
+except:
+    print('Element not found by CLASS_NAME')
+
+######################### 3.  find_element(By.NAME, 'name'): NAME 속성을 사용하여 접근
+try:
+    element_by_name=driver.find_element(By.NAME,'q')
+    print('Element found by NAME:', element_by_name.get_attribute('title'))
+    print('Element found by NAME:', element_by_name.get_attribute('id'))
+except:
+    print('Element not found by NAME')
+    
+######################### Using CSS_SELECTOR
+newsstand_link=driver.find_element(By.CSS_SELECTOR, '#newsstand > div.ContentHeaderView-module__content_header___nSgPg > div > ul > li:nth-child(1) > span > a:nth-child(1)')
+
+
+######################### Using XPath
+
+XPath는 XML 문서의 경로를 지정하기 위한 언어로, HTML 문서에서도 사용할 수 있습니다. 예:
+```
+//div[@id='main']: id가 'main'인 모든 <div> 요소를 선택합니다.
+//a/text():
+- //: 문서의 어디에서든 지정한 요소를 찾습니다. 즉, 루트 요소부터 시작해서 모든 자식 요소를 포함하여 탐색합니다.
+- a: 찾고자 하는 요소의 이름입니다. 여기서는 <a> 태그를 의미합니다.
+- /text(): 지정한 요소의 텍스트 노드를 선택합니다. <a> 태그 내부의 텍스트를 의미합니다.
+```
+newsstand_link=driver.find_element(By.XPATH, '//*[@id="newsstand"]/div[1]/div/ul/li[1]/span/a[1]')
+
+
+
+
+#####################################################################################################
+################################################ EXAMPLES ###########################################
+#####################################################################################################
+
+################################################################# Q.selenium 사용해서 네이버 사이트에서 뉴스스탠드 찾기
+## 동적 컨텐츠 로딩: selenium 사용
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
+
+options = Options()
+options.add_argument("--start-maximized")
+options.add_experimental_option("detach", True)
+
+driver=webdriver.Chrome(options=options)
+url='https://www.naver.com/'                        # 네이버 사이트 접속
+driver.get(url)                                         
+
+# 페이지 로딩 대기
+time.sleep(2)
+
+# 뉴스 스탠드 링크 찾기
+# #newsstand > div.ContentHeaderView-module__content_header___nSgPg > div > ul > li:nth-child(1) > span > a:nth-child(1)
+
+try:
+    newsstand_link=driver.find_element(By.CSS_SELECTOR, '#newsstand > div.ContentHeaderView-module__content_header___nSgPg > div > ul > li:nth-child(1) > span > a:nth-child(1)')
+    print(newsstand_link.text)
+except:
+    print("뉴스 스탠드 링크를 찾을 수 없습니다.")
+
+driver.quit()
+
+################################################################# Q.XPATH 사용해서 네이버 사이트에서 ## 뉴스스탠드 찾기---그냥은 안된다
+
+## 동적 컨텐츠 로딩: selenium 사용
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
+
+from lxml import html
+
+options = Options()
+options.add_argument("--start-maximized")
+options.add_experimental_option("detach", True)
+
+driver=webdriver.Chrome(options=options)
+
+url='https://www.naver.com/'
+driver.get(url) # 네이버 사이트 열기
+
+newsstand_link=driver.find_element(By.XPATH, '//*[@id="newsstand"]/div[1]/div/ul/li[1]/span/a[1]')
+print(newsstand_link.text)
+driver.quit()
+
+
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
+
+################################################################# Q.
+
+################################################################# Q.
+
+################################################################# Q.
+
