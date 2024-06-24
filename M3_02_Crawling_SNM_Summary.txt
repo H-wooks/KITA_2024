@@ -129,8 +129,434 @@ driver.quit()
 
 
 
-################################################################# Q.
+################################################################# Q. https://www.google.com 사이트에서 셀레니움 이용 크롤링
+- xpath 속성을 사용하여 접근하여 요소를 추출
+- 앵커태그(a 태그)에 사용되는 텍스트로 접근하여 요소를 추출
+- 앵커태그(a 태그)에 사용되는 일부 텍스트로 접근하여 요소를 추출
+- 태그를 사용하여 접근하여 요소를 추출
+- CSS 선택자를 사용하여 접근하여 요소를 추출
+import selenium
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+from selenium.webdriver.chrome.options import Options
+import time
+
+options = Options()
+# options.add_argument('start-maximized')         # 브라우저를 최대화된 상태로 시작
+# options.add_experimental_option('detach', True) # 스크립트가 종료된 후에도 브라우저가 닫히지 않도록 설정
+# options.add_argument('headless')
+
+
+print('\n\nXPATH 특정 a 태그 크롤링')
+driver = webdriver.Chrome(options=options)
+driver.get('https://www.google.com/')
+
+try:
+    element_by_xpath = WebDriverWait(driver, 3).until(
+        EC.presence_of_element_located((By.XPATH , '/html/body/div[1]/div[1]/a[1]'))
+    )
+    #print('Element found by XPATH:', element_by_xpath)
+    print(element_by_xpath.get_attribute('href'))
+except:
+    print('Element not found by XPATH')
+
+driver.quit()
+
+print('\n\nXPATH 모든 a 태그의 text와 링크 크롤링')
+#/html/body/div[1]/div[1]/a[1]
+#/html/body/div[1]/div[1]/a[2]
+#//*[@id="gb"]/div/div[1]/div/div[1]/a
+
+driver = webdriver.Chrome(options=options)
+driver.get('https://www.google.com/')
+try:
+    elements_by_xpath = WebDriverWait(driver, 3).until(
+        EC.presence_of_all_elements_located((By.XPATH , "//a"))
+    )
+    #print('Element found by XPATH:', elements_by_xpath)
+    for element in elements_by_xpath:
+        print(element.get_attribute('href'))  # 각 <a> 태그의 href 속성값 출력
+        text = element.text.strip()  # element.text 사용
+        if text:  # 텍스트가 비어있지 않은 경우에만 출력
+            print(text)
+except:
+    print('Element not found by XPATH')
+
+driver.quit()
+
+
+
+print('\n\nXPATH 모든 style 태그의 text 크롤링')
+#/html/body/div[1]/div[1]/a[1]
+#/html/body/div[1]/div[1]/a[2]
+#//*[@id="gb"]/div/div[1]/div/div[1]/a
+
+driver = webdriver.Chrome(options=options)
+driver.get('https://www.google.com/')
+try:
+    elements_by_xpath = WebDriverWait(driver, 3).until(
+        EC.presence_of_all_elements_located((By.XPATH , "//style"))
+    )
+    #print('Element found by XPATH:', elements_by_xpath)
+    for element in elements_by_xpath:
+        text=element.get_attribute('textContent')  # 각 <a> 태그의 href 속성값 출력
+        if text:  # 텍스트가 비어있지 않은 경우에만 출력
+            print(text)
+except:
+    print('Element not found by XPATH')
+driver.quit()
+
+
+
+
+print('\n\n태그의 value 크롤링')
+#body > div.L3eUgb > div.o3j99.n1xJcf.Ne6nSd > a:nth-child(2)
+#<a class="MV3Tnb" href="https://about.google/?fg=1&amp;utm_source=google-KR&amp;utm_medium=referral&amp;utm_campaign=hp-header" ping="/url?sa=t&amp;rct=j&amp;source=webhp&amp;url=https://about.google/%3Ffg%3D1%26utm_source%3Dgoogle-KR%26utm_medium%3Dreferral%26utm_campaign%3Dhp-header&amp;ved=0ahUKEwiLmYiAnOyGAxW4sFYBHd6SDOwQkNQCCAI&amp;bl=yqn9&amp;opi=89978449">Google 정보</a>
+driver = webdriver.Chrome(options=options)
+driver.get('https://www.google.com/')
+try:
+    element_by_TAG = WebDriverWait(driver, 3).until(
+        EC.presence_of_element_located((By.TAG_NAME, 'input'))
+    )
+    value = element_by_TAG.get_attribute('value')
+
+    print(f'Value: {value}')
+
+except Exception as e:
+    print('Error:', e)
+
+driver.quit()
+
+
+
+print('\n\nCSS 모든 style 태그의 text 크롤링')
+#body > div.L3eUgb > div.o3j99.n1xJcf.Ne6nSd > a:nth-child(2)
+#<a class="MV3Tnb" href="https://about.google/?fg=1&amp;utm_source=google-KR&amp;utm_medium=referral&amp;utm_campaign=hp-header" ping="/url?sa=t&amp;rct=j&amp;source=webhp&amp;url=https://about.google/%3Ffg%3D1%26utm_source%3Dgoogle-KR%26utm_medium%3Dreferral%26utm_campaign%3Dhp-header&amp;ved=0ahUKEwiLmYiAnOyGAxW4sFYBHd6SDOwQkNQCCAI&amp;bl=yqn9&amp;opi=89978449">Google 정보</a>
+driver = webdriver.Chrome(options=options)
+driver.get('https://www.google.com/')
+try:
+    element_by_css = WebDriverWait(driver, 3).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, 'a.MV3Tnb'))
+    )
+    link = element_by_css.get_attribute('href')
+    text = element_by_css.text.strip()
+    print(f'Link: {link}')
+    print(f'Text: {text}')
+    
+except Exception as e:
+    print('Error:', e)
+
+driver.quit()
+
+################################################################# Q.한빛 네트워크 사이트 https://www.hanbit.co.kr/ 로그인 후 마일리지 점수 가져와서 출력
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+
+
+options = Options()
+# options.add_argument('start-maximized')         # 브라우저를 최대화된 상태로 시작
+options.add_experimental_option('detach', True) # 스크립트가 종료된 후에도 브라우저가 닫히지 않도록 설정
+# options.add_argument('headless')
+
+driver = webdriver.Chrome(options=options)
+
+
+# Hanbit 웹사이트 접속
+driver.get("https://www.hanbit.co.kr/")
+
+try:
+    # 우측 상단의 '로그인' 버튼 클릭
+    #<a href="https://www.hanbit.co.kr/member/login.html" class="login">로그인</a>
+    login_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "login"))
+    )
+    login_button.click()
+
+
+    # 로그인 정보 입력
+    my_id = "hwooks"
+    my_password = "9697003kK*"
+    id_input = driver.find_element(By.ID, "m_id")
+    id_input.send_keys(my_id)
+
+    pw_input = driver.find_element(By.ID, "m_passwd")
+    pw_input.send_keys(my_password)
+    pw_input.send_keys(Keys.RETURN)
+
+    # 로그인 완료 후 '마이한빛' 버튼 클릭
+    myhanbit_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.LINK_TEXT, "마이한빛"))
+    )
+    myhanbit_button.click()
+
+    # 마일리지 정보 가져오기
+    mileage_element = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "#container > div > div.sm_mymileage > dl.mileage_section1 > dd > span"))
+    )
+    mileage_text = mileage_element.text.strip()
+
+    print("내 마일리지:", mileage_text)
+
+finally:
+    # 브라우저 닫기
+    driver.quit()
+
+################################################################# Q. 네이버 자동 로그인 / data Query / mail 개수 가져오기
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+import time
+import pyautogui
+import pyperclip
+
+
+options = Options()
+# options.add_argument('start-maximized')         # 브라우저를 최대화된 상태로 시작
+options.add_experimental_option('detach', True) # 스크립트가 종료된 후에도 브라우저가 닫히지 않도록 설정
+# options.add_argument('headless')
+
+driver = webdriver.Chrome(options=options)
+
+driver.get("https://www.naver.com/")
+
+
+# 우측 상단의 '로그인' 버튼 클릭
+login_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "#account > div > a"))
+)
+login_button.click()
+time.sleep(1)
+
+# 로그인 정보 입력
+my_id = "hwooks"
+my_password = "9603541k"
+
+#<input type="text" id="id" name="id" placeholder="아이디" title="아이디" class="input_text" maxlength="41" value="">
+id_input = driver.find_element(By.ID, "id")
+id_input.click()
+
+## 자동 로그인 방지로 인해 아래와 같이 수정
+#id_input.send_keys(my_id)
+pyperclip.copy(my_id)
+pyautogui.hotkey("ctrl", "v")
+time.sleep(2)
+
+#<input type="password" id="pw" name="pw" placeholder="비밀번호" title="비밀번호" class="input_text" maxlength="16">
+pw_input = driver.find_element(By.ID, "pw")
+pw_input.click()
+
+pyperclip.copy(my_password)
+pyautogui.hotkey("ctrl", "v")
+#pw_input.send_keys(my_password)
+time.sleep(2)
+
+#<button type="submit" class="btn_login" id="log.login">
+login_btn = driver.find_element(By.CSS_SELECTOR, "#log\.login")
+login_btn.click()
+time.sleep(3)
+#driver.forward()
+#driver.back()
+#driver.refresh()
+
+# Iframe 활성화
+mailbox_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "#account > div.MyView-module__my_menu___eF24q > div > div > ul > li:nth-child(1) > a > span.MyView-module__item_text___VTQQM"))
+)
+mailbox_button.click()
+
+##account > div.MyView-module__my_menu___eF24q.MyView-module__is_open____qWM1 > div > div > ul > li:nth-child(1) > a > span.MyView-module__item_num___eHxDY
+mail_count_element = WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located((By.CSS_SELECTOR, "#account > div.MyView-module__my_menu___eF24q.MyView-module__is_open____qWM1 > div > div > ul > li:nth-child(1) > a > span.MyView-module__item_num___eHxDY"))
+)
+
+# 텍스트 가져오기
+mail_count_text = mail_count_element.text.strip()
+print("메일 개수:", mail_count_text)
+
+
+###
+elem=driver.find_element(By.ID, 'query')
+elem.send_keys('빅테이터')
+
+elem.send_keys(Keys.ENTER)
+
+elem=driver.find_element(By.TAG_NAME, 'a')
+
+elems=driver.find_elements(By.TAG_NAME, 'a')
+for e in elems:
+    print(e.get_attribute('href'))
+
+
+driver.get('http://daum.net')
+
+elem=driver.find_element(By.NAME, 'q')
+elem.send_keys('빅데이터')
+elem.send_keys(Keys.ENTER)
+
+driver.back()
+
+## 검색어 입력 
+
+elem=driver.find_element(By.NAME, 'q')
+elem.send_keys('빅데이터')
+time.sleep(1)
+elem=driver.find_element(By.XPATH, '//*[@id="daumSearch"]/fieldset/div/div/button[3]')
+elem.send_keys(Keys.ENTER)
+
+# CSS selector
+elem=driver.find_element(By.CSS_SELECTOR, '#twdColl > div > c-container > c-card:nth-child(3) > div > c-doc-web > div > div.item-title > c-title > strong > a')
+print(elem.text)
+
+
+elems=driver.find_elements(By.TAG_NAME, 'a')
+for e in elems:
+    print(e.get_attribute('href'))
+    
+    
+    
+###################################### Option -2 로그인 후, "https://mail.naver.com/"로 이동후에 mail count
+options = Options()
+# options.add_argument('start-maximized')         # 브라우저를 최대화된 상태로 시작
+options.add_experimental_option('detach', True) # 스크립트가 종료된 후에도 브라우저가 닫히지 않도록 설정
+# options.add_argument('headless')
+
+driver = webdriver.Chrome(options=options)
+
+driver.get("https://www.naver.com/")
+
+try:
+    # 우측 상단의 '로그인' 버튼 클릭
+    login_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "#account > div > a"))
+    )
+    login_button.click()
+    time.sleep(1)
+
+    # 로그인 정보 입력
+    my_id = "hwooks"
+    my_password = "9603541k"
+
+    #<input type="text" id="id" name="id" placeholder="아이디" title="아이디" class="input_text" maxlength="41" value="">
+    id_input = driver.find_element(By.ID, "id")
+    id_input.click()
+
+    ## 자동 로그인 방지로 인해 아래와 같이 수정
+    #id_input.send_keys(my_id)
+    pyperclip.copy(my_id)
+    pyautogui.hotkey("ctrl", "v")
+    time.sleep(2)
+    
+    #<input type="password" id="pw" name="pw" placeholder="비밀번호" title="비밀번호" class="input_text" maxlength="16">
+    pw_input = driver.find_element(By.ID, "pw")
+    pw_input.click()
+
+    pyperclip.copy(my_password)
+    pyautogui.hotkey("ctrl", "v")
+    #pw_input.send_keys(my_password)
+    time.sleep(2)
+
+    #//*[@id="log.login"]
+    #<button type="submit" class="btn_login" id="log.login">
+    login_btn = driver.find_element(By.CSS_SELECTOR, "#log\.login")
+    login_btn.click()
+    time.sleep(5)
+
+    driver.get('https://mail.naver.com/')
+   
+    # 메일 페이지에서 메일 개수 요소 찾기
+    mail_count_element = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "#root > div > nav > div > div.lnb_header > div.lnb_filtered_mailbox > a.item.svg_unread > span.count"))
+    )
+
+    # 텍스트 가져오기
+    mail_count_text = mail_count_element.text.strip()
+    print("메일 개수:", mail_count_text)
+
+###################################### Option 3 함수 형태로
+
+def set_driver():
+    options = Options()
+    # options.add_argument('start-maximized')         # 브라우저를 최대화된 상태로 시작
+    options.add_experimental_option('detach', True) # 스크립트가 종료된 후에도 브라우저가 닫히지 않도록 설정
+    # options.add_argument('headless')
+    driver = webdriver.Chrome(options=options)
+    return driver
+
+def load_url(url):
+    driver.get(url)
+
+def move_login():
+    login_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "#account > div > a"))
+    )
+    login_button.click()
+    time.sleep(1)
+
+def login(myid,mypw):
+    driver.find_element(By.ID, "id").click()
+    time.sleep(0.1)
+    pyperclip.copy(myid)            ## 자동 로그인 방지로부터 우회
+    pyautogui.hotkey("ctrl", "v")
+    # for id in myid:
+    #     print(id)
+    #     time.sleep(0.1)
+    #     driver.find_element(By.ID, "id").send_keys(id)
+    # time.sleep(5)
+
+    driver.find_element(By.ID, "pw").click()
+    time.sleep(0.5)
+    pyperclip.copy(mypw)            ## 자동 로그인 방지로부터 우회
+    pyautogui.hotkey("ctrl", "v")
+    # for pw in mypw:
+    #     time.sleep(0.1)
+    #     driver.find_element(By.ID, "pw").send_keys(pw)
+    time.sleep(0.5)
+    driver.find_element(By.CSS_SELECTOR, "#log\.login").click()
+    time.sleep(3)
+
+    
+def count_unread_mail():
+    # Iframe 활성화
+    mailbox_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "#account > div.MyView-module__my_menu___eF24q > div > div > ul > li:nth-child(1) > a > span.MyView-module__item_text___VTQQM"))
+    )
+    mailbox_button.click()
+
+    mail_count_element = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "#account > div.MyView-module__my_menu___eF24q.MyView-module__is_open____qWM1 > div > div > ul > li:nth-child(1) > a > span.MyView-module__item_num___eHxDY"))
+    )
+    print("메일 개수:", mail_count_element.text.strip())
+
+
+
+if __name__ == '__main__':
+    driver = set_driver()
+    url='https://www.naver.com/'
+    load_url(url)
+    move_login()
+    my_id = "hwooks"
+    my_pw = "9603541k"
+    login(my_id,my_pw)
+    count_unread_mail()     
+    driver.quit()
 ################################################################# Q.
 
 ################################################################# Q.
