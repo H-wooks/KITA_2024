@@ -314,6 +314,48 @@ finally:
     # 브라우저 닫기
     driver.quit()
 
+################################################################# Q. 한빛 강사님
+# 한빛 네트워크 사이트 로그인 후 점수 가져오기
+import selenium
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
+import time
+
+driver = webdriver.Chrome()
+driver.get('https://www.hanbit.co.kr/')
+element = driver.find_element(By.CLASS_NAME,'login')
+element.click()
+
+m_id  = ''
+m_pw = ''
+element = driver.find_element(By.ID,'m_id')
+element.send_keys(m_id)
+time.sleep(1)
+element = driver.find_element(By.ID,'m_passwd')
+element.send_keys(m_pw)
+time.sleep(1)
+# driver.execute_script("document.getElementById('m_id').value=\'" + m_id + "\'")
+# time.sleep(2)
+# driver.execute_script("document.getElementById('m_pw').value=\'" + m_pw + "\'")
+# time.sleep(2)
+
+element = driver.find_element(By.CLASS_NAME,'btn_login').click()
+time.sleep(1)
+driver.maximize_window()
+driver.find_element(By.XPATH,'//*[@id="wrap_nav"]/ul[2]/li[2]/a').click()
+time.sleep(2)
+bs = BeautifulSoup(driver.page_source,'html.parser')
+element = bs.select_one('#container > div > div.sm_mymileage > dl.mileage_section1 > dd > span')
+print(element.text)
+time.sleep(3)
+driver.close()
+
+
+
+
+
 ################################################################# Q. 네이버 자동 로그인 / data Query / mail 개수 가져오기
 from selenium import webdriver
 from selenium.webdriver.common.by import By
