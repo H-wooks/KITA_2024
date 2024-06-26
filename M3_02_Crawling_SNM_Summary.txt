@@ -68,7 +68,59 @@ XPath는 XML 문서의 경로를 지정하기 위한 언어로, HTML 문서에�
 ```
 newsstand_link=driver.find_element(By.XPATH, '//*[@id="newsstand"]/div[1]/div/ul/li[1]/span/a[1]')
 
+#####################################################################################################
+############################################### JAVA Script #########################################
+#####################################################################################################
 
+1. getElementById()
+ - 파라미터로 찾으려는 id를 전달하여, 해당 element를 찾을 수 있습니다. id는 유일한 값이므로, 하나의 element만 리턴합니다.
+2. getElementsByClassName()
+ - 클래스 이름으로 element를 찾아서,이 클래스 이름을 가지는 모든 element 목록을 리턴합니다.이 함수의 이름을 자세히 보면 getElementsByClassName으로 Element's'가 복수 형태인 것은 이 함수가 목록을 리턴하기 때문입니다.
+3. getElementByTagName()
+ - 위 코드는 'div' 태그를 가지는 모든 element 목록을 찾아줍니다.이 함수 역시, 다수의 element를 리턴하기 때문에 함수명에 복수형의 'elements'가 포함되어 있습니다.
+4. querySelector()
+ - DOM에서 원하는 element를 찾기 위해서 querySelector() 를 사용할 수도 있는데, 이 함수는 파라미터로 입력받은 CSS선택자를 사용해서, element를 찾아줍니다.
+ - querySelector() 함수는, 파라미터로 입력받은 CSS 선택자로 찾은 여러개의 element 중 첫번째 element를 리턴합니다.
+ - 태그 이름으로 element를 찾을 때는 태그명을 문자열로 넘겨줍니다.위 예제는 div태그를 가지는 element 중 첫번째 element를 리턴합니다.
+5. querySelectorAll()
+
+############################################################### 사용 방법
+############################################
+driver.get('http://books.toscrape.com/')
+book_title = driver.execute_script('return document.querySelector("article.product_pod h3 a").innerText;')
+############################################
+book_url = driver.execute_script('return document.querySelector("article.product_pod h3 a").getAttribute("href");')
+############################################
+new_div_id=driver.execute_script("""
+    var newElement=document.createElement('div');
+    newElement.id='newDiv';
+    newElement.innerText='Hello, Book Lovers!';
+    document.body.appendChild(newElement);
+    return newElement.id;
+""")
+############################################
+driver.execute_script("document.querySelector('article.product_pod h3 a').click();")
+############################################
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+############################################
+driver.execute_script("document.querySelector('article.product_pod').style.backgroundColor='yellow';")
+############################################
+driver.execute_script("""
+    document.querySelector('article.product_pod h3 a').addEventListener('click', function() {
+                      alert('book clicked!');
+    });
+""")
+############################################
+book_titles=driver.execute_script("""
+    var elements=document.querySelectorAll('article.product_pod h3 a');
+    var data = [];
+    elements.forEach(function(element) {
+        data.push(element.innerText);
+    });
+    return data;
+""")
+############################################
+driver.execute_script("document.querySelector('#inputField').value = 'new value';")
 
 
 #####################################################################################################
@@ -599,10 +651,145 @@ if __name__ == '__main__':
     login(my_id,my_pw)
     count_unread_mail()     
     driver.quit()
-################################################################# Q.
+################################################################# Q. 뉴스 검색 페이지는 스크롤 다운 해야 다음 기사가 page에 로드 됨 ==> BS로는 한계, 스크롤 다운해서 html=driver.page_source로 html을 가져와야..
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-################################################################# Q.
+import time
+import pyautogui
+import pyperclip
+import pandas as pd
+import numpy as np
 
+import requests
+import chardet
+import re
+from datetime import datetime
+import os
+from bs4 import BeautifulSoup 
+
+#query=input('검색 키워드를 입력하세요: ')
+query='인공지능'
+query=query.replace(' ', '+')
+#print(query)
+
+print()
+print('크롤링 중....')
+
+news_url='https://search.naver.com/search.naver?where=news&sm=tab_jum&query={}'
+
+driver=webdriver.Chrome()
+
+driver.get(news_url.format(query))
+time.sleep(1)
+
+for i in range(10):
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(1)
+html=driver.page_source
+soup=BeautifulSoup(html, 'html.parser')
+items=soup.select('.news_tit')
+
+for e, item in enumerate(items, 1):
+    print(f'{e}: {item.text.strip()}')
+
+
+
+time.sleep(10)
+
+driver.quit()
+################################################################# Q. 위와 유사한데 자동으로 scrall 다운 maximum 기사 개수에 도달할 때까지
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+import time
+import pyautogui
+import pyperclip
+import pandas as pd
+import numpy as np
+
+import requests
+import chardet
+import re
+from datetime import datetime
+import os
+from bs4 import BeautifulSoup 
+
+#query=input('검색 키워드를 입력하세요: ')
+query='인공지능'
+query=query.replace(' ', '+')
+
+#news_num=input('검색할 기사의 제한 개수를 입력하세요 : ')
+news_num=100
+
+
+print()
+print('크롤링 중....')
+
+news_url='https://search.naver.com/search.naver?where=news&sm=tab_jum&query={}'
+
+driver=webdriver.Chrome()
+
+driver.get(news_url.format(query))
+time.sleep(1)
+
+SCROLL_PAUSE_TIME = 2
+news_dict={}
+idx=0
+last_height = driver.execute_script("return document.body.scrollHeight")
+
+
+while idx < news_num:
+    # 페이지의 html 소스를 가져와 BS 로 파싱
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+
+    items=soup.select('.news_tit')
+
+    for item in items:
+        if idx >= news_num:
+            break
+        title=item.get_text()
+        url=item.get('href')
+        news_dict[idx]={'title':title, 'url':url}
+        idx += 1
+
+    if idx >= news_num:
+        break
+    # 페이지 끝까지 스크롤 다운
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+    # 새로운 높이가 로드될 때까지 대기
+    time.sleep(SCROLL_PAUSE_TIME)
+    new_height = driver.execute_script("return document.body.scrollHeight")
+    if new_height == last_height:
+        break
+    last_height = new_height
+
+driver.quit()
+print('크롤링 완료')
+print('데이터 프레임 변환')
+
+news_df=pd.DataFrame.from_dict(news_dict).T
+print(news_df)
+
+## 결과 출력 
+folder_path=os.getcwd()
+file_name=f"네이버뉴스_{query}.csv"
+news_df.to_csv(file_name, index=False, encoding='utf-8-sig')
+print(f'파일 저장 완료 | 경로 : {folder_path}\\{file_name}')
+df=pd.read_csv(file_name)
+df
 
 ################################################################# Q.
 

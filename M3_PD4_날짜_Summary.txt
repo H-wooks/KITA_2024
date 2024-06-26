@@ -14,6 +14,19 @@ ts1=pd.Timestamp(dt1)
 ts1=pd.Timestamp('2011-01-02')
 dt1=ts1.to_pydatetime()
 
+
+
+############################################ 날짜 시간 예제
+from datetime import datetime
+
+date=str(datetime.now())
+print(date)
+print(date[:date.rfind(':')])
+date=date[:date.rfind(':')].replace(' ', "_") # date 문자열에서 마지막 : 문자의 인덱스를 반환 ==> 처음부터 :의 인덱스까지.. 그럼 마지막 :의 앞에까지
+print(date)
+date=date.replace(':', "시") + '분'
+print(date)
+
 ##################################################################### 파이썬: 
 datetime, strftime()을 사용하여 날짜를 문자열로, strptime()을 사용하여 문자열을 날짜로 변환
 ##################################################################### 넘파이: datetime54

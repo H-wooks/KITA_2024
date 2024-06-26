@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex DOM Manipulation</title>
+    <style>
+        .target {
+            padding: 30px;
+            margin: 20px;
+            border: 2px solid #4621ad;
+        }
+    </style>
+</head>
+<body>
+    <div class="target", style="color: red;"><strong>Item 1</strong></div>
+    <div class="target">Item 2</div>
+    <div class="target"><strong>Item 3</strong></div>
+    <div class="target"><strong>Item 4</strong></div>
+    <script>
+        // 복잡한 DOM 조작 및 이벤트 리스너 추가
+        document.querySelectorAll('.target').forEach(function(element) {
+            // 배경색 변경
+            element.style.backgroundColor = 'gray';
+
+            // 클릭 이벤트 리스너 추가
+            element.addEventListener('click', function() {
+                alert('Element clicked: ' + element.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
