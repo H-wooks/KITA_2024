@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patent Search</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
+    <script src="{{url_for('static', filename='js/scripts.js')}}" defer></script>
+</head>
+<body>
+    <h1 class="center">Patent Search Application</h1>
+    <form method="post" action="/search">
+        <div class="main-container">
+            <div class="fields">
+                <label class="fields-label">Application Fields</label>
+                <div class="checkbox-group">
+                    <div class="column">
+                        <input type="checkbox" name="application_fields" value="제너럴"> 제너럴<br>
+                        <input type="checkbox" name="application_fields" value="전자상거래"> 전자상거래<br>
+                        <input type="checkbox" name="application_fields" value="금융"> 금융<br>
+                        <input type="checkbox" name="application_fields" value="농업"> 농업<br>
+                        <input type="checkbox" name="application_fields" value="보안"> 보안<br>
+                        <input type="checkbox" name="application_fields" value="반도체"> 반도체<br>
+                    </div>
+                    <div class="column">
+                        <input type="checkbox" name="application_fields" value="의료"> 의료<br>
+                        <input type="checkbox" name="application_fields" value="자동차"> 자동차<br>
+                        <input type="checkbox" name="application_fields" value="교육"> 교육<br>
+                        <input type="checkbox" name="application_fields" value="엔터테인먼트"> 엔터테인먼트<br>
+                        <input type="checkbox" name="application_fields" value="자동화시스템"> 자동화시스템<br>
+                    </div>
+                </div>
+            </div>
+            <div class="filters-and-button">
+                <div class="filters">
+                    <div class="row">
+                        <label for="filter_type">Filter Type:</label>
+                        <select name="filter_type">
+                            <option value="applicant">출원인</option>
+                            <option value="patent">특허실용신안</option>
+                        </select>
+                        <label for="search_keyword">Search Keyword:</label>
+                        <input type="text" name="search_keyword">
+                    </div>
+                    <div class="row">
+                        <label for="start_date">Start Date:</label>
+                        <input type="date" name="start_date">
+                        <label for="end_date">End Date:</label>
+                        <input type="date" name="end_date">
+                    </div>
+                </div>
+                <button type="submit" class="search-button">검색</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="results">
+        {% if table %}
+        <h2>Search Results</h2>
+        {{ table | safe }}
+        {% endif %}
+        {% if plot %}
+        <h2>Yearly Counts</h2>
+        {{ plot | safe }}
+        {% endif %}
+    </div>
+</body>
+</html>
