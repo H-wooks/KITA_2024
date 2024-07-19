@@ -29,12 +29,15 @@ csrf = CSRFProtect(app)
 # Google Cloud Translation API 인증이 필요해서 인증 필요없는 library package 사용
 ## pip install googletrans==4.0.0rc1 필요
 ## pip install deepl 필요
+
+# 구글 번역
 def translate_keyword_g(keyword, target_language='en'):
     translator = Translator()
     keyword = keyword.replace(' ', '')
     translation = translator.translate(keyword, dest=target_language)
     return translation.text
-    
+
+# deepl 번역
 def translate_keyword_d(keyword):
     auth_key = "c6d7b043-1235-44d4-96bd-331cc0ec8c35:fx"
     translator = deepl.Translator(auth_key)
@@ -42,6 +45,7 @@ def translate_keyword_d(keyword):
     result = translator.translate_text(keyword, target_lang='EN-US')
     return result.text
 
+# 네이버 번역
 def translate_keyword_n(text):
     url = "https://naveropenapi.apigw.ntruss.com/nmt/v1/translation"
     headers = {"X-NCP-APIGW-API-KEY-ID": "3r1tnk1ohr", "X-NCP-APIGW-API-KEY": "twwiSo88HbmrNatHLlWYn618dWpK5P9XcD6B6Hkr"}
@@ -114,7 +118,7 @@ filtered_data_papers = pd.DataFrame()
 # } 
 
 categories = {
-    '제너럴': ['artificial intelligence', 'neural network', 'chat gpt', 'gemini', 'meta llama', 'ilsvrc', 'imagenet', 'alexnet', 'inference', 'learning', 'training methods', 'ai', 'intelligent', 'training method', 'supervised methods', 'learning methods', 'machine learning', 'deep learning', 'pattern recognition', 'blockchain', 'image recognition', 'vision', 'natural language processing', 'chatbot', 'gesture recognition', 'object recognition', 'motion recognition', 'facial recognition', 'large language models', 'generative', 'general ai', 'autonomous ai', 'autonomous learning'],
+    '제너럴': ['artificial intelligence', 'neural network', 'chat gpt', 'gemini','llama', 'meta llama', 'ilsvrc', 'imagenet', 'alexnet', 'inference', 'learning', 'training methods', 'ai', 'intelligent', 'training method', 'supervised methods', 'learning methods', 'machine learning', 'deep learning', 'pattern recognition', 'blockchain', 'image recognition', 'vision', 'natural language processing', 'chatbot', 'gesture recognition', 'object recognition', 'motion recognition', 'facial recognition', 'large language models', 'generative', 'general ai', 'autonomous ai', 'autonomous learning'],
     '의료': ['healthcare', 'antibody', 'health', 'treatment', 'wellness', 'gene', 'hospital', 'derivative', 'patient', 'animal', 'medical device', 'medical information', 'bio-medical', 'medicine', 'drug', 'surgery', 'rehabilitation', 'clinical', 'doctor', 'nurse', 'emergency', 'diagnosis', 'immune', 'disease', 'disorder', 'therapy', 'public health', 'biometrics'],
     '전자상거래서비스': ['commerce', 'product', 'order', 'customized services', 'client', 'delivery', 'sales', 'payment', 'supply chain', 'service', 'e-commerce platform', 'online shopping', 'online transaction', 'digital payment', 'online service', 'online platform', 'internet transaction', 'internet service', 'customer', 'buyer', 'traffic', 'visitor', 'page view', 'session time', 'email subscription', 'marketing', 'advertisement', 'qr', 'related products', 'customs clearance', 'tariff', 'exchange rate'],
     '자동차': ['automobile', 'driving', 'entry', 'transmission', 'autonomous driving', 'road', 'vehicle', 'collision', 'traffic', 'flight', 'pedestrian', 'lane', 'traffic light', 'electric vehicle', 'hybrid', 'internal combustion engine', 'connected car', 'smart car', 'driver assistance system', 'adas', 'vehicle sensor', 'mobility', 'transportation', 'parking', 'head-up display', 'navigation'],
@@ -151,7 +155,7 @@ def search():
         translated_keyword_d = translate_keyword_d(search_keyword)  ## Deepl Translation
         translated_keyword_n = translate_keyword_n(search_keyword)  ## Naver PAPAGO Translation
         # 3가지 번역된 키워드 리스트
-        translated_keywords = [translated_keyword_g.lower(), translated_keyword_d.lower(), translated_keyword_n.lower()]
+        translated_keywords = [translated_keyword_g.lower().replace(' ',''), translated_keyword_d.lower().replace(' ',''), translated_keyword_n.lower().replace(' ','')]
         print(f"Translated Keyword: {translated_keywords}")
 
         try:
@@ -184,23 +188,36 @@ def search():
             filtered_data_patents = filtered_df_patents
             print(f"Filtered patents data: {filtered_data_patents.shape}")
 
+
+            table_html = filtered_df_patents[['Application Number', 'Application Date', 'Applicant', 'Title', 'Status']]
+            table_html = table_html.rename(columns={
+                'Application Number' : '출원번호',
+                'Application Date' : '출원일',
+                'Applicant' : '출원인',
+                'Title' : '제목',
+                'Status' :'상태'
+            })
+            table_html = table_html.to_html(index=False, classes="table", escape=False)
+            print("Generated table HTML")
+
             if filtered_df_patents.empty:
-                return render_template('Web.html', table="", plot="", top3_table="", top5_table="", paper_table="", date=date, form=form)
+                # return render_template('Web.html', table="", plot="", top3_table="", top5_table="", paper_table="", date=date, form=form)
+                table=""; plot=""; top3_table=""; top5_table=""; table_html = ""
 
             # 논문 데이터 필터링
             if filter_type == 'patent':
                 paper_conditions = []
                 for field in application_fields:
                     for keyword in categories.get(field, []):
-                        paper_conditions.append((df_papers['title'].str.contains(keyword, na=False)) | 
-                                                (df_papers['Abstract'].str.contains(keyword, na=False)))
+                        paper_conditions.append((df_papers['title'].str.lower().str.contains(keyword, na=False)) | 
+                                                (df_papers['Abstract'].str.lower().str.contains(keyword, na=False)))
                 if paper_conditions:
                     filtered_df_papers = df_papers[pd.concat(paper_conditions, axis=1).any(axis=1)]
                     # 필터 조건 생성
                     filter_condition = pd.Series([False] * len(filtered_df_papers), index=filtered_df_papers.index)
                     for translated_keyword in translated_keywords:
-                        filter_condition |= filtered_df_papers['title'].str.contains(translated_keyword, na=False) | \
-                                            filtered_df_papers['Abstract'].str.contains(translated_keyword, na=False)
+                        filter_condition |= filtered_df_papers['title'].str.lower().str.contains(translated_keyword, na=False) | \
+                                            filtered_df_papers['Abstract'].str.lower().str.contains(translated_keyword, na=False)
                     filtered_df_papers = filtered_df_papers[filter_condition]
                     filtered_data_papers = filtered_df_papers
                 else:
@@ -211,18 +228,22 @@ def search():
                         lambda row: f'<a href="{row["pdf_link"]}" target="_blank">{row["title"]}</a>',
                         axis=1
                     )
-                    paper_table_html = filtered_df_papers[['title', 'Abstract', 'submit_date']].to_html(index=False, classes="table", escape=False)
+                    paper_table_html = filtered_df_papers[['title', 'Abstract', 'submit_date']]
+                    paper_table_html = paper_table_html.rename(columns={
+                        'title': '제목',
+                        'Abstract': '요약',
+                        'submit_date': '등록일'
+                    })
+                    paper_table_html = paper_table_html.to_html(index=False, classes="table", escape=False)
                 else:
                     paper_table_html = ""
             else:
+                filtered_data_papers = pd.DataFrame()
                 paper_table_html = ""
-
-            table_html = filtered_df_patents[['Application Number', 'Application Date', 'Applicant', 'Title', 'Status']].to_html(index=False, classes="table", escape=False)
-            print("Generated table HTML")
 
             top3_df = filtered_df_patents['Applicant'].value_counts().head(3).reset_index()
             if len(top3_df) < 3:
-                empty_rows = pd.DataFrame([[None, 0]] * (3 - len(top3_df)), columns=top3_df.columns)
+                empty_rows = pd.DataFrame([['N/A', 'N/A']] * (3 - len(top3_df)), columns=top3_df.columns)
                 top3_df = pd.concat([top3_df, empty_rows], ignore_index=True)
             top3_df.columns = ['출원인', '출원 건수']
             top3_table = top3_df.to_html(index=False, classes="table", escape=False) if not top3_df.empty else ""
@@ -241,7 +262,7 @@ def search():
             filtered_df_etc_domestic = filtered_df_patents[filtered_df_patents['applicant_lgrp'].isin(['etc', '국내기업'])]
             top5_df = filtered_df_etc_domestic['Applicant'].value_counts().head(10).reset_index()
             if len(top5_df) < 10:
-                empty_rows = pd.DataFrame([[None, 0]] * (10 - len(top5_df)), columns=top5_df.columns)
+                empty_rows = pd.DataFrame([['N/A', 'N/A']] * (10 - len(top5_df)), columns=top5_df.columns)
                 top5_df = pd.concat([top5_df, empty_rows], ignore_index=True)
             top5_df.columns = ['출원인', '출원 건수']
             
@@ -297,12 +318,12 @@ def download():
         zf.writestr("filtered_papers.csv", paper_csv)
 
     memory_file.seek(0)
-    
+
     # 응답 데이터 생성
     response = make_response(memory_file.read())
     response.headers["Content-Disposition"] = "attachment; filename=filtered_data.zip"
     response.headers["Content-Type"] = "application/zip"
-
+    
     return response
 
 @app.route('/plot')
@@ -316,23 +337,42 @@ def plot():
     print("Plot endpoint called")  # 디버깅 로그 추가
 
     fig = plt.figure(figsize=(14, 14))
-    # 2X3 Plot
-    gs = gridspec.GridSpec(9, 6)
-    ax1 = fig.add_subplot(gs[:3, :3])
-    ax2 = fig.add_subplot(gs[:3, 3:])
-    ax3 = fig.add_subplot(gs[3:6, :3])
-    ax4 = fig.add_subplot(gs[3:6, 3:])
-    ax5 = fig.add_subplot(gs[6:, :3])
-    ax6 = fig.add_subplot(gs[6:, 3:])
+    gs = gridspec.GridSpec(9, 6)            # 2X3 Plot
+    if (not filtered_data_patents.empty) & (not filtered_data_papers.empty):
+        ax1 = fig.add_subplot(gs[:3, :3]); ax2 = fig.add_subplot(gs[:3, 3:]); ax3 = fig.add_subplot(gs[3:6, :3])
+        ax4 = fig.add_subplot(gs[3:6, 3:]); ax5 = fig.add_subplot(gs[6:, :3]); ax6 = fig.add_subplot(gs[6:, 3:])
+    elif (not filtered_data_patents.empty) & (filtered_data_papers.empty):
+        ax1 = fig.add_subplot(gs[:3, :3]); ax3 = fig.add_subplot(gs[:3, 3:])
+        ax4 = fig.add_subplot(gs[3:6, 1:4]); ax5 = fig.add_subplot(gs[6:, :3]); ax6 = fig.add_subplot(gs[6:, 3:])
+    elif (filtered_data_patents.empty) & (not filtered_data_papers.empty):
+        ax2 = fig.add_subplot(gs[:3, :3]); ax3 = fig.add_subplot(gs[:3, 3:])
+
+    # Group the original data by year
+    df_patents['application_date'] = pd.to_datetime(df_patents['application_date'], errors='coerce')
+    df_patents['application_year'] = df_patents['application_date'].dt.year
+    total_patent_counts = df_patents.groupby('application_year').size()
+
+    df_papers['submit_date'] = pd.to_datetime(df_papers['submit_date'], errors='coerce')
+    df_papers['submit_year'] = df_papers['submit_date'].dt.year
+    total_paper_counts = df_papers.groupby('submit_year').size()
 
     if not filtered_data_patents.empty:
         filtered_data_patents['application_year'] = filtered_data_patents['Application Date'].dt.year
         filtered_counts = filtered_data_patents.groupby(['application_year', 'applicant_lgrp']).size().unstack(fill_value=0)
+        filtered_patent_counts = filtered_data_patents.groupby('application_year').size()
 
-        # Group the original data by year
-        df_patents['application_date'] = pd.to_datetime(df_patents['application_date'], errors='coerce')
-        df_patents['application_year'] = df_patents['application_date'].dt.year
-        total_patent_counts = df_patents.groupby('application_year').size()
+        if not filtered_data_papers.empty:                  # Create a common index
+            filtered_data_papers['submit_date'] = pd.to_datetime(filtered_data_papers['submit_date'], errors='coerce')
+            filtered_data_papers['submit_year'] = filtered_data_papers['submit_date'].dt.year
+            common_index = total_patent_counts.index.union(total_paper_counts.index).union(filtered_data_patents['application_year'].dropna().unique()).union(filtered_data_papers['submit_year'].dropna().unique())
+            
+        else: common_index = total_patent_counts.index.union(filtered_data_patents['application_year'].dropna().unique())
+        # Reindex to ensure all indices match
+        total_patent_counts = total_patent_counts.reindex(common_index, fill_value=0)
+        filtered_patent_counts = filtered_patent_counts.reindex(common_index, fill_value=0)
+
+        # Calculate the percentage
+        filtered_patent_percentage = (filtered_patent_counts / total_patent_counts * 100).fillna(0)
 
         applicant_group_counts = filtered_data_patents['applicant_lgrp'].value_counts()
 
@@ -353,6 +393,14 @@ def plot():
         ax1.tick_params(axis='y', labelsize=12, direction='in', left=True, right=True)
         ax1.tick_params(axis='x', labelsize=12, direction='in', bottom=False, top=False)
 
+
+        sns.lineplot(x=filtered_patent_percentage.index, y=filtered_patent_percentage, ax=ax3, color='blue', label='Patents', legend=False, marker='o', markersize=8, markerfacecolor='none', markeredgecolor='blue')
+        ax3.set_title("Filtered Patent/Paper' Portions of Total by Year")
+        ax3.set_xlabel('Year', fontsize=14)
+        ax3.set_ylabel('Percentage of Patents [%]', fontsize=14, color='blue')
+        ax3.tick_params(axis='x', labelsize=12, direction='in', bottom=True, top=False)
+        ax3.tick_params(axis='y', labelsize=12, direction='in', left=True, right=False, colors='blue')
+
         # 그룹 이름을 리스트로 추출
         group_names = applicant_group_counts.index.tolist()
         # explode 값 설정: 기본적으로 모두 0으로 초기화
@@ -367,7 +415,8 @@ def plot():
         ax4.legend(wedges, applicant_group_counts.index, title="Groups", loc="center left", bbox_to_anchor=(1, 0.5, 0.1, 0.2), prop={'weight': 'bold'})
         ax4.set_aspect('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         # ax4.set_title('Applicant Distribution')
-        fig.text(0.78, 0.38, 'Applicant Distribution', ha='center', fontsize=14)
+        #fig.text(0.78, 0.38, 'Applicant Distribution', ha='center', fontsize=14)
+        ax4.annotate('Applicant Distribution', xy=(0, 0), xytext=(0, -140),textcoords='offset points', ha='center',fontsize=14)
 
         bars5 = sns.barplot(x='Patent Count', y='Applicant', data=top10_total, hue='Applicant', legend=False, orient='h', errorbar=None, width=0.7, palette='bone', ax=ax5)
         ax5.set_title('Top 10 Applicants')
@@ -405,56 +454,40 @@ def plot():
 
     else:
         print("No data available for patents-plotting")  # 디버깅 로그 추가
-        ax1.set_visible(False)
-        ax4.set_visible(False)
-        ax5.set_visible(False)
-        ax6.set_visible(False)
 
     if not filtered_data_papers.empty:
-        filtered_data_papers['submit_date'] = pd.to_datetime(filtered_data_papers['submit_date'], errors='coerce')
-        filtered_data_papers['submit_year'] = filtered_data_papers['submit_date'].dt.year
-        filtered_p_counts = filtered_data_papers.groupby(['submit_year']).size()
+        filtered_paper_counts = filtered_data_papers.groupby(['submit_year']).size()
 
-        df_papers['submit_date'] = pd.to_datetime(df_papers['submit_date'], errors='coerce')
-        df_papers['submit_year'] = df_papers['submit_date'].dt.year
-        total_paper_counts = df_papers.groupby('submit_year').size()
-
-        # Create a common index
-        common_index = total_patent_counts.index.union(total_paper_counts.index).union(filtered_data_patents['application_year'].dropna().unique()).union(filtered_data_papers['submit_year'].dropna().unique())
+        if filtered_data_patents.empty:
+            common_index = total_paper_counts.index.union(filtered_data_papers['submit_year'].dropna().unique())
 
         # Reindex to ensure all indices match
-        total_patent_counts = total_patent_counts.reindex(common_index, fill_value=0)
         total_paper_counts = total_paper_counts.reindex(common_index, fill_value=0)
-        filtered_patent_counts = filtered_data_patents.groupby('application_year').size().reindex(common_index, fill_value=0)
-        filtered_paper_counts = filtered_data_papers.groupby('submit_year').size().reindex(common_index, fill_value=0)
+        filtered_paper_counts = filtered_paper_counts.reindex(common_index, fill_value=0)
 
         # Calculate the percentage
-        filtered_patent_percentage = (filtered_patent_counts / total_patent_counts * 100).fillna(0)
         filtered_paper_percentage = (filtered_paper_counts / total_paper_counts * 100).fillna(0)
 
 
-        filtered_p_counts.plot(kind='bar', color=sns.color_palette("bright"), ax=ax2)  # pastel, deep, mated, bright, dark,colorblind
+        filtered_paper_counts.plot(kind='bar', color=sns.color_palette("bright"), ax=ax2)  # pastel, deep, mated, bright, dark,colorblind
         ax2.set_title('Number of Papers(WorldWide) by Year')
         ax2.set_xlabel('Year', fontsize=14)
         ax2.set_ylabel('Number of Papers', fontsize=14)
-        ax2.set_xticks(range(len(filtered_p_counts.index)))
-        ax2.set_xticklabels(filtered_p_counts.index, rotation=45, ha='right', fontsize=12)
+        ax2.set_xticks(range(len(filtered_paper_counts.index)))
+        ax2.set_xticklabels(filtered_paper_counts.index, rotation=45, ha='right', fontsize=12)
         ax2.tick_params(axis='y', labelsize=12, direction='in', left=True, right=True)
         ax2.tick_params(axis='x', labelsize=12, direction='in', bottom=False, top=False)
 
         # Line plot for percentages
         ax3_twin = ax3.twinx()
-        sns.lineplot(x=filtered_patent_percentage.index, y=filtered_patent_percentage, ax=ax3, color='blue', label='Patents', legend=False, marker='o', markersize=8, markerfacecolor='none', markeredgecolor='blue')
         sns.lineplot(x=filtered_paper_percentage.index, y=filtered_paper_percentage, ax=ax3_twin, color='green', label='Papers', legend=False, marker='o', markersize=8, markerfacecolor='none', markeredgecolor='green')
-
         ax3.set_title("Filtered Patent/Paper' Portions of Total by Year")
         ax3.set_xlabel('Year', fontsize=14)
-        ax3.set_ylabel('Percentage of Patents [%]', fontsize=14, color='blue')
         ax3_twin.set_ylabel('Percentage of Papers [%]', fontsize=14, color='green')
         ax3.tick_params(axis='x', labelsize=12, direction='in', bottom=True, top=False)
-        ax3.tick_params(axis='y', labelsize=12, direction='in', left=True, right=False, colors='blue')
         ax3_twin.tick_params(axis='y', labelsize=12, direction='in', left=False, right=True, colors='green')
 
+        #if not filtered_data_patents.empty:
         # Combine legends for ax3 and ax3_twin
         lines, labels = ax3.get_legend_handles_labels()
         lines2, labels2 = ax3_twin.get_legend_handles_labels()
@@ -462,8 +495,6 @@ def plot():
 
     else:
         print("No data available for papers-plotting")  # 디버깅 로그 추가
-        ax2.set_visible(False)
-        ax3.set_visible(False)
 
     plt.tight_layout()
     # Save the plot as an image file
