@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Practice Page</title>
+    <style>
+        /* 초기 스타일은 주어진 것을 유지 */
+        #title { color: rgb(255, 0, 34); }
+        #paragraph { color: rgb(255, 0, 34); }
+        #changeTextButton { color: rgb(255, 0, 34); }
+        #textInput { color: rgb(60, 255, 0); }
+        #submitButton { color: rgb(98, 0, 255); }
+        #form { color: rgb(0, 102, 255); }
+    </style>
+</head>
+<body>
+    <h1 id="title">Original Title</h1>
+    <div class="content">
+        <p id="paragraph">This is a paragraph.</p>
+        <button id="changeTextButton">Change Text</button>
+        <input type="text" id="textInput" value="default value">
+    </div>
+    <form id="form">
+        <input type="text" name="name" value="John Doe">
+        <input type="submit" id="submitButton" value="Submit">
+    </form>
+
+    <script>
+        // JavaScript 코드
+        document.addEventListener('DOMContentLoaded', function() {
+            // document.getElementById(id): 특정 ID를 가진 요소를 선택
+            var titleElement = document.getElementById('title');
+            var paragraphElement = document.getElementById('paragraph');
+            var changeTextButton = document.getElementById('changeTextButton');
+            var textInputElement = document.getElementById('textInput');
+            var submitButton = document.getElementById('submitButton');
+            var formElement = document.getElementById('form');
+
+            // element.innerText: 요소의 텍스트 콘텐츠를 설정하거나 가져옴
+            titleElement.innerText = 'Modified Title';
+            paragraphElement.innerText = 'This paragraph has been changed.';
+
+            // element.style.property: 요소의 CSS 스타일 속성을 설정
+            changeTextButton.style.backgroundColor = 'yellow';
+            textInputElement.style.border = '2px solid green';
+
+            // element.value: 입력 필드의 값을 설정하거나 가져옴
+            textInputElement.value = 'New default value';
+
+            // element.click(): 요소를 클릭
+            changeTextButton.addEventListener('click', function() {
+                alert('Button clicked!');
+            });
+
+            // form.submit(): 폼 제출
+            formElement.addEventListener('submit', function(event) {
+                event.preventDefault(); // 폼의 기본 동작 방지
+                var nameInput = formElement.elements['name'];
+                alert('Form submitted with name: ' + nameInput.value);
+            });
+        });
+    </script>
+</body>
+</html>
