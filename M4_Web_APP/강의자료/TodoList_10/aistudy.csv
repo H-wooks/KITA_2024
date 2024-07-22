@@ -1,0 +1,88 @@
+id,title,contents,input_date,due_date,user_id,completion_date,file_path
+9,task1,task1,2024-07-16,2024-07-17,387,,
+17,test,test,2024-07-17,2024-07-25,387,,
+19,test,test,2024-07-18,2024-07-26,387,,MySQL.pptx
+21,mysql,mysql 기본 가이드,2024-07-18,2024-07-19,387,,
+23,머신러닝  이해 및 활용,머신러닝 지도 비지도 학습 알고리즘 이해 및 활용,2024-07-18,2024-07-31,387,,
+24,데이터베이스,"▷데이터 베이스 시스템 - 데이터베이스의 정의 - 관계 데이터 모델 - 실습 환경 구성 (DBMS 설치 및 실행) - SQL Developer 설치
+▷SQL 기초
+- DML : SELECT, GROUP BY, HAVING, ORDER BY, JOIN
+- DDL : CREATE, ALTER, DROP, - DCL : GRANT, REVOKE, COMMIT, ROLLBACK
+▷SQL 활용 - 내장함수, 부속질의, 뷰
+- 응용 프로그램
+- 파이썬 연동(cx_Oracle)",2024-07-18,2024-05-07,385,2024-05-07,
+25,파이썬 웹 개발1,"▷ 파이썬 학습 환경 및 자료구조
+- Python 이란, Python 설치, colaboratory 사용방법
+- 리스트: 생성, 추가, 제거, 인덱싱, 슬라이싱
+- 튜플: 생성, 사용
+- 딕셔너리: 생성, 키-값 접근, 메서드
+▷ 파이썬 문법 - 제어문 학습( if, if ~ elif, for, while) - 함수, 파일입출력(file), - 예외처리(try ~ except), - 클래스(class, inheritance) 학습
+- 정규표현식
+▷ 파이썬 프로그래밍 - 기본 프로그램밍 실습
+- 관심 주제 프로그래밍 ",2024-07-18,2024-05-21,385,2024-05-21,
+26,파이썬 웹 개발 2,"▷프론트앤드 프로그래밍 기초학습
+- HTML, CSS, Javascript, BootStrap 학습
+▷ Flask 프레임워크(웹 서버) - Django 설치
+- Flask MVC 패턴학습
+- Model : 테이블 정의 / URL정의
+- View : URL분석 및 매핑된 뷰호출",2024-07-18,2024-06-14,385,2024-06-14,
+27,프로젝트1 Web 프레임워크를 활용한 웹 애플리케이션 구축,Flask 기반 웹 애플리케이션 구축,2024-07-18,2024-07-05,385,2024-07-05,
+28,AI 제작을 위한빅데이터 학습,"▷ Pandas 학습
+- 데이터프레임, 시리즈
+- 데이터 자료형, 문자열 처리
+- 누락값 처리, 데이터 정제
+▷ 데이터 수집을 위한 웹 크롤링
+- requests, beautifulsoup, selenium
+▷ Numpy 학습
+- Axis, 데이터 타입, 배열
+- 배열 상태 검사, 배열 연산, 인덱싱, 슬라이싱, 배열변환, 서브셋
+- 선형대수, 미적분, 함수
+▷ 통계 기초
+- 기술통계(평균, 중앙값, 최빈값, 분산, 사분위수) - 데이터 분포(확률분포, 왜도, 첨도) - 공분산, 상관계수, 다변량 분석
+- 탐색적 분석 실습 
+▷ 시각화 라이브러리
+- Matplotlib, Seaborn
+- 시각적 탐색 및 인사이트 발굴 실습
+
+1차 프로젝트 발표회
+07.19 (금요일) 10:00 ~ 13:00 ",2024-07-18,2024-07-19,385,,1__.txt
+29,AI 서비스 플랫폼 구축1,"▷머신러닝 기초
+- 머신러닝의 개념, 지도/비지도 학습의 이해
+- KNN 분류와 회귀
+- AI Dataset, logistic regression, 모델 선언, 학습, 
+ 예측 프로세스
+- sklearn 소개, 학습과 예측, 검증 데이터 - label, One Hot Encoding, 정규화, 표준화, dataset 활용
+▷머신러닝 모델링
+- 회귀평가 지표, 선형회귀모델, 규제(릿지, 라쏘, 엘라스틱넷) - 앙상블 학습 및 유형 (Voting / Bagging / Boosting), - 랜덤포레스트Kmeans, hierarchical, DBSCAN
+- 차원축소란, PCA, LDA, SVD",2024-07-18,2024-08-05,385,,
+30,AI 서비스 플랫폼 구축2,"▷ 딥러닝 기초
+- Tensorflow 와 Pytorch Framework
+- 딥러닝 분류, 회귀 모델 생성 및 평가
+- 모델의 최적화, 경사하강 학습법
+- 역전파 알고리즘 구현, 뉴럴 네트워크 알고리즘 구현
+▷ 딥러닝을 활용한 자연어 처리
+- 자연어처리 기초(텍스트 전처리, 토큰화, 벡터화) - 기본모델(RNN, LSTM, GRU) - Attention mechanism, Transformer - 언어모델(BERT, GPT2 to GPT4) - 최신 트랜드 Prompt Engineering - 이미지 분석 프로젝트
+▷ 딥러닝을 활용한 영상이미지 처리
+- 영상이미지 데이터 전처리 - 기본모델(CNN, 사전훈련모델 적용) - 객체탐지(Yolov5 to Yolov8)",2024-07-18,2024-08-22,385,,
+31,프로젝트2 자연어처리 챗봇 개발,2차 프로젝트 발표회 09.12 (목요일) 10:00 ~ 12:00 ,2024-07-18,2024-09-12,385,,
+32,AI 기반 OCR학습,"▷ OCR 프로그램의 개요
+- 디지털 이미지 처리
+▷ OpenCV의 기초
+- OpenCV 설치 - Images & Windows 사용
+- OpenCV 를 사용한 이미지 Handling
+- OpenCV 를 사용한 Video Hadling
+▷ OpenCV 심화
+- 이미지 Transform
+- blurring, convolution 기술 등의 심화 학습
+- 아핀(affine), 색상, perspective 등의 이미지 변경
+- 이미지 분석 - 이미지 패턴 찾기 - 비디오 분석
+- Motion Detection, Optical Flow
+- Object tracking
+▷ Tesseract ocr
+- Tesseract 설치 - Pytesseract 사용법 - 실시간 Text
+감지
+- 신규 Font, 문자 학습 및 미세조정
+▷ Tensorflow
+- Feature Extraction - Image Classification -
+Object Detection",2024-07-18,2024-10-01,385,,
+33,프로젝트3 산업체 기관최종 프로젝트,프로젝트3 산업체 기관최종 프로젝트 발표회 - 10.24 (목요일) 16:00 ~ 18:00 ,2024-07-18,2024-10-23,385,,
