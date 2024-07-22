@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Users Managements{% endblock %}
+
+{% block header %}Users Managements: Admin-Mode{% endblock %}
+
+{% block content %}
+<h2> User Management </h2>
+<ul>
+    {% for user in users %}
+    <li>
+        {{}}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
