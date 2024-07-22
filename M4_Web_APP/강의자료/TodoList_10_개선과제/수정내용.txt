@@ -1,0 +1,28 @@
+<개선 사항>
+1. Admin_Analysis:과제준수분석보기에서 "사용자 과제 준수 분석" table 아래 "관리자 패널로 돌아가기" 버튼 옆에 plot 버튼을 추가하고, 
+plot 버튼이 클릭되면 웹페이지 아래에 User별 이행률과 남은 task에 대한 비교 plot (2개 plot) 생성
+
+
+2. TaskEase 옆 Close 옆에 Home 버튼 추가: session 닫고, 배경 이미지로 돌아가기 (logout + TaskEase 버튼과 동일 function)
+
+
+3. TaskEase 옆에 Close:웹 페이지 닫기 버튼 추가 ===> session을 끝내고 (로그 아웃 후) 빈 웹페이지에 창을 닫으라는 message 출력
+창까지 닫으려고 했으나, 창을 닫는건 "Scripts may close only the windows that were opened by them."
+브라우저 창을 닫는 기능은 보안 정책상 사용자에 의해 열리지 않은 창은 닫을 수 없는 문제로 위와 같이 구현
+
+4. 지금은 due_date이전에 완료된 task와 due_date를 지키지 못한것 만 존재.. 일정내에서 진행중인 과제에 대한 정보가 없음: 
+tasks_ongoing 추가 (WebApp.py, admin_analysis.html 변경)
+ ==> total_tasks= tasks_on_time + tasks_overdue + tasks_ongoing
+
+5. Admin_Analysis Web-Page의 Table 서식 변경 (admin_analysis.html 변경)
+ - Table rows의 hovering effect
+ - dark mode 적용
+ - borderless 적용
+
+6. background 이미지 변경 (style.css변경)
+
+
+
+
+
+
