@@ -1,0 +1,69 @@
+
+body {
+    font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+    margin:20px;
+    background-color: #e8ebde;
+}
+h1 {
+    color:#333;
+    text-align: center;
+}
+form {
+    margin-bottom:20px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+    background: #ecebd9;
+    padding: 20px;
+    border-radius:15px;
+    box-shadow: 0 0 5px rgba(5, 5, 5, 0.1);
+}
+label {
+    font-weight: bold;
+}
+input[type="text"],
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+input[type='submit'] {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius:10px;
+    cursor:pointer;
+    width: 300px;
+    margin-left: 25%;
+    margin-right: auto;
+}
+input[type="submit"]:hover {
+    background-color: #f85d03;
+}
+ul {
+    list-style-type: none;
+    padding:0;
+}
+li {
+    background: #faf7df;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 15px;
+    /* 수평 및 수직 이동 없이 요소 주위에 부드럽고 퍼진 매우 옅은 검은색 그림자*/
+    box-shadow: 0 0 5px rgba(5, 5, 5, 0.1);
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+}
+a {
+    margin-left: 10px;
+    color: #007bff;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
