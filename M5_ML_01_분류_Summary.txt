@@ -227,6 +227,24 @@ TP는 예측값을 Positive 값 1로 예측했고 실제값 역시 Positive 값 
 F1 = 2 * ( 정밀도 * 재현율) / (정밀도 + 재현율)
 
 
+########################################################### 특징 파라미터의 중요도 추출 및 시각화
+import seaborn as sns
+import numpy as np
+print(f'Feature importances: \n {np.round(dt_clf.feature_importances_,3)}', sep='\n')
+
+for name, value in zip(iris.feature_names, dt_clf.feature_importances_):
+    print(f'{name} : {value:.3f}')
+
+sns.barplot(x=dt_clf.feature_importances_, y=iris.feature_names)
+
+==> Feature importances: 
+ [0.013 0.    0.564 0.423]
+sepal length (cm) : 0.013
+sepal width (cm) : 0.000
+petal length (cm) : 0.564
+petal width (cm) : 0.423
+각 특징 별 중요도를 horizontal barplot
+
 #####################################################################################################
 ################################## 다양한 분류 모델과 하이퍼 파라미터 ###############################
 ##################################################################################################### 
@@ -238,6 +256,13 @@ min_samples_leaf: 리프 노드에 있어야 하는 최소 샘플 수
 criterion: 분할의 품질을 측정하는 기능 ("gini", "entropy")
 
 ############################################## 2. Logistic Regression ==> 기본 특성: x=np.linspace(-10,10,100); y=1/(1+np.exp(-x))
+## 작은 데이터셋: liblinear
+## 큰 데이터셋: sag, saga, lbfgs, newton-cg
+## 다중 클래스 분류: lbfgs, newton-cg, sag, saga
+## L1 정규화: liblinear, saga
+## L2 정규화: 모두 가능 (liblinear, newton-cg, lbfgs, sag, saga)
+## Elastic Net 정규화: saga
+
 주요 하이퍼파라미터:
 C: 규제 강도를 제어하는 역수 (작은 값은 더 강한 규제를 의미)
 penalty: 규제 유형 ("l1", "l2", "elasticnet", "none")
@@ -611,7 +636,8 @@ models = {
             "classifier__n_estimators": [50, 100, 200],
             "classifier__max_depth": [None, 10, 20],
             "classifier__min_samples_split": [2, 10],
-            "classifier__min_samples_leaf": [1, 5]
+            "classifier__min_samples_leaf": [1, 5],
+            "classifier__max_features": ['auto', 'sqrt', 'log2']
         }
     },
     "SVM": {
@@ -687,19 +713,51 @@ plt.ylabel('Actual')
 plt.title(f'Confusion Matrix - {best_model_name}')
 plt.show()
 
-##################################################################### XXXX
-
-####################################### XXX
-#####################################################################################################
-############################################### Encoding ############################################
-##################################################################################################### 
-
-
-
 
 #####################################################################################################
 ################################################# EXAMPLES ##########################################
 ##################################################################################################### 
+
+######################################################## Q. 결정 트리 시각화
+from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
+iris = load_iris()
+iris_data=iris.data
+iris_label=iris.target
+print(iris.target_names)
+
+iris_df=pd.DataFrame(data=iris_data,columns=feature_names)
+iris_df['label']=iris.target
+
+X_train,X_test,y_train,y_test=train_test_split(iris_data,iris_label,test_size=0.2,random_state=11)
+
+
+## DTC 객체 생성
+dt_clf=DecisionTreeClassifier(criterion='gini', min_samples_split=5, max_depth=5, random_state=156)
+
+## 학습 수행
+dt_clf.fit(X_train,y_train)
+
+from sklearn import tree
+import matplotlib.pyplot as plt
+plt.figure(figsize=(20,15))
+
+tree.plot_tree(dt_clf, filled=True, feature_names=iris.feature_names, class_names=iris.target_names, rounded=True, fontsize=14)
+plt.show()
+
+for i, node in enumerate(dt_clf.tree_.__getstate__()['nodes']):
+    print(f"Node {i}: gini = {node['impurity']}, samples = {node['n_node_samples']}, value = {dt_clf.tree_.value[i]}")
+
+==> 노드별 값들 확인 가능    
+Node 0: gini = 0.6666666666666667, samples = 150, value = [[50. 50. 50.]]
+Node 1: gini = 0.0, samples = 50, value = [[50.  0.  0.]]
+Node 2: gini = 0.5, samples = 100, value = [[ 0. 50. 50.]] ...
+
+
+
 ######################################################## Q. Adult Income 데이터셋을 이용한 전처리 및 분류 모델(소득이 50K 이상인지 예측)을 아래 설명을 참조하여 수행 7/22
 Adult Income 데이터셋을 로드합니다.
 -결측치를 처리합니다.
@@ -1717,9 +1775,151 @@ plt.ylabel('Actual')
 plt.title(f'Confusion Matrix - {best_model_name}')
 plt.show()
 
-######################################################## Q. 
+######################################################## Q. load_breast_cancer 데이터셋을 불러와서 다음을 수행
+- dt로 분류모델 생성 및 모델 정확도 평가(학습:검증-8:2)
+- 하이퍼 파라미터는 분할 기준은 지니계수, 최대깊이는 3으로 설정
+- 다양한 하이퍼 파라미터 설정하여 결과 확인
+- 결정 트리 시각화
+# 데이터 로드
+from sklearn.datasets import load_breast_cancer
+import pandas as pd
 
-######################################################## Q. 
+data = load_breast_cancer()
+df = pd.DataFrame(data.data, columns=data.feature_names)
+# 타겟 변수를 추가
+df['target'] = data.target
+
+# 변수 선택 및 데이터 분리
+X = df.drop('target', axis=1)
+y = df['target']
+
+# 데이터 표준화
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 학습용과 테스트용 데이터셋으로 나누기
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+## X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, stratify=cancer.target, random_state=42)     # 훈련/테스트 데이터들이 원래 input data의 클래스의 비율과 같은 비율을 가지도록 분리
+
+# DTC 객체 생성
+
+dt_clf=DecisionTreeClassifier(criterion='gini', max_depth=3, random_state=42)
+
+## 학습 수행
+dt_clf.fit(X_train,y_train)
+
+## 예측 수행: 학습이 완료된 DTC 객체에서 테스트 데이터 세트로 예측 수행
+pred=dt_clf.predict(X_test)
+
+from sklearn.metrics import accuracy_score
+print('예측 정확도:{0:.4f}'.format(accuracy_score(y_test,pred)))
+
+
+from sklearn import tree
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(20,15))
+tree.plot_tree(dt_clf, filled=True, feature_names=data.feature_names, class_names=data.target_names, rounded=True, fontsize=14)
+plt.show()
+
+######################################################## Q. 하이퍼 param 튜닝: load_breast_cancer 데이터셋을 불러와서 다음을 수행
+### 하이퍼 파라미터 튜닝
+# 필요한 라이브러리 임포트
+from sklearn.datasets import load_breast_cancer
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+from sklearn import tree
+
+# 데이터 로드
+data = load_breast_cancer()
+df = pd.DataFrame(data.data, columns=data.feature_names)
+
+# 타겟 변수를 추가
+df['target'] = data.target
+
+# 변수 선택 및 데이터 분리
+X = df.drop('target', axis=1)
+y = df['target']
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 학습용과 테스트용 데이터셋으로 나누기
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# 하이퍼파라미터 튜닝
+param_grid = {
+    'criterion': ['gini', 'entropy'],
+    'max_depth': [3, 5, 7, 10, None],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'max_features': [None, 'sqrt', 'log2']
+}
+
+# GridSearchCV를 사용하여 최적의 하이퍼파라미터 찾기
+grid_search = GridSearchCV(estimator=DecisionTreeClassifier(random_state=42),
+                           param_grid=param_grid,
+                           scoring='accuracy',
+                           cv=5,
+                           n_jobs=-1)
+
+grid_search.fit(X_train, y_train)
+
+# 최적의 하이퍼파라미터 출력
+print(f"Best parameters: {grid_search.best_params_}")
+
+# 최적의 하이퍼파라미터로 학습된 모델로 예측 수행
+best_dt_clf = grid_search.best_estimator_
+y_pred = best_dt_clf.predict(X_test)
+y_pred_proba = best_dt_clf.predict_proba(X_test)[:, 1]
+
+
+# from sklearn.metrics import accuracy_score
+# print('예측 정확도: {0:.4f}'.format(accuracy_score(y_test, y_pred)))
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve, auc
+# 성능 지표 출력
+print('예측 정확도: {0:.4f}'.format(accuracy_score(y_test, y_pred)))
+print('정밀도: {0:.4f}'.format(precision_score(y_test, y_pred)))
+print('재현율: {0:.4f}'.format(recall_score(y_test, y_pred)))
+print('F1 스코어: {0:.4f}'.format(f1_score(y_test, y_pred)))
+print('ROC AUC: {0:.4f}'.format(roc_auc_score(y_test, y_pred_proba)))
+
+# 혼동 행렬 출력
+conf_matrix = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(6, 4))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=data.target_names, yticklabels=data.target_names)
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+# ROC Curve 그리기
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+roc_auc = auc(fpr, tpr)
+
+plt.figure(figsize=(6, 4))
+plt.plot(fpr, tpr, color='blue', lw=2, label='ROC curve (area = %0.4f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='grey', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc="lower right")
+plt.show()
+
+# 트리 시각화
+plt.figure(figsize=(18, 10))
+tree.plot_tree(best_dt_clf, filled=True, feature_names=data.feature_names, class_names=data.target_names, rounded=True, fontsize=9)
+plt.show()
 
 ######################################################## Q. 
 
@@ -1951,8 +2151,1484 @@ matching_ones=np.sum((array1==1) & (array2==1))
 
 print("동일한 인덱스에서 0이 모두 일치하는 경우의 수:", matching_zeros) ==> 104
 print("동일한 인덱스에서 1이 모두 일치하는 경우의 수:", matching_ones) ==> 48
-######################################################## Q. 
+
+######################################################## Q. 군집 KNN 알고리즘으로 iris 분류 : 03
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+# 데이터 로드
+iris = load_iris()
+X, y = iris.data, iris.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+##
+k=5
+knn=KNeighborsClassifier(n_neighbors=k)
+knn.fit(X_train,y_train)
+y_pred=knn.predict(X_test)
+
+accuracy=accuracy_score(y_test,y_pred)
+print(f'정확도 with k={k} : {accuracy:.4f}')
+
+######################################################## Q. 군집 KNN 알고리즘으로 유방암암 분류 : 03
+# 필요한 라이브러리 임포트
+from sklearn.datasets import load_breast_cancer
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve, auc
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+# 데이터 로드
+data = load_breast_cancer()
+df = pd.DataFrame(data.data, columns=data.feature_names)
+
+# 타겟 변수를 추가
+df['target'] = data.target
+
+# 변수 선택 및 데이터 분리
+X = df.drop('target', axis=1)
+y = df['target']
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 학습용과 테스트용 데이터셋으로 나누기
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# 하이퍼파라미터 튜닝
+param_grid = {
+    'n_neighbors': [3, 5, 7, 10],
+    'weights': ['uniform', 'distance'],
+    'metric': ['euclidean', 'manhattan']
+}
+
+# GridSearchCV를 사용하여 최적의 하이퍼파라미터 찾기
+grid_search = GridSearchCV(estimator=KNeighborsClassifier(),
+                           param_grid=param_grid,
+                           scoring='accuracy',
+                           cv=5,
+                           n_jobs=-1)
+
+grid_search.fit(X_train, y_train)
+
+# 최적의 하이퍼파라미터 출력
+print(f"Best parameters: {grid_search.best_params_}")
+
+# 최적의 하이퍼파라미터로 학습된 모델로 예측 수행
+best_knn = grid_search.best_estimator_
+y_pred = best_knn.predict(X_test)
+y_pred_proba = best_knn.predict_proba(X_test)[:, 1]
+
+# 성능 지표 출력
+print(f"최적의 조건에서 예측 성능 지표:")
+print('예측 정확도: {0:.4f}'.format(accuracy_score(y_test, y_pred)))
+print('정밀도: {0:.4f}'.format(precision_score(y_test, y_pred)))
+print('재현율: {0:.4f}'.format(recall_score(y_test, y_pred)))
+print('F1 스코어: {0:.4f}'.format(f1_score(y_test, y_pred)))
+print('ROC AUC: {0:.4f}'.format(roc_auc_score(y_test, y_pred_proba)))
+
+# 혼동 행렬 출력
+conf_matrix = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(6, 4))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=data.target_names, yticklabels=data.target_names)
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+# ROC Curve 그리기
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+roc_auc = auc(fpr, tpr)
+
+plt.figure(figsize=(6, 4))
+plt.plot(fpr, tpr, color='blue', lw=2, label='ROC curve (area = %0.4f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='grey', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc="lower right")
+plt.show()
+
+# PCA를 사용하여 2차원으로 차원 축소
+pca = PCA(n_components=2)
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
+
+# PCA된 데이터로 최적의 KNN 모델 학습 및 예측
+best_knn_pca = KNeighborsClassifier(**grid_search.best_params_)
+best_knn_pca.fit(X_train_pca, y_train)
+y_pred_pca = best_knn_pca.predict(X_test_pca)
+
+# 결정 경계 시각화
+h = .02  # 그리드의 스텝 사이즈
+x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
+y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                     np.arange(y_min, y_max, h))
+
+Z = best_knn_pca.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.figure(figsize=(10, 6))
+plt.contourf(xx, yy, Z, alpha=0.8, cmap=plt.cm.RdYlBu)
+sns.scatterplot(x=X_train_pca[:, 0], y=X_train_pca[:, 1], hue=y_train,
+                palette=plt.cm.RdYlBu(np.linspace(0, 1, 2)),
+                edgecolor='k', s=50)
+plt.title('KNN Classifier with PCA')
+plt.xlabel('PCA Component 1')
+plt.ylabel('PCA Component 2')
+plt.show()
+
+# PCA 데이터에서의 성능 평가
+print(f"PCA 데이터에서 예측 성능 지표:")
+print('예측 정확도: {0:.4f}'.format(accuracy_score(y_test, y_pred_pca)))
+print('정밀도: {0:.4f}'.format(precision_score(y_test, y_pred_pca)))
+print('재현율: {0:.4f}'.format(recall_score(y_test, y_pred_pca)))
+print('F1 스코어: {0:.4f}'.format(f1_score(y_test, y_pred_pca)))
+
+# 혼동 행렬 출력
+conf_matrix_pca = confusion_matrix(y_test, y_pred_pca)
+plt.figure(figsize=(6, 4))
+sns.heatmap(conf_matrix_pca, annot=True, fmt='d', cmap='Blues', xticklabels=data.target_names, yticklabels=data.target_names)
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix (PCA)')
+plt.show()
+
+######################################################## Q. 서포트 벡터 머신 SVM 으로 유방암 : 03
+# 필요한 라이브러리 임포트
+from sklearn.datasets import load_breast_cancer
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve, auc
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.svm import SVC
+
+# 데이터 로드
+cancer = load_breast_cancer()
+X=cancer.data
+y=cancer.target
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 학습용과 테스트용 데이터셋으로 나누기
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# 하이퍼파라미터 튜닝
+param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+    'gamma': ['scale', 'auto']
+}
+
+# GridSearchCV를 사용하여 최적의 하이퍼파라미터 찾기
+grid_search = GridSearchCV(estimator=SVC(probability=True),
+                           param_grid=param_grid,
+                           scoring='accuracy',
+                           cv=5,
+                           n_jobs=-1)
+
+grid_search.fit(X_train, y_train)
+
+# 최적의 하이퍼파라미터 출력
+print(f"Best parameters: {grid_search.best_params_}")
+
+# 최적의 하이퍼파라미터로 학습된 모델로 예측 수행
+best_svm = grid_search.best_estimator_
+y_pred = best_svm.predict(X_test)
+y_pred_proba = best_svm.predict_proba(X_test)[:, 1]
+
+# 성능 지표 출력
+print(f"최적의 조건에서 예측 성능 지표:")
+print('예측 정확도: {0:.4f}'.format(accuracy_score(y_test, y_pred)))
+print('정밀도: {0:.4f}'.format(precision_score(y_test, y_pred)))
+print('재현율: {0:.4f}'.format(recall_score(y_test, y_pred)))
+print('F1 스코어: {0:.4f}'.format(f1_score(y_test, y_pred)))
+print('ROC AUC: {0:.4f}'.format(roc_auc_score(y_test, y_pred_proba)))
+
+# 혼동 행렬 출력
+conf_matrix = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(6, 4))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=data.target_names, yticklabels=data.target_names)
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+# ROC Curve 그리기
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+roc_auc = auc(fpr, tpr)
+
+plt.figure(figsize=(6, 4))
+plt.plot(fpr, tpr, color='blue', lw=2, label='ROC curve (area = %0.4f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='grey', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc="lower right")
+plt.show()
+
+# PCA를 사용하여 3차원으로 차원 축소
+pca = PCA(n_components=3)
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
+
+# PCA된 데이터로 최적의 SVM 모델 학습 및 예측
+best_svm_pca = SVC(probability=True, **grid_search.best_params_)
+best_svm_pca.fit(X_train_pca, y_train)
+y_pred_pca = best_svm_pca.predict(X_test_pca)
+
+# 3차원 결정 경계 시각화 (SVM은 고차원에서 잘 작동하지만 시각화는 어려움)
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
+y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
+z_min, z_max = X_train_pca[:, 2].min() - 1, X_train_pca[:, 2].max() + 1
+
+xx, yy, zz = np.meshgrid(np.arange(x_min, x_max, 0.1),
+                         np.arange(y_min, y_max, 0.1),
+                         np.arange(z_min, z_max, 0.1))
+
+Z = best_svm_pca.predict(np.c_[xx.ravel(), yy.ravel(), zz.ravel()])
+Z = Z.reshape(xx.shape)
+
+ax.contourf(xx[:, :, 0], yy[:, :, 0], Z[:, :, 0], alpha=0.3, cmap=plt.cm.RdYlBu)
+scatter = ax.scatter(X_train_pca[:, 0], X_train_pca[:, 1], X_train_pca[:, 2], c=y_train, cmap=plt.cm.RdYlBu, edgecolor='k', s=50)
+legend1 = ax.legend(*scatter.legend_elements(), title="Classes")
+ax.add_artist(legend1)
+
+ax.set_title('SVM Classifier with 3D PCA')
+ax.set_xlabel('PCA Component 1')
+ax.set_ylabel('PCA Component 2')
+ax.set_zlabel('PCA Component 3')
+plt.show()
 
 
+######################################################## Q. sklearn.ensemble 앙상블 기법으로 유방암 분류 : 03
+## Voting Classifier: soft/hard
+import pandas as pd
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# 데이터 로드
+data = load_breast_cancer()
+
+df = pd.DataFrame(data.data, columns=data.feature_names)
+# 타겟 변수를 추가
+df['target'] = data.target
+
+# 파생 변수 추가
+df['mean_radius_texture'] = df['mean radius'] * df['mean texture']
+df['mean_symmetry_compactness'] = df['mean symmetry'] / df['mean compactness']
+
+# 각 특징과 target 간의 상관관계 계산
+corr_matrix = df.corr()
+
+# target과의 상관관계만 추출
+corr_target = corr_matrix[['target']].drop('target').sort_values(by='target', ascending=False)
+
+# 상관계수가 0.1 이하인 특징 제거
+features_to_keep = corr_target[corr_target['target'].abs() > 0.1].index
+df_filtered = df[features_to_keep]
+df_filtered['target'] = df['target']
+
+# 변수 선택 및 데이터 분리
+X = df_filtered.drop('target', axis=1)
+y = df_filtered['target']
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 학습용과 테스트용 데이터셋으로 나누기
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# 모델 리스트 생성
+models = {
+    "Logistic Regression": LogisticRegression(max_iter=10000, solver='lbfgs', random_state=42),
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "Random Forest": RandomForestClassifier(random_state=42),
+    "SVM": SVC(probability=True, random_state=42),
+    "Naive Bayes": GaussianNB(),
+    "Gradient Boosting": GradientBoostingClassifier(random_state=42),
+    "KNN": KNeighborsClassifier(n_neighbors=9)
+}
+
+# 앙상블 모델 생성
+ensemble_model = VotingClassifier(estimators=[
+    ('lr', LogisticRegression(max_iter=10000, solver='lbfgs', random_state=42)),
+    ('dt', DecisionTreeClassifier(random_state=42)),
+    ('rf', RandomForestClassifier(random_state=42)),
+    ('svc', SVC(probability=True, random_state=42)),
+    ('gnb', GaussianNB()),
+    ('gb', GradientBoostingClassifier(random_state=42)),
+    ('knn', KNeighborsClassifier())
+], voting='hard')
+
+models["Ensemble"] = ensemble_model
+
+# 평가 함수 정의
+def get_clf_eval(y_test, pred, pred_proba):
+    accuracy = accuracy_score(y_test, pred)
+    precision = precision_score(y_test, pred)
+    recall = recall_score(y_test, pred)
+    f1 = f1_score(y_test, pred)
+    roc_auc = roc_auc_score(y_test, pred_proba)
+    print('정확도: {:.4f}'.format(accuracy))
+    print('정밀도: {:.4f}'.format(precision))
+    print('재현율: {:.4f}'.format(recall))
+    print('F1 스코어: {:.4f}'.format(f1))
+    print('ROC AUC: {:.4f}'.format(roc_auc))
+    return accuracy, precision, recall, f1, roc_auc
 
 
+# 전체 평가 지표 결과 출력
+results_df = pd.DataFrame(results, index=['Accuracy', 'Precision', 'Recall', 'F1 Score', 'ROC AUC'])
+results_df
+
+######################################################## Q. 랜덤 포레스트 Random Forest 로 유방암 분류 : 03
+from sklearn.datasets import load_breast_cancer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+cancer = load_breast_cancer()
+
+X_train, X_test, y_train, y_test = train_test_split(cancer.data, cancer.target, test_size=0.3, random_state=42)
+
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f'{accuracy:.2f}')
+
+######################################################## Q. 로지스틱 회귀(Logistic Regression)로 유방암 : 03
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+
+cancer = load_breast_cancer()
+
+X = cancer.data
+y = cancer.target
+
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+lr_clf = LogisticRegression(max_iter=100, solver='lbfgs', random_state=0)
+
+lr_clf.fit(X_train, y_train)
+lr_pred = lr_clf.predict(X_test)
+accuracy = accuracy_score(y_test, lr_pred)
+print(f'로지스틱 회귀 정확도: {accuracy:.4f}')
+
+
+############################################## 과대적합을 막기 위해 C 규제 : 03
+## best_score는 GridSearchCV를 사용하여 교차 검증(cv=3)으로 찾은 최적 하이퍼파라미터 조합에 대한 평균 정확도. 즉
+## 주어진 하이퍼파라미터 그리드에서 최적의 하이퍼파라미터를 찾기 위해 여러 모델을 훈련시키고,
+## 그 중 가장 높은 평균 정확도를 갖는 모델의 정확도
+
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {'C': [0.01, 0.1, 1, 5, 10],
+              'penalty': ['l1', 'l2']}
+
+grid_clf = GridSearchCV(lr_clf, param_grid=param_grid, cv=3)
+grid_clf.fit(X_train, y_train)
+
+print('최적 하이퍼 파라미터:', grid_clf.best_params_)
+print('최적 평균 정확도 : {0:.3f}'.format(grid_clf.best_score_))
+## accuracy는 GridSearchCV에서 최적의 하이퍼파라미터를 사용하여 학습된 모델(best_estimator_)을 테스트
+## 데이터에 대해 예측한 결과의 정확도
+## 이는 첫 번째 코드의 정확도와 비교하여 하이퍼파라미터 튜닝을 통해 모델의 성능이 개선되었는지를 확인 가능
+
+best_grid_clf = grid_clf.best_estimator_
+pred1 = best_grid_clf.predict(X_test)
+accuracy = accuracy_score(y_test, pred1)
+print(f'로지스틱 회귀 예측 정확도: {accuracy:.4f}')
+
+######################################################## Q. 나이브 베이즈 분류 (Naive Bayes Classification)를 이용한 분류: 03
+베이즈 정리 적용
+
+P(D∣T)=P(T∣D)⋅P(D)/P(T) 
+
+각 확률을 대입해 계산해보면:
+
+P(T∣D)=0.99 
+P(D)=0.01 
+P(T)=0.0594 
+P(D∣T)=0.99×0.01/0.0594=0.0099/0.0594≈0.167
+
+Q.  어떤 마을 전체 사람들의 10.5%가 암 환자이고, 89.5%가 암 환자가 아닙니다. 이 마을의 모든 사람에 대해 암 검진을 실시했다고 합시다. 암 검진시 양성 판정, 음성 판정 결과가 나올 수 있습니다. 하지만 검진이 100% 정확하지는 않고 약간의 오차가 있습니다. 암 환자 중 양성 판정을 받은 비율은 90.5%, 암 환자 중 음성 판정을 받은 비율은 9.5%, 암 환자가 아닌 사람 중 양성 판정을 받은 비율은 20.4%, 암 환자가 아닌 사람 중 음성 판정을 받은 비율은 79.6%입니다. 어떤 사람이 양성 판정을 받았을 때 이 사람이 암 환자일 확률은 얼마일까요?
+
+# 구하는건 양성 판정을 받았을 때 암환자일 확률: p(d | t)
+# 암환자의 검사결과가 양성일 확률 p(t | d) = 0.905
+# 암 환자일 확률 p(d) = 0.105 사전확률
+# 전체 인구에서 양성일 확률 p(t) : 암환자-0.105*0.905 , 일반인-0.895*0.204
+
+ptd = 0.905
+pd = 0.105
+pt = 0.105*0.905 + 0.895*0.204
+pdt = ptd * pd / pt
+print(pdt)
+==> 0.34230291241151994
+
+### Other
+#사전 확률
+P_Cancer = 0.105
+P_No_Cancer = 0.895
+
+# 검사의 민감도 와 특이도
+P_Positive_Cancer = 0.905 # 암 환자중 양성 판정, 민감도
+P_Negative_Cancer = 0.095  # 암 환자중 음성 판정 1 - 특이도
+P_Positive_No_Cancer = 0.204  #암 환자가 아닌 사람중 양성 판정
+P_Negative_No_Cancer = 0.796  #암 환자가 아닌 사람중 음성 판정
+
+#베이즈 정리사용
+# 테스트 결과가 양성일 확률은, 테스트를 받은 사람이 실제로 암이 있을 경우와 실제로 암이 없을 경우 양성 판정을 받을 확률의 합
+P_Positive = P_Positive_Cancer * P_Cancer + P_Positive_No_Cancer * P_No_Cancer
+P_Cancer_Positive = P_Positive_Cancer * P_Cancer / P_Positive
+print(P_Cancer_Positive)
+==> 0.34230291241151994
+######################################################## Q. 나이브 베이즈 GaussianNB 알고리즘을 적용해서 유방암 03 분류
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+
+cancer = load_breast_cancer()
+X = cancer.data
+y = cancer.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 가우시안 나이브 베이즈 모델 생성 및 훈련
+gnb = GaussianNB()
+gnb.fit(X_train, y_train)
+
+y_pred = gnb.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+
+# 훈련된 모델을 사용하여 X_test에 대한 예측을 수행
+print(f'predict : \n{y_pred}')
+print(f'Actual:   \n{y_test}')
+
+# 정확도 출력
+print(f'나이브 베이즈 정확도: {accuracy:.4f}')
+
+
+######################################################## Q. GBM(Gradient Boosting Machine) 기법으로 iris 분류: 03
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import accuracy_score
+
+iris = load_iris()
+X, y = iris.data, iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42
+)
+#학습률을 0~1사이의 값으로 설정, 일반적으로 0.01에서 0.1사이의 값으로 설정
+#너무 낮은 학습률은 학습 시가능ㄹ 길게 하고, 너무 높은 학습률은 학습 과정에서 세밀한 조정을 어렵게 만들 수 있다.
+gbm = GradientBoostingClassifier(n_estimators=100, learning_rate=1, max_depth=1, random_state=42)
+gbm.fit(X_train, y_train)
+
+pred = gbm.predict(X_test)
+
+
+print("예측 정확도: {0:.4f}".format(accuracy_score(y_test, pred)))
+######################################################## Q. XGB 분류기로 유방암 분류: 03
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_breast_cancer
+from xgboost import XGBClassifier
+
+dataset = load_breast_cancer()
+
+X_features = dataset.data
+y_label = dataset.target
+
+cancer_df = pd.DataFrame(data=X_features, columns=dataset.feature_names)
+cancer_df["target"] = y_label
+print(cancer_df.shape)
+print(cancer_df.head(3))
+
+X_features = cancer_df.iloc[:, :-1]
+y_label = cancer_df.iloc[:, -1]
+
+X_train, X_test, y_train, y_test = train_test_split(X_features, y_label, test_size=0.2, random_state=124)
+
+xgb_wrapper = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=3)
+xgb_wrapper.fit(X_train, y_train)
+w_preds = xgb_wrapper.predict(X_test)
+accuracy = accuracy_score(y_test, w_preds)
+print(f"XGB 정확도: {accuracy:.4f}")
+
+######################################################## Q. LightGBM 
+
+from lightgbm import LGBMClassifier
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_classification
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+
+#데이터 생성
+X, y = make_classification(n_samples=100, n_features=4, n_informative=2, n_redundant=0, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X_features, y_label, test_size=0.2, random_state=156)
+lgbm_wrapper = LGBMClassifier(n_estimators=100, learning_rate=0.1, verbose=-1)
+
+lgbm_wrapper.fit(X_train, y_train)
+preds = lgbm_wrapper.predict(X_test)
+accuracy = accuracy_score(y_test, preds)
+print(f'LGBM 정확도: {accuracy:.4f}')
+
+######################################################## Q. adult.data로 분류 분석을 아래와 같이 수행: 03
+## 모델은 XGBooster, LightGBM을 사용
+## 모델 학습 및 평가는 사용자 함수 사용
+
+# 데이터 로드 및 전처리
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, classification_report
+
+url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data'
+columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status',
+           'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss',
+           'hours-per-week', 'native-country', 'income']
+data = pd.read_csv(url, header=None, names=columns, na_values='?', skipinitialspace=True)
+
+data.dropna(inplace=True)
+
+categorical_features = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country', 'income']
+data = pd.get_dummies(data, columns=categorical_features, drop_first=True)
+
+X = data.drop('income_>50K', axis=1)
+y = data['income_>50K']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 사용자 정의 함수
+def train_and_evaluate(model, X_train, X_test, y_train, y_test):
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    y_proba = model.predict_proba(X_test)[:, 1]
+
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    roc_auc = roc_auc_score(y_test, y_proba)
+    confusion = confusion_matrix(y_test, y_pred)
+
+    print(f'오차 행렬:\n{confusion}')
+    print(f'정확도: {accuracy:.4f}')
+    print(f'정밀도: {precision:.4f}')
+    print(f'재현율: {recall:.4f}')
+    print(f'F1 스코어: {f1:.4f}')
+    print(f'ROC AUC: {roc_auc:.4f}')
+    print('')
+
+# XGBoost 모델 학습 및 평가
+import xgboost as xgb
+
+# xgb_model = xgb.XGBClassifier(random_state=42, use_label_encoder=False)
+xgb_model = xgb.XGBClassifier(random_state=42, learning_rate=0.1, max_depth=5, n_estimators=200, use_label_encoder=False)
+print("XGBoost Model")
+train_and_evaluate(xgb_model, X_train, X_test, y_train, y_test)
+
+# LightGBM 모델 학습 및 평가
+import lightgbm as lgb
+
+lgb_model = lgb.LGBMClassifier(random_state=42)
+print("LightGBM Model")
+train_and_evaluate(lgb_model, X_train, X_test, y_train, y_test)
+
+######################################################## Q. 피마 인디언 당뇨병 예측 diabetes.csv 데이터세트를 이용해 다음사항을 수행하여 당뇨병 여부를 판단하는 머신러닝 예측 모델을 작성하고 평가 : 04
+zero_features = ['Glucose', 'BloodPressure','SkinThickness','Insulin','BMI']는 0값을 평균값으로 대체
+정확도, 정밀도, 재현율, F1 Score, ROC_AUC Score를 포함하는 평가지표 사용자 함수 작성
+정밀도와 재현율의 임곗값에 따른 값 변화를 곡선 형태로 시각화
+전체적인 성능 평가 지표를 유지하면서 재현율을 약간 향상시키는 임계값 산출
+산출된 임계값을 적용한 평가
+※ 피처 정보
+'Pregnancies'(임신 횟수), 'Glucose'(포도당 부하 검사 수치), 'BloodPressure'(혈압), 'SkinThickness'(팔 삼두근 뒤쪽의 피하지방 측정값, 'Insulin'(혈청 인슈린), 'BMI'(체질량 지수), 'DiabetesPedigreeFunction'(당뇨 내력 가중치 값), 'Age', 'Outcome'
+
+# 768개의 데이터중에서 Negative 값 0이 500개, Positive값 1이 268개임
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from google.colab import drive
+
+drive.mount('/content/drive')
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import f1_score, confusion_matrix, precision_recall_curve, roc_curve
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+diabetes_data = pd.read_csv('/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/diabetes.csv')
+print(diabetes_data['Outcome'].value_counts())
+diabetes_data.head(3)
+diabetes_data.columns
+diabetes_data.info()
+
+# 평가 지표 함수
+def get_clf_eval(y_test=None, pred=None, pred_proba=None):
+    confusion = confusion_matrix( y_test, pred)
+    accuracy = accuracy_score(y_test , pred)
+    precision = precision_score(y_test , pred)
+    recall = recall_score(y_test , pred)
+    f1 = f1_score(y_test,pred)
+    roc_auc = roc_auc_score(y_test, pred_proba)
+    print('오차 행렬:\n',confusion)
+    print('정확도: {0:.4f}, 정밀도: {1:.4f}, 재현율: {2:.4f},\
+    F1: {3:.4f}, AUC:{4:.4f}'.format(accuracy, precision, recall, f1, roc_auc))
+
+# 정밀도와 재현율의 임곗값에 따른 값 변화를 곡선 형태로 시각화
+def precision_recall_curve_plot(y_test=None, pred_proba_c1=None):
+    # threshold ndarray와 이 threshold에 따른 정밀도, 재현율 ndarray 추출.
+    precisions, recalls, thresholds = precision_recall_curve( y_test, pred_proba_c1)
+
+    # X축을 threshold값으로, Y축은 정밀도, 재현율 값으로 각각 Plot 수행. 정밀도는
+    # 점선으로 표시
+    plt.figure(figsize=(8,6))
+    threshold_boundary = thresholds.shape[0]
+    plt.plot(thresholds, precisions[0:threshold_boundary], linestyle='--', label='precision')
+    plt.plot(thresholds, recalls[0:threshold_boundary],label='recall')
+
+    # threshold 값 X 축의 Scale을 0.1 단위로 변경
+    start, end = plt.xlim()
+    plt.xticks(np.round(np.arange(start, end, 0.1),2))
+
+    # x축, y축 label과 legend, 그리고 grid 설정
+    plt.xlabel('Threshold value'); plt.ylabel('Precision and Recall value')
+    plt.legend(); plt.grid()   
+
+# 예측 모델 생성
+# 피처 데이터 세트 X, 레이블 데이터 세트 y를 추출.
+# 맨 끝이 Outcome 컬럼으로 레이블 값임. 컬럼 위치 -1을 이용해 추출
+
+X = diabetes_data.iloc[:, :-1]
+y = diabetes_data.iloc[:, -1]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 156, stratify=y)
+# stratify는 훈련/테스트 데이터들이 원래의 input dataset의 클래스의 비율과 같은 비율을 가지도록 할 것인지 지정한다.
+# 예를 들어 0,1의 클래스가 input dataset에 20:80 비율로 있었다면 훈련 데이터와 테스트 데이터 역시 각각의 클래스가 같은 비율로 있도록 지정
+
+# 로지스틱 회귀로 학습,예측 및 평가 수행.
+lr_clf = LogisticRegression(max_iter=500,solver='lbfgs',random_state=42)
+lr_clf.fit(X_train , y_train)
+pred = lr_clf.predict(X_test)
+pred_proba = lr_clf.predict_proba(X_test)[:,1]
+get_clf_eval(y_test , pred, pred_proba)    
+
+precision_recall_curve_plot(y_test, pred_proba)
+# 임곗값을 0.42로 낮추면 정밀도와 재현율이 어느 정도 균형을 맞출 것 같으나
+# 모두 0.7이 안되는 낮은 수치를 보임
+
+diabetes_data.describe()
+
+# min() 값이 0으로 돼 있는 피처가 상당히 많으며  예를 들어 Glucose 피처는
+# 포도당 수치인데 min 값이 0인 것은 문제가 있음
+
+diabetes_data[diabetes_data.Glucose==0]
+
+import seaborn as sns
+sns.histplot(diabetes_data['Glucose'], bins=10)
+
+# 0값을 검사할 피처명 리스트 객체 설정
+zero_features = ['Glucose', 'BloodPressure','SkinThickness','Insulin','BMI']
+
+# Pregnancies는 출산 횟수를 의미하므로 제외
+
+# 전체 데이터 건수
+total_count = diabetes_data['Glucose'].count()
+
+# 피처별로 반복 하면서 데이터 값이 0 인 데이터 건수 추출하고, 퍼센트 계산
+for feature in zero_features:
+    zero_count = diabetes_data[diabetes_data[feature] == 0][feature].count()
+    total_count = diabetes_data[feature].count()
+    print('{0} 0 건수는 {1}, 퍼센트는 {2:.2f} %'.format(feature, zero_count, 100*zero_count/total_count))
+
+# SkinThickness 와 Insulin의 0 값은 상당히 많기 때문에 일괄 삭제가 어려우며 평균값으로 대체
+# zero_features 리스트 내부에 저장된 개별 피처들에 대해서 0값을 평균 값으로 대체
+diabetes_data[zero_features]=diabetes_data[zero_features].replace(0, diabetes_data[zero_features].mean())
+
+diabetes_data.describe()
+# 로지스틱 회귀의 경우 일반적으로 숫자 데이터에 스케일링을 하는 것이 좋으며
+# 다시 학습/테스트 데이터 세트로 나누고 로지스틱 회귀를 적용, 성능 평가 지표를 확인
+
+X = diabetes_data.iloc[:, :-1]
+y = diabetes_data.iloc[:, -1]
+
+# StandardScaler 클래스를 이용해 피처 데이터 세트에 일괄적으로 스케일링 적용
+scaler = StandardScaler( )
+X_scaled = scaler.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size = 0.2, random_state = 156, stratify=y)
+
+# 로지스틱 회귀로 학습, 예측 및 평가 수행.
+lr_clf = LogisticRegression()
+lr_clf.fit(X_train , y_train)
+pred = lr_clf.predict(X_test)
+pred_proba = lr_clf.predict_proba(X_test)[:,1]
+get_clf_eval(y_test , pred, pred_proba)
+
+# 데이터 변환과 스케일링을 통해 성능 수치가 일정 수준 개선되었으나 재현율 수치는 개선 필요
+precision_recall_curve_plot(y_test, pred_proba)
+# 임곗값을 0.42로 낮추면 정밀도와 재현율이 어느 정도 균형을 맞출 것 같으나
+# 모두 0.7이 안되는 낮은 수치를 보임
+len(pred_proba)
+
+# 임계값에 따른 평가 수치 출력 함수
+from sklearn.preprocessing import Binarizer
+pred_proba_c1 = pred_proba.reshape(-1,1)
+def get_eval_by_threshold(y_test , pred_proba_c1, thresholds):
+    # thresholds 리스트 객체내의 값을 차례로 iteration하면서 Evaluation 수행.
+    for custom_threshold in thresholds:
+        binarizer = Binarizer(threshold=custom_threshold).fit(pred_proba_c1)
+        custom_predict = binarizer.transform(pred_proba_c1)
+        print('임곗값:',custom_threshold)
+        get_clf_eval(y_test , custom_predict, pred_proba_c1)
+        print()
+
+# 임곗값은 0.3에서 0.5까지 변화시키면서 평가 지표 확인
+thresholds = [0.3 , 0.33 ,0.36,0.39, 0.42 , 0.45 ,0.48, 0.50]
+get_eval_by_threshold(y_test, pred_proba_c1, thresholds )
+
+# 재현율을 약각 올리면서 전체적인 성능 평가 지표를 올리는 임곗값 : 0.48
+get_eval_by_threshold(y_test, pred_proba_c1, [0.33,0.48, 0.5] )
+
+임계값을 변경하면 재현율(Recall)과 정밀도(Precision)가 변화하지만 AUC(Area Under the Curve)는 동일하게 유지되는 이유는 AUC가 임계값의 변화에 무관한 평가 지표이기 때문이다.
+
+재현율과 정밀도의 변화: 임계값을 변경하면 분류기가 어떤 예측을 '긍정' 또는 '부정'으로 분류할지 기준이 바뀌며 이에 따라 True Positive, False Positive, True Negative, False Negative의 수가 변하게 되며 이는 재현율과 정밀도를 직접적으로 영향을 미친다.
+
+AUC의 불변성: AUC는 ROC(Receiver Operating Characteristic) 곡선 아래의 면적을 의미. ROC 곡선은 모든 가능한 임계값에 대해 True Positive Rate(TPR, 재현율)과 False Positive Rate(FPR)을 플롯한 것이다. AUC는 이 곡선 아래의 전체 면적을 측정하는 것이므로, 특정 임계값에서의 성능 변화보다는 분류기의 전반적인 성능을 평가. 이 때문에 임계값이 변해도 AUC 값은 동일하게 유지된다.
+
+결론적으로, 재현율과 정밀도는 특정 임계값에서의 성능을 나타내는 반면, AUC는 분류기의 전체적인 성능을 종합적으로 평가하는 지표로, 임계값의 변화에 영향을 받지 않는다.
+
+######################################################## Q. 타이타닉 생존자 예측 데이터 세트 train.csv에 대하여 다음 사항을 수행: 7/25
+일괄 전처리 사용자 함수 transform_features(df) 작성
+분류 모델 학습 및 평가 사용자 함수 작성
+dt, lr, rf 모델링 및 평가(roc auc 포함)
+============================
+
+GridSearchCV의 최적 하이퍼 파라미터로 학습된 Estimator로 예측 및 평가 수행.
+Decision Tree, Random Forest, Logistic Regression 모델별 수행
+선택한 모델에 적합한 parameter grid 적용
+cv=5 적용
+
+
+################ code
+
+import warnings
+import pandas as pd
+import numpy as np
+
+
+# FutureWarning 경고 메시지를 무시하도록 설정
+warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.filterwarnings("ignore")
+
+file_path = '/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/diabetes.csv'
+titanic_df = pd.read_csv(file_path)
+
+from sklearn.preprocessing import LabelEncoder
+
+
+# Null 처리 함수
+def fillna(df):
+    df["Age"].fillna(df["Age"].mean(), inplace=True)
+    df["Cabin"].fillna("N", inplace=True)
+    df["Embarked"].fillna("N", inplace=True)
+    df["Fare"].fillna(0, inplace=True)
+    return df
+
+
+# 머신러닝 알고리즘에 불필요한 속성 제거
+def drop_features(df):
+    df.drop(["PassengerId", "Name", "Ticket"], axis=1, inplace=True)
+    return df
+
+
+# 레이블 인코딩 수행.
+def format_features(df):
+    df["Cabin"] = df["Cabin"].str[:1]
+    features = ["Cabin", "Sex", "Embarked"]
+    for feature in features:
+        le = LabelEncoder()
+        le = le.fit(df[feature])
+        df[feature] = le.transform(df[feature])
+    return df
+
+
+# 앞에서 설정한 Data Preprocessing 함수 호출
+def transform_features(df):
+    df = fillna(df)
+    df = drop_features(df)
+    df = format_features(df)
+    return df
+
+# 원본 데이터를 재로딩 하고, feature데이터 셋과 Label 데이터 셋 추출.
+
+y_titanic_df = titanic_df["Survived"]
+X_titanic_df = titanic_df.drop("Survived", axis=1)
+
+X_titanic_df = transform_features(X_titanic_df)
+
+#################################### 이전에 내가 했던 파행 변수 추가
+
+from sklearn.model_selection import train_test_split
+
+# X_train, X_test, y_train, y_test=train_test_split(X_titanic_df, y_titanic_df, test_size=0.2, random_state=11)
+X_train, X_test, y_train, y_test = train_test_split(
+    X_titanic_df, y_titanic_df, test_size=0.2, random_state=11, stratify=y_titanic_df
+)
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# 결정트리, Random Forest, 로지스틱 회귀를 위한 사이킷런 Classifier 클래스 생성
+dt_clf = DecisionTreeClassifier(random_state=10)
+rf_clf = RandomForestClassifier(random_state=10)
+lr_clf = LogisticRegression(max_iter=2000, random_state=10)
+print("dt_clf 학습")
+print("=" * 12)
+train_and_evaluate(dt_clf, X_train, X_test, y_train, y_test)
+print("rf_clf 학습")
+print("=" * 12)
+train_and_evaluate(rf_clf, X_train, X_test, y_train, y_test)
+print("lr_clf 학습")
+print("=" * 12)
+train_and_evaluate(lr_clf, X_train, X_test, y_train, y_test)
+
+
+from sklearn.model_selection import GridSearchCV
+
+parameters = {
+    "max_depth": [2, 3, 5, 10, 12],
+    "min_samples_split": [2, 3, 5],
+    "min_samples_leaf": [1, 5, 8, 10],
+}
+
+grid_dclf = GridSearchCV(dt_clf, param_grid=parameters, scoring="accuracy", cv=5)
+grid_dclf.fit(X_train, y_train)
+
+print("GridSearchCV 최적 하이퍼 파라미터 :", grid_dclf.best_params_)
+print("GridSearchCV 최고 정확도: {0:.4f}".format(grid_dclf.best_score_))
+best_dclf = grid_dclf.best_estimator_
+
+train_and_evaluate(best_dclf, X_train, X_test, y_train, y_test)
+
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {"C": [0.1, 1, 10, 50, 100]}
+grid_lrclf = GridSearchCV(lr_clf, param_grid=param_grid, cv=5, verbose=0)
+grid_lrclf.fit(X_train, y_train)
+
+print("GridSearchCV 최적 하이퍼 파라미터 :", grid_lrclf.best_params_)
+print("GridSearchCV 최고 정확도: {0:.4f}".format(grid_lrclf.best_score_))
+best_lrclf = grid_lrclf.best_estimator_
+
+train_and_evaluate(best_lrclf, X_train, X_test, y_train, y_test)
+######################################################## Q. (SMOTE 오버 샘플링 적용) 신용카드 사기 검출 모델을 아래와 같이 생성하고 평가: 05
+1. 데이터 일차 가공 및 모델 학습/예측/평가
+    - Time 컬럼 삭제, 로지스틱 회귀, LightGBM을 이용하여 모델링 및 평가
+2. Amount 컬럼 데이터 분포도 변환 후 모델 학습/예측/평가
+    - 표준화한 후 로지스틱 회귀, LightGBM을 이용하여 모델링 및 평가
+3. 이상치 데이터 제거 후 모델 학습/예측/평가
+    - 데이터의 상관관계를 시각화 V14와 클래스의 상관관계 높음을 확인 후 V14 컬럼의 이상치 제거한 후 로지스틱 회귀, LightGBM을 이용하여 모델링 및 평가
+4. SMOTE 오버 샘플링 적용 후 모델 학습/예측/평가
+    - 불균형한 데이터셋 처리를 위한 imbalanced-learn 라이브러리를 설치
+    - %pip install imbalanced-learn
+    - SMOTE(Synthetic Minority Over-sampling Technique)를 사용하여 불균형한 데이터셋을 처리
+    - from imblearn.over_sampling import SMOTE
+    - smote = SMOTE(random_state=0)
+    - X_train_over, y_train_over = smote.fit_resample(X_train, y_train)
+    - SMOTE를 적용한 학습 데이터셋을 사용하여 로지스틱 회귀 모델을 학습하고 예측 성능을 평가
+    - Precision-Recall 커브를 시각화하는 함수
+    - LightGBM을 이용하여 모델링 및 평가
+
+import pandas as pd
+df = pd.read_csv('/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/creditcard.csv')
+from sklearn.model_selection import train_test_split
+
+# 인자로 입력받은 DataFrame을 복사 한 뒤 Time 컬럼만 삭제하고 복사된 DataFrame 반환
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    df_copy.drop('Time', axis=1, inplace=True)
+    return df_copy
+
+# 사전 데이터 가공 후 학습과 테스트 데이터 세트를 반환하는 함수.
+# 데이터를 전처리하는 get_preprocessed_df 함수
+def get_train_test_dataset(df=None):
+    # 인자로 입력된 DataFrame의 사전 데이터 가공이 완료된 복사 DataFrame 반환
+    df_copy = get_preprocessed_df(df)
+    # DataFrame의 맨 마지막 컬럼이 레이블, 나머지는 피처들
+    X_features = df_copy.iloc[:, :-1]
+    y_target = df_copy.iloc[:, -1]
+    # train_test_split( )으로 학습과 테스트 데이터 분할. stratify=y_target으로 Stratified 기반 분할
+    X_train, X_test, y_train, y_test = \
+    train_test_split(X_features, y_target, test_size=0.3, random_state=0, stratify=y_target)
+    # 학습과 테스트 데이터 세트 반환
+    return X_train, X_test, y_train, y_test
+
+X_train, X_test, y_train, y_test = get_train_test_dataset(df)
+
+y_train.value_counts()
+
+print('학습 데이터 레이블 값 비율')
+print(y_train.value_counts()/y_train.shape[0] * 100)
+print('테스트 데이터 레이블 값 비율')
+print(y_test.value_counts()/y_test.shape[0] * 100)
+
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import roc_auc_score
+
+def get_clf_eval(y_test, pred=None, pred_proba=None):
+    confusion = confusion_matrix( y_test, pred)
+    accuracy = accuracy_score(y_test , pred)
+    precision = precision_score(y_test , pred)
+    recall = recall_score(y_test , pred)
+    f1 = f1_score(y_test,pred)
+    # ROC-AUC 추가
+    roc_auc = roc_auc_score(y_test, pred_proba)
+    print('오차 행렬')
+    print(confusion)
+    # ROC-AUC print 추가
+    print('정확도: {0:.4f}, 정밀도: {1:.4f}, 재현율: {2:.4f},\
+    F1: {3:.4f}, AUC:{4:.4f}'.format(accuracy, precision, recall, f1, roc_auc))
+###로지스틱 회귀 모델 학습 및 평가
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+lr_clf = LogisticRegression(max_iter=100, solver='lbfgs', random_state=42)
+lr_clf.fit(X_train, y_train)
+lr_pred = lr_clf.predict(X_test)
+lr_pred_proba = lr_clf.predict_proba(X_test)[:, 1]
+
+# 3장에서 사용한 get_clf_eval() 함수를 이용하여 평가 수행.
+get_clf_eval(y_test, lr_pred, lr_pred_proba)
+
+# 인자로 사이킷런의 Estimator객체와, 학습/테스트 데이터 세트를 입력 받아서 학습/예측/평가 수행.
+def get_model_train_eval(model, ftr_train=None, ftr_test=None, tgt_train=None, tgt_test=None):
+    model.fit(ftr_train, tgt_train)
+    pred = model.predict(ftr_test)
+    pred_proba = model.predict_proba(ftr_test)[:, 1]
+    get_clf_eval(tgt_test, pred, pred_proba)
+
+## LightGBM 모델 학습 및 평가
+from lightgbm import LGBMClassifier
+
+lgbm_clf = LGBMClassifier(n_estimators=1000, num_leaves=64, n_jobs=-1, boost_from_average=False)
+get_model_train_eval(lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test)
+
+## 데이터 분포도 변환 후 모델 학습/예측/평가
+# 신용카드 거래 금액('Amount')의 히스토그램을 생성
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 4))
+plt.xticks(range(0, 30000, 1000), rotation=60)
+sns.histplot(df['Amount'], bins=100, kde=True)
+plt.show()
+
+## 표준화
+from sklearn.preprocessing import StandardScaler
+# 사이킷런의 StandardScaler를 이용하여 정규분포 형태로 Amount 피처값 변환하는 로직으로 수정.
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    scaler = StandardScaler()
+    amount_n = scaler.fit_transform(df_copy['Amount'].values.reshape(-1, 1))
+    # 변환된 Amount를 Amount_Scaled로 피처명 변경후 DataFrame맨 앞 컬럼으로 입력
+    df_copy.insert(0, 'Amount_Scaled', amount_n)
+    # 기존 Time, Amount 피처 삭제
+    df_copy.drop(['Time','Amount'], axis=1, inplace=True)
+    return df_copy
+    
+# Amount를 정규분포 형태로 변환 후 로지스틱 회귀 및 LightGBM 수행.
+X_train, X_test, y_train, y_test = get_train_test_dataset(df)
+
+from sklearn.linear_model import LogisticRegression
+
+print('### 로지스틱 회귀 예측 성능 ###')
+lr_clf = LogisticRegression()
+get_model_train_eval(lr_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test)
+
+print('### LightGBM 예측 성능 ###')
+lgbm_clf = LGBMClassifier(n_estimators=1000, num_leaves=64, n_jobs=-1, boost_from_average=False)
+get_model_train_eval(lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test)
+
+## 로그변환
+# np.log1p 함수를 사용하여 'Amount' 피처를 로그 변환
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    # 넘파이의 log1p( )를 이용하여 Amount를 로그 변환
+    amount_n = np.log1p(df_copy['Amount'])
+    df_copy.insert(0, 'Amount_Scaled', amount_n)
+    df_copy.drop(['Time','Amount'], axis=1, inplace=True)
+    return df_copy
+
+# 이 셀에서는 로그 변환된 'Amount' 피처를 사용하여 로지스틱 회귀와 LightGBM 모델을 다시 학습하고 예측 성능을 평가
+import numpy as np
+X_train, X_test, y_train, y_test = get_train_test_dataset(df)
+
+print('### 로지스틱 회귀 예측 성능 ###')
+get_model_train_eval(lr_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test)
+
+print('### LightGBM 예측 성능 ###')
+get_model_train_eval(lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test)
+
+## 이상치 데이터 제거 후 평가
+# 데이터의 상관 관계를 시각화 : v14, v17이 class와 상관관계가 높음
+import seaborn as sns
+
+plt.figure(figsize=(9, 9))
+corr = df.corr()
+sns.heatmap(corr, cmap='RdBu')
+
+# 데이터에서 이상치를 찾는 get_outlier 함수를 정의
+import numpy as np
+
+def get_outlier(df=None, column=None, weight=1.5):
+    # fraud에 해당하는 column 데이터만 추출, 1/4 분위와 3/4 분위 지점을 np.percentile로 구함.
+    fraud = df[df['Class']==1][column]
+    quantile_25 = np.percentile(fraud.values, 25)
+    quantile_75 = np.percentile(fraud.values, 75)
+    # IQR을 구하고, IQR에 1.5를 곱하여 최대값과 최소값 지점 구함.
+    iqr = quantile_75 - quantile_25
+    iqr_weight = iqr * weight
+    lowest_val = quantile_25 - iqr_weight
+    highest_val = quantile_75 + iqr_weight
+    # 최대값 보다 크거나, 최소값 보다 작은 값을 아웃라이어로 설정하고 DataFrame index 반환.
+    outlier_index = fraud[(fraud < lowest_val) | (fraud > highest_val)].index
+    return outlier_index
+
+# get_outlier 함수를 호출하여 'V14' 피처의 이상치 인덱스를 찾고, 이를 출력
+outlier_index = get_outlier(df=df, column='V14', weight=1.5)
+print('이상치 데이터 인덱스:', outlier_index)
+# get_processed_df( )를 로그 변환 후 V14 피처의 이상치 데이터를 삭제하는 로직으로 변경.
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    amount_n = np.log1p(df_copy['Amount'])
+    df_copy.insert(0, 'Amount_Scaled', amount_n)
+    df_copy.drop(['Time','Amount'], axis=1, inplace=True)
+    # 이상치 데이터 삭제하는 로직 추가
+    outlier_index = get_outlier(df=df_copy, column='V14', weight=1.5)
+    df_copy.drop(outlier_index, axis=0, inplace=True)
+    return df_copy
+
+X_train, X_test, y_train, y_test = get_train_test_dataset(card_df)
+print('### 로지스틱 회귀 예측 성능 ###')
+get_model_train_eval(lr_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test)
+print('### LightGBM 예측 성능 ###')
+get_model_train_eval(lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test)
+
+
+SMOTE 오버 샘플링 적용 후 모델 학습/예측/평가
+# SMOTE(Synthetic Minority Over-sampling Technique)를 사용하여 불균형한 데이터셋을 처리
+from imblearn.over_sampling import SMOTE
+
+smote = SMOTE(random_state=0)
+X_train_over, y_train_over = smote.fit_resample(X_train, y_train)
+print('SMOTE 적용 전 학습용 피처/레이블 데이터 세트: ', X_train.shape, y_train.shape)
+print('SMOTE 적용 후 학습용 피처/레이블 데이터 세트: ', X_train_over.shape, y_train_over.shape)
+print('SMOTE 적용 후 레이블 값 분포: \n', pd.Series(y_train_over).value_counts())
+
+#  SMOTE를 적용한 학습 데이터셋을 사용하여 로지스틱 회귀 모델을 학습하고 예측 성능을 평가
+lr_clf = LogisticRegression()
+# ftr_train과 tgt_train 인자값이 SMOTE 증식된 X_train_over와 y_train_over로 변경됨에 유의
+get_model_train_eval(lr_clf, ftr_train=X_train_over, ftr_test=X_test, tgt_train=y_train_over, tgt_test=y_test)
+
+# Precision-Recall 커브를 시각화하는 함수
+
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from sklearn.metrics import precision_recall_curve
+
+def precision_recall_curve_plot(y_test , pred_proba_c1):
+    # threshold ndarray와 이 threshold에 따른 정밀도, 재현율 ndarray 추출.
+    precisions, recalls, thresholds = precision_recall_curve( y_test, pred_proba_c1)
+
+    # X축을 threshold값으로, Y축은 정밀도, 재현율 값으로 각각 Plot 수행. 정밀도는 점선으로 표시
+    plt.figure(figsize=(8,6))
+    threshold_boundary = thresholds.shape[0]
+    plt.plot(thresholds, precisions[0:threshold_boundary], linestyle='--', label='precision')
+    plt.plot(thresholds, recalls[0:threshold_boundary],label='recall')
+
+    # threshold 값 X 축의 Scale을 0.1 단위로 변경
+    start, end = plt.xlim()
+    plt.xticks(np.round(np.arange(start, end, 0.1),2))
+
+    # x축, y축 label과 legend, 그리고 grid 설정
+    plt.xlabel('Threshold value'); plt.ylabel('Precision and Recall value')
+    plt.legend(); plt.grid()
+    plt.show()
+
+precision_recall_curve_plot(y_test , pred_proba_c1=lr_clf.predict_proba(X_test)[:, 1])
+
+
+######################################################## Q. (SMOTE를 적용) 신용카드 사기 검출 모델을 아래와 같이 생성하고 평가: 7/26
+데이터 일차 가공 및 모델 학습/예측/평가
+
+Time 컬럼 삭제, 로지스틱 회귀, LightGBM을 이용하여 모델링 및 평가
+Amount 컬럼 데이터 분포도 변환 후 모델 학습/예측/평가
+
+표준화한 후 로지스틱 회귀, LightGBM을 이용하여 모델링 및 평가
+이상치 데이터 제거 후 모델 학습/예측/평가
+
+데이터의 상관관계를 시각화 V14와 클래스의 상관관계 높음을 확인 후 V14 컬럼의 이상치 제거한 후 로지스틱 회귀, LightGBM을 이용하여 모델링 및 평가
+SMOTE 오버 샘플링 적용 후 모델 학습/예측/평가
+
+불균형한 데이터셋 처리를 위한 imbalanced-learn 라이브러리를 설치
+%pip install imbalanced-learn
+SMOTE(Synthetic Minority Over-sampling Technique)를 사용하여 불균형한 데이터셋을 처리
+from imblearn.over_sampling import SMOTE
+smote = SMOTE(random_state=0)
+X_train_over, y_train_over = smote.fit_resample(X_train, y_train)
+SMOTE를 적용한 학습 데이터셋을 사용하여 로지스틱 회귀 모델을 학습하고 예측 성능을 평가
+Precision-Recall 커브를 시각화하는 함수
+LightGBM을 이용하여 모델링 및 평가
+
+#######################
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from google.colab import drive
+
+drive.mount("/content/drive")
+card_df = pd.read_csv("/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/creditcard.csv")
+card_df.head(3)
+
+from sklearn.model_selection import train_test_split
+# 인자로 입력받은 DataFrame을 복사 한 뒤 Time 컬럼만 삭제하고 복사된 DataFrame 반환
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    df_copy.drop("Time", axis=1, inplace=True)
+    return df_copy
+
+# 사전 데이터 가공 후 학습과 테스트 데이터 세트를 반환하는 함수.
+# 데이터를 전처리하는 get_preprocessed_df 함수
+def get_train_test_dataset(df=None):
+    # 인자로 입력된 DataFrame의 사전 데이터 가공이 완료된 복사 DataFrame 반환
+    df_copy = get_preprocessed_df(df)
+    # DataFrame의 맨 마지막 컬럼이 레이블, 나머지는 피처들
+    X_features = df_copy.iloc[:, :-1]
+    y_target = df_copy.iloc[:, -1]
+    # train_test_split( )으로 학습과 테스트 데이터 분할. stratify=y_target으로 Stratified 기반 분할
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_features, y_target, test_size=0.3, random_state=0, stratify=y_target
+    )
+    # 학습과 테스트 데이터 세트 반환
+    return X_train, X_test, y_train, y_test
+
+
+X_train, X_test, y_train, y_test = get_train_test_dataset(card_df)
+
+y_train.value_counts()
+
+print("학습 데이터 레이블 값 비율")
+print(y_train.value_counts() / y_train.shape[0] * 100)
+print("테스트 데이터 레이블 값 비율")
+print(y_test.value_counts() / y_test.shape[0] * 100)
+
+from sklearn.metrics import (
+    confusion_matrix,
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+)
+from sklearn.metrics import roc_auc_score
+
+
+def get_clf_eval(y_test, pred=None, pred_proba=None):
+    confusion = confusion_matrix(y_test, pred)
+    accuracy = accuracy_score(y_test, pred)
+    precision = precision_score(y_test, pred)
+    recall = recall_score(y_test, pred)
+    f1 = f1_score(y_test, pred)
+    # ROC-AUC 추가
+    roc_auc = roc_auc_score(y_test, pred_proba)
+    print("오차 행렬")
+    print(confusion)
+    # ROC-AUC print 추가
+    print(
+        "정확도: {0:.4f}, 정밀도: {1:.4f}, 재현율: {2:.4f},\
+    F1: {3:.4f}, AUC:{4:.4f}".format(
+            accuracy, precision, recall, f1, roc_auc
+        )
+    )
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+lr_clf = LogisticRegression(max_iter=100, solver="lbfgs", random_state=42)
+lr_clf.fit(X_train, y_train)
+lr_pred = lr_clf.predict(X_test)
+lr_pred_proba = lr_clf.predict_proba(X_test)[:, 1]
+
+# 3장에서 사용한 get_clf_eval() 함수를 이용하여 평가 수행.
+get_clf_eval(y_test, lr_pred, lr_pred_proba)
+
+# 인자로 사이킷런의 Estimator객체와, 학습/테스트 데이터 세트를 입력 받아서 학습/예측/평가 수행.
+def get_model_train_eval(
+    model, ftr_train=None, ftr_test=None, tgt_train=None, tgt_test=None
+):
+    model.fit(ftr_train, tgt_train)
+    pred = model.predict(ftr_test)
+    pred_proba = model.predict_proba(ftr_test)[:, 1]
+    get_clf_eval(tgt_test, pred, pred_proba)
+
+from lightgbm import LGBMClassifier
+
+lgbm_clf = LGBMClassifier(
+    n_estimators=1000, num_leaves=64, n_jobs=-1, boost_from_average=False
+)
+get_model_train_eval(
+    lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test
+)
+
+# 신용카드 거래 금액('Amount')의 히스토그램을 생성
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 4))
+plt.xticks(range(0, 30000, 1000), rotation=60)
+sns.histplot(card_df["Amount"], bins=100, kde=True)
+plt.show()
+
+from sklearn.preprocessing import StandardScaler
+
+
+# 사이킷런의 StandardScaler를 이용하여 정규분포 형태로 Amount 피처값 변환하는 로직으로 수정.
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    scaler = StandardScaler()
+    amount_n = scaler.fit_transform(df_copy["Amount"].values.reshape(-1, 1))
+    # 변환된 Amount를 Amount_Scaled로 피처명 변경후 DataFrame맨 앞 컬럼으로 입력
+    df_copy.insert(0, "Amount_Scaled", amount_n)
+    # 기존 Time, Amount 피처 삭제
+    df_copy.drop(["Time", "Amount"], axis=1, inplace=True)
+    return df_copy
+    
+# np.log1p 함수를 사용하여 'Amount' 피처를 로그 변환
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    # 넘파이의 log1p( )를 이용하여 Amount를 로그 변환
+    amount_n = np.log1p(df_copy["Amount"])
+    df_copy.insert(0, "Amount_Scaled", amount_n)
+    df_copy.drop(["Time", "Amount"], axis=1, inplace=True)
+    return df_copy  
+
+# 이 셀에서는 로그 변환된 'Amount' 피처를 사용하여 로지스틱 회귀와 LightGBM 모델을 다시 학습하고 예측 성능을 평가
+X_train, X_test, y_train, y_test = get_train_test_dataset(card_df)
+
+print("### 로지스틱 회귀 예측 성능 ###")
+get_model_train_eval(
+    lr_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test
+)
+
+print("### LightGBM 예측 성능 ###")
+get_model_train_eval(
+    lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test
+)
+
+# Amount를 정규분포 형태로 변환 후 로지스틱 회귀 및 LightGBM 수행.
+X_train, X_test, y_train, y_test = get_train_test_dataset(card_df)
+
+print("### 로지스틱 회귀 예측 성능 ###")
+lr_clf = LogisticRegression()
+get_model_train_eval(
+    lr_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test
+)
+
+print("### LightGBM 예측 성능 ###")
+lgbm_clf = LGBMClassifier(
+    n_estimators=1000, num_leaves=64, n_jobs=-1, boost_from_average=False
+)
+get_model_train_eval(
+    lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test
+)
+
+# 데이터의 상관 관계를 시각화 : v14, v17이 class와 상관관계가 높음
+import seaborn as sns
+
+plt.figure(figsize=(9, 9))
+corr = card_df.corr()
+sns.heatmap(corr, cmap="RdBu")
+
+# 데이터에서 이상치를 찾는 get_outlier 함수를 정의
+import numpy as np
+
+
+def get_outlier(df=None, column=None, weight=1.5):
+    # fraud에 해당하는 column 데이터만 추출, 1/4 분위와 3/4 분위 지점을 np.percentile로 구함.
+    fraud = df[df["Class"] == 1][column]
+    quantile_25 = np.percentile(fraud.values, 25)
+    quantile_75 = np.percentile(fraud.values, 75)
+    # IQR을 구하고, IQR에 1.5를 곱하여 최대값과 최소값 지점 구함.
+    iqr = quantile_75 - quantile_25
+    iqr_weight = iqr * weight
+    lowest_val = quantile_25 - iqr_weight
+    highest_val = quantile_75 + iqr_weight
+    # 최대값 보다 크거나, 최소값 보다 작은 값을 아웃라이어로 설정하고 DataFrame index 반환.
+    outlier_index = fraud[(fraud < lowest_val) | (fraud > highest_val)].index
+    return outlier_index
+    
+# get_outlier 함수를 호출하여 'V14' 피처의 이상치 인덱스를 찾고, 이를 출력
+outlier_index = get_outlier(df=card_df, column="V14", weight=1.5)
+print("이상치 데이터 인덱스:", outlier_index)
+
+# get_processed_df( )를 로그 변환 후 V14 피처의 이상치 데이터를 삭제하는 로직으로 변경.
+def get_preprocessed_df(df=None):
+    df_copy = df.copy()
+    amount_n = np.log1p(df_copy["Amount"])
+    df_copy.insert(0, "Amount_Scaled", amount_n)
+    df_copy.drop(["Time", "Amount"], axis=1, inplace=True)
+    # 이상치 데이터 삭제하는 로직 추가
+    outlier_index = get_outlier(df=df_copy, column="V14", weight=1.5)
+    df_copy.drop(outlier_index, axis=0, inplace=True)
+    return df_copy
+
+
+X_train, X_test, y_train, y_test = get_train_test_dataset(card_df)
+print("### 로지스틱 회귀 예측 성능 ###")
+get_model_train_eval(
+    lr_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test
+)
+print("### LightGBM 예측 성능 ###")
+get_model_train_eval(
+    lgbm_clf, ftr_train=X_train, ftr_test=X_test, tgt_train=y_train, tgt_test=y_test
+)
+
+# SMOTE(Synthetic Minority Over-sampling Technique)를 사용하여 불균형한 데이터셋을 처리
+from imblearn.over_sampling import SMOTE
+
+smote = SMOTE(random_state=0)
+X_train_over, y_train_over = smote.fit_resample(X_train, y_train)
+print("SMOTE 적용 전 학습용 피처/레이블 데이터 세트: ", X_train.shape, y_train.shape)
+print(
+    "SMOTE 적용 후 학습용 피처/레이블 데이터 세트: ",
+    X_train_over.shape,
+    y_train_over.shape,
+)
+print("SMOTE 적용 후 레이블 값 분포: \n", pd.Series(y_train_over).value_counts())
+
+# Precision-Recall 커브를 시각화하는 함수
+
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from sklearn.metrics import precision_recall_curve
+
+
+def precision_recall_curve_plot(y_test, pred_proba_c1):
+    # threshold ndarray와 이 threshold에 따른 정밀도, 재현율 ndarray 추출.
+    precisions, recalls, thresholds = precision_recall_curve(y_test, pred_proba_c1)
+
+    # X축을 threshold값으로, Y축은 정밀도, 재현율 값으로 각각 Plot 수행. 정밀도는 점선으로 표시
+    plt.figure(figsize=(8, 6))
+    threshold_boundary = thresholds.shape[0]
+    plt.plot(
+        thresholds, precisions[0:threshold_boundary], linestyle="--", label="precision"
+    )
+    plt.plot(thresholds, recalls[0:threshold_boundary], label="recall")
+
+    # threshold 값 X 축의 Scale을 0.1 단위로 변경
+    start, end = plt.xlim()
+    plt.xticks(np.round(np.arange(start, end, 0.1), 2))
+
+    # x축, y축 label과 legend, 그리고 grid 설정
+    plt.xlabel("Threshold value")
+    plt.ylabel("Precision and Recall value")
+    plt.legend()
+    plt.grid()
+    plt.show()
+    
+precision_recall_curve_plot(y_test, lr_clf.predict_proba(X_test)[:, 1])
+
+lgbm_clf = LGBMClassifier(
+    n_estimators=1000, num_leaves=64, n_jobs=-1, boost_from_average=False
+)
+get_model_train_eval(
+    lgbm_clf,
+    ftr_train=X_train_over,
+    ftr_test=X_test,
+    tgt_train=y_train_over,
+    tgt_test=y_test,
+)
+==>
+오차 행렬
+[[85283    12]
+ [   22   124]]
+정확도: 0.9996, 정밀도: 0.9118, 재현율: 0.8493,    F1: 0.8794, AUC:0.9814
+
+==> 결론:
+
+좋은 로데이터 수집
+전처리
+데이터에 맞는 모델을 사용
+파라미터 튜닝
+적합한 평가 방법 선택
+거기에서 나온 인사이트를 과제에 적용

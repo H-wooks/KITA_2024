@@ -1,0 +1,1348 @@
+#####################################################################################################
+#############################################   OverView  ###########################################
+##################################################################################################### 
+#################################################################### 다중공선성(Multicollinearity)
+회귀 분석에서 사용되는 독립 변수들 간에 높은 상관관계가 있을 때 발생
+다중공선성이 존재하면, 회귀 분석의 결과를 해석하는 데 어려움 발생
+
+<문제>
+작은 데이터 변경에 의해 추정치가 크게 변동될 가능성
+해석의 어려움 
+과적합(Overfitting)의 위험성
+다중공선성의 진단: 분산팽창인자(Variance Inflation Factor, VIF): VIF 값이 10 이상
+상관 행렬(Correlation Matrix): 0.8 이상 다중공선성의 가능성을 시사.
+
+<다중공선성의 해결 방법:>
+변수 제거: 상관관계가 높은 변수들 중 하나 또는 여러 개를 모델에서 제거.
+주성분 분석(PCA): 여러 독립 변수를 적은 수의 비상관 변수로 변환하는 기법으로, 변환된 변수를 사용하여 모델링.
+릿지(Ridge) 또는 라쏘(Lasso) 회귀: 정규화 기법을 사용하여 회귀 계수의 크기를 줄이고, 과적합을 방지.
+
+< 차원 축소>
+- PCA
+- SVD
+- Truncated SVD
+- NMF
+#####################################################################################################
+##########################################  PCA 기본 개념  ##########################################
+#####################################################################################################
+import numpy as np
+
+A=np.array([[4,1],[2,3]])
+## 대칭 행렬에 대해 고유값을 구할 때는 np.linalg.eigh를 사용하는 것이 더 효율적이며, 비대칭 행렬의 경우 그리고 정방행렬에는 np.linalg.eig를 사용
+eigenvalues, eigenvectors = np.linalg.eig(A)
+print("Eigenvalues:")
+print(eigenvalues)
+print("Eigenvectors:")
+print(eigenvectors)
+
+# 첫 번째 고유값과 대응하는 고유벡터
+lambda_1 = eigenvalues[0]
+v_1 = eigenvectors[:, 0]
+
+# 검증: A * v_1 = lambda_1 * v_1
+Av_1 = np.dot(A, v_1)
+lambda_1_v_1 = lambda_1 * v_1
+
+print("A * v_1:", Av_1)
+print("lambda_1 * v_1:", lambda_1_v_1)
+print("일치 여부:", np.allclose(Av_1, lambda_1_v_1))
+
+# 두 번째 고유값과 대응하는 고유벡터
+lambda_2 = eigenvalues[1]
+v_2 = eigenvectors[:, 1]
+
+# 검증: A * v_2 = lambda_2 * v_2
+Av_2 = np.dot(A, v_2)
+lambda_2_v_2 = lambda_2 * v_2
+
+print("A * v_2:", Av_2)
+print("lambda_2 * v_2:", lambda_2_v_2)
+print("일치 여부:", np.allclose(Av_2, lambda_2_v_2))
+
+#####################################################################################################
+##########################################  SVD 기본 개념  ##########################################
+#####################################################################################################
+# numpy의 SVD 모듈 임포트
+import numpy as np
+from numpy.linalg import svd
+
+## 4X4 random 행렬 a 생성
+np.random.seed(121)
+a = np.random.randn(4,4)
+print(np.round(a, 3))
+
+# SVD 분해: U행렬, Sigma 행렬, V 전치 행렬을 반환
+# Sigma 행렬은 0이 아닌 경우만 1차원 행렬로 표현
+U, Sigma, Vt = svd(a)
+print(U.shape, Sigma.shape, Vt.shape)
+print('U matrix:\n', np.round(U, 3))
+print('Sigma Value:\n', np.round(Sigma, 3))
+print('V transpose matrix:\n', np.round(Vt, 3))
+
+## 원본 행렬 복원
+# Sigma 를 다시 0을 포함한 대칭행렬로 변환
+Sigma_mat = np.diag(Sigma)
+print('Dig_Sigma:\n\n',Sigma_mat,"\n\n")
+a_=np.dot(np.dot(U,Sigma_mat),Vt)
+print('Restored_A:\n\n',np.round(a_,3))
+############################################### Sigma행렬에 0을 포함함
+## 4X4 random 행렬 a 생성
+np.random.seed(121)
+a = np.random.randn(4,4)
+a[2]=a[0]+a[1]
+a[3]=a[0]
+print(np.round(a,3))
+
+# 다시 SVD 수행하여 Sigma 값 확인
+U, Sigma, Vt = svd(a)
+print(U.shape, Sigma.shape, Vt.shape)
+#print('U matrix:\n', np.round(U, 3))
+print('Sigma Value:\n', np.round(Sigma, 3))
+#print('V transpose matrix:\n', np.round(Vt, 3))
+==> (4, 4) (4,) (4, 4)
+Sigma Value:
+ [2.663 0.807 0.    0.   ]
+
+# U행렬의 경우 Sigma와 내적을 수행하므로 Sigma의 앞 2행에 대응되는 앞 2열만을 추출
+U_=U[:,:2]
+Sigma_=np.diag(Sigma[:2])
+#Vt 전치 행렬의 경우는 앞 2행만 추출
+Vt_=Vt[:2,:]
+print(U_.shape, Sigma_.shape, Vt_.shape, "\n")
+print('U_:\n\n',U_,'\n\nSigma_:\n\n',Sigma_,'\n\nVt_:\n\n',Vt_, "\n")
+a_ = np.dot(np.dot(U_,Sigma_),Vt_)
+
+print('Org_A:\n\n', np.round(a,3),"\n\n")
+print('Restored_A:\n\n', np.round(a_,3))
+
+==>  U행렬은 Sigmadml 앞 2행에 대응되는 앞 2열만을 추출, Vt 전치 행렬의 경우는 앞 2행만 추출해서 복원해도 동일하게 복원 가능
+
+
+#####################################################################################################
+############################### Truncated  SVD (SVDS) 기본 개념  ####################################
+############################### scipy.sparse.linalg import svds #####################################
+#####################################################################################################
+import numpy as np
+from scipy.sparse.linalg import svds
+from scipy.linalg import svd
+
+## 원본 행렬을 출력하고, SVD를 적용할 경우 U, Sigma, Vt의 차원 확인
+np.random.seed(121)
+matrix = np.random.randn(6,6)
+print('원본행렬:\n',np.round(matrix, 3))
+U, Sigma, Vt = svd(matrix, full_matrices=False)
+print('\n\n분해행렬 차원:', U.shape, Sigma.shape, Vt.shape)
+print('\n\nU matrix:\n', np.round(U, 3))
+print('\n\nSigma Value:\n', np.round(Sigma, 3))
+print('\n\nV transpose matrix:\n', np.round(Vt, 3))
+
+
+# Truncated SVD로 Sigma 행렬의 특이값을 4개로 하여 Truncated SVD 수행
+num_components=4
+U_tr, Sigma_tr, Vt_tr = svds(matrix, k=num_components)
+print('\n\nTruncated SVD 분해행렬 차원:', U_tr.shape, Sigma_tr.shape, Vt_tr.shape)
+print('\n\nU matrix:\n', np.round(U_tr, 3))
+print('\n\nSigma Value:\n', np.round(Sigma_tr, 3))
+print('\n\nV transpose matrix:\n', np.round(Vt_tr, 3))
+
+#
+matrix_tr=np.dot(np.dot(U_tr,np.diag(Sigma_tr)),Vt_tr)
+print('\n\n Orig_Matrix:\n\n', np.round(matrix,3))
+print('\n\nRestored_matrix w/ Truncated:\n\n', np.round(matrix_tr,3))
+
+==> 일부 정보 소실 발생
+
+#####################################################################################################
+######################################## Truncated  SVD  기본 개념  #################################
+############################# sklearn.decomposition import TruncatedSVD #############################
+#####################################################################################################
+import numpy as np
+from scipy.sparse.linalg import svds
+from sklearn.decomposition import TruncatedSVD
+
+# 임의의 행렬 생성
+np.random.seed(121)
+matrix = np.random.randn(6, 6)
+print('원본 행렬:\n', np.round(matrix, 3))
+
+# Scipy의 svds 사용
+num_components = 4
+U_scipy, Sigma_scipy, Vt_scipy = svds(matrix, k=num_components)
+print('\n\nScipy Truncated SVD 분해 행렬 차원:', U_scipy.shape, Sigma_scipy.shape, Vt_scipy.shape)
+print('\n\nU matrix (Scipy):\n', np.round(U_scipy, 3))
+print('\n\nSigma Value (Scipy):\n', np.round(Sigma_scipy, 3))
+print('\n\nV transpose matrix (Scipy):\n', np.round(Vt_scipy, 3))
+
+# sklearn의 TruncatedSVD 사용
+svd = TruncatedSVD(n_components=num_components, random_state=121)
+matrix_sklearn_transformed = svd.fit_transform(matrix)
+print('\n\nSklearn Truncated SVD 변환 후 데이터 차원:', matrix_sklearn_transformed.shape)
+print('\n\nTransformed Matrix (Sklearn):\n', np.round(matrix_sklearn_transformed, 3))
+print('\n\nComponents (Sklearn):\n', np.round(svd.components_, 3))
+print('\n\nExplained Variance (Sklearn):\n', np.round(svd.explained_variance_, 3))
+
+#####################################################################################################
+########################## NMF(Non-negative Matrix Factorization)  ##################################
+################################## sklearn.decomposition import NMF #################################
+#####################################################################################################
+NMF(Non-negative Matrix Factorization, 비음수 행렬 분해)
+from sklearn.decomposition import NMF
+from sklearn.datasets import load_iris
+import matplotlib.pyplot as plt
+import numpy as np
+
+iris=load_iris()
+iris_ftrs=iris.data
+
+nmf=NMF(n_components=2, max_iter=500)
+nmf.fit(iris_ftrs)
+iris_nmf=nmf.transform(iris_ftrs)
+
+plt.scatter(iris_nmf[:,0],iris_nmf[:,1],c=iris.target)
+plt.xlabel('Component 1')
+plt.ylabel('Component 2')
+plt.title('NMF')
+plt.show()
+
+#####################################################################################################
+####################################### 비지도 군집  ################################################
+#####################################################################################################
+from sklearn.preprocessing import scale
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+iris = load_iris()
+df_iris = pd.DataFrame(data=iris.data,
+                       columns=['sepal length','sepal width','petal length','petal width'])
+df_iris.head()
+
+kmeans=KMeans(n_clusters=3,n_init='auto', max_iter=300,random_state=0).fit(df_iris)
+print(kmeans.labels_)
+
+df_iris['cluster']=kmeans.labels_
+df_iris.head()
+
+df_iris['target'] = iris.target
+df_iris.head()
+
+iris_result=df_iris.groupby(['target','cluster'])['sepal length'].count()
+iris_result
+
+from sklearn.preprocessing import StandardScaler
+iris_scaled=StandardScaler().fit_transform(df_iris)
+
+# 4개의 붓꽃 데이터 속성은 2차원 평면상에 적합치 않아 PCA를 이용 4개의 속성을
+# 2차원 으로 축소한 뒤에 X좌표, Y자표로 개별 데이터를 표현
+from sklearn.decomposition import PCA
+pca=PCA(n_components=2)
+pca_transformed=pca.fit_transform(iris_scaled.data)
+pca_transformed[:5]
+
+df_iris['pca_x']=pca_transformed[:,0]
+df_iris['pca_y']=pca_transformed[:,1]
+df_iris.head()
+
+# cluster 값이 0,1,2인 경우마다 별도의 index로 추출
+mark0_ind=df_iris[df_iris['cluster']==0].index
+mark1_ind=df_iris[df_iris['cluster']==1].index
+mark2_ind=df_iris[df_iris['cluster']==2].index
+
+plt.scatter(x=df_iris.loc[mark0_ind,'pca_x'],y=df_iris.loc[mark0_ind,'pca_y'],marker='o')
+plt.scatter(x=df_iris.loc[mark1_ind,'pca_x'],y=df_iris.loc[mark1_ind,'pca_y'],marker='s')
+plt.scatter(x=df_iris.loc[mark2_ind,'pca_x'],y=df_iris.loc[mark2_ind,'pca_y'],marker='^')
+plt.xlabel('PCA 1')
+plt.ylabel('PCA 2')
+plt.title('3 Clusters Visualization by 2 PCA Components')
+plt.show()
+
+#####################################################################################################
+##################################### 비지도 군집-실루엣  ###########################################
+#####################################################################################################
+from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.preprocessing import scale
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+iris = load_iris()
+Feature_names = ['sepal_length','sepal_width','petal_length','petal_width']
+df_iris = pd.DataFrame(data=iris.data, columns=Feature_names)
+kmeans=KMeans(n_clusters=3,n_init='auto', max_iter=300,random_state=0).fit(df_iris)
+df_iris['cluster']=kmeans.labels_
+
+score_samples=silhouette_samples(iris.data,df_iris['cluster'])
+print('silhouette_samples() return 값의 shape : ', score_samples.shape)
+
+df_iris['silhouette_coeff']=score_samples
+
+average_score=silhouette_score(iris.data,df_iris['cluster'])
+print('붓꽃 데이터 세트 Silhouette Analysis Score:{0:.4f}'.format(average_score))
+
+df_iris.head(100)
+
+df_iris['silhouette_coeff'].mean()
+df_iris.groupby('cluster')['silhouette_coeff'].mean()
+
+# 여러개의 클러스터링 갯수를 List로 입력 받아 각각의 실루엣 계수를 면적으로 시각화한 함수 작성
+def visualize_silhouette(cluster_lists, X_features):
+
+    from sklearn.datasets import make_blobs
+    from sklearn.cluster import KMeans
+    from sklearn.metrics import silhouette_samples, silhouette_score
+
+    import matplotlib.pyplot as plt
+    import matplotlib.cm as cm
+    import math
+
+    # 입력값으로 클러스터링 갯수들을 리스트로 받아서, 각 갯수별로 클러스터링을 적용하고 실루엣 개수를 구함
+    n_cols = len(cluster_lists)
+
+    # plt.subplots()으로 리스트에 기재된 클러스터링 수만큼의 sub figures를 가지는 axs 생성
+    fig, axs = plt.subplots(figsize=(4*n_cols, 4), nrows=1, ncols=n_cols)
+
+    # 리스트에 기재된 클러스터링 갯수들을 차례로 iteration 수행하면서 실루엣 개수 시각화
+    for ind, n_cluster in enumerate(cluster_lists):
+
+        # KMeans 클러스터링 수행하고, 실루엣 스코어와 개별 데이터의 실루엣 값 계산.
+        clusterer = KMeans(n_clusters = n_cluster, n_init='auto', max_iter=500, random_state=0)
+        cluster_labels = clusterer.fit_predict(X_features)
+
+        sil_avg = silhouette_score(X_features, cluster_labels)
+        sil_values = silhouette_samples(X_features, cluster_labels)
+
+        y_lower = 10
+        axs[ind].set_title('Number of Cluster : '+ str(n_cluster)+'\n' \
+                          'Silhouette Score :' + str(round(sil_avg,3)) )
+        axs[ind].set_xlabel("The silhouette coefficient values")
+        axs[ind].set_ylabel("Cluster label")
+        axs[ind].set_xlim([-0.1, 1])
+        axs[ind].set_ylim([0, len(X_features) + (n_cluster + 1) * 10])
+        axs[ind].set_yticks([])  # Clear the yaxis labels / ticks
+        axs[ind].set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1])
+
+        # 클러스터링 갯수별로 fill_betweenx( )형태의 막대 그래프 표현.
+        for i in range(n_cluster):
+            ith_cluster_sil_values = sil_values[cluster_labels==i]
+            ith_cluster_sil_values.sort()
+
+            size_cluster_i = ith_cluster_sil_values.shape[0]
+            y_upper = y_lower + size_cluster_i
+
+            color = cm.nipy_spectral(float(i) / n_cluster)
+            axs[ind].fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_sil_values, \
+                                facecolor=color, edgecolor=color, alpha=0.7)
+            axs[ind].text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+            y_lower = y_upper + 10
+
+        axs[ind].axvline(x=sil_avg, color="red", linestyle="--")
+
+visualize_silhouette([2,3], iris.data)              ## [2,3] 군집을 2와 3으로 하겠다..
+
+#####################################################################################################
+################################################# 기타 코드 ########################################
+##################################################################################################### 
+############################################## PCA 변동성의 커버리지
+# PCA 객체의 explained_variance_ratio_ 속성은 전체 변동성에서 개별 PCA 성분별 차지하는 변동성 비율을 표시
+# C1이 72.9%, C2가 22.8%로 변동성 설명, 2개의 PCA요소로, 원본 데이터의 변동성을 95% 설명
+pca.explained_variance_ratio_
+
+########################## 검증
+pca_scores = cross_val_score(rf_pca, X_pca, y, cv=3, scoring='accuracy')
+
+#####################################################################################################
+##############################################    ###########################################
+#####################################################################################################
+
+#####################################################################################################
+################################################# EXAMPLES ##########################################
+##################################################################################################### 
+
+######################################################## Q. 붓꽃 iris 데이터에서 PCA: 07
+# PCA 분석
+from sklearn.datasets import load_iris
+import pandas as pd
+import matplotlib.pyplot as plt
+
+iris = load_iris()
+# 넘파이 데이터 세트를 판다스 DataFrame으로 변환
+columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+df_iris = pd.DataFrame(iris.data, columns=columns)
+df_iris['target'] = iris.target
+df_iris.head()
+
+markers=['^','s','o']
+
+for i, marker in enumerate(markers):
+  x_axis_data = df_iris[df_iris['target'] == i]['sepal_length']
+  y_axis_data = df_iris[df_iris['target'] == i]['sepal_width']
+  plt.scatter(x_axis_data, y_axis_data, marker=marker, label=iris.target_names[i])
+plt.legend()
+plt.xlabel('sepal length')
+plt.ylabel('sepal width')
+plt.show()
+
+## PCA로 4개의 속성을 2개로 압축
+## StandardScaler를 이용해서 평균 0, 분산이 1인 표준 정규 분포로 모든 속성값 변환
+from sklearn.preprocessing import StandardScaler
+iris_scaled = StandardScaler().fit_transform(df_iris1)
+
+from sklearn.decomposition import PCA
+
+pca=PCA(n_components=2)
+# pca.fit(iris_scaled)
+# iris_pca=pca.transform(iris_scaled)
+iris_pca=pca.fit_transform(iris_scaled)
+print(iris_pca.shape)
+
+pca_columns = ['pca_component_1', 'pca_component_2']
+df_iris_pca = pd.DataFrame(iris_pca, columns=pca_columns)
+df_iris_pca['target'] = iris.target
+df_iris_pca.head()
+
+markers=['^','s','o']
+
+for i, marker in enumerate(markers):
+  x_axis_data = df_iris_pca[df_iris_pca['target'] == i]['pca_component_1']
+  y_axis_data = df_iris_pca[df_iris_pca['target'] == i]['pca_component_2']
+  plt.scatter(x_axis_data, y_axis_data, marker=marker, label=iris.target_names[i])
+plt.legend()
+plt.xlabel('pca_component_1')
+plt.ylabel('pca_component_2')
+plt.show()
+######################################################## Q.  iris 데이터셋에 대하여 랜덤포레스트로 학습 및 평가한 결과와 차원축소한 후 c1,c2를 적용하여 학습 평가한 결과를 비교 cross_val_score를 적용: 7/30
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.decomposition import PCA
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+
+# Iris 데이터셋 로드
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 랜덤 포레스트 분류기 학습 및 평가 (원본 데이터)
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+original_scores = cross_val_score(rf, X_scaled, y, cv=5)
+print("Original data RF accuracy:", original_scores)
+print("Original data RF mean-accuracy:", np.mean(original_scores))
+
+# PCA로 2차원으로 축소
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+# PCA 성분 1, 2를 사용하여 랜덤 포레스트 분류기 학습 및 평가
+rf_pca = RandomForestClassifier(n_estimators=100, random_state=42)
+pca_scores = cross_val_score(rf_pca, X_pca, y, cv=5)
+print("PCA transformed data RF accuracy:", pca_scores)
+print("PCA transformed data RF mean-accuracy:", np.mean(pca_scores))
+
+
+## 강사님
+# 분류를 적용한 결과 비교
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+
+iris = load_iris()
+
+rcf = RandomForestClassifier(random_state=156)
+scores = cross_val_score(rcf, iris.data, iris.target, scoring='accuracy',cv=3)
+print('cv=3인 경우의 개별 폴드 세트별 정확도:', scores)
+print('평균 정확도 : {:.2f}'.format(np.mean(scores)))
+
+
+
+### PCA
+columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+df_iris = pd.DataFrame(iris.data, columns=columns)
+df_iris['target'] = iris.target
+
+df_iris.head()
+df_iris1=df_iris.drop('target',axis=1)
+df_iris1.head()
+
+from sklearn.preprocessing import StandardScaler
+iris_scaled = StandardScaler().fit_transform(df_iris1)
+
+from sklearn.decomposition import PCA
+
+pca=PCA(n_components=2)
+# pca.fit(iris_scaled)
+# iris_pca=pca.transform(iris_scaled)
+iris_pca=pca.fit_transform(iris_scaled)
+print(iris_pca.shape)
+
+pca_columns = ['pca_component_1', 'pca_component_2']
+df_iris_pca = pd.DataFrame(iris_pca, columns=pca_columns)
+df_iris_pca['target'] = iris.target
+df_iris_pca.head()
+
+
+# PCA 변환 데이터 세트 적용
+pca_X = df_iris_pca[['pca_component_1','pca_component_2']]
+scores_pca = cross_val_score(rcf,pca_X,iris.target,scoring='accuracy',cv=3)
+print('cv=3인 경우의 개별 폴드 세트별 정확도:', scores_pca)
+print('평균 정확도 : {:.2f}'.format(np.mean(scores_pca)))
+
+
+######################################################## Q. 신용카드 고객 연체 여부 분류 예측 (PCA 기반): 07 & 07/30
+- 신용카드 데이터 세트는 30000개의 레코드와 24개의 속성을 가지고 있으며 'default payment next month' 속성이 Target 값으로 연체일 경우 1, 정상납부가 0임.
+
+import openpyxl
+filepath='/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/credit_card.xls'
+df=pd.read_excel(filepath, header=1)
+print(df.info())
+df.head()
+
+# PAY_0 칼럼을 PAY_1으로 'default payment next month' 칼럼도 'default'로 칼럼명 변경. ID 삭제.
+df.rename(columns={'PAY_0':'PAY_1','default payment next month':'default'}, inplace=True)
+y_target = df['default']
+X_features = df.drop(['default','ID'], axis=1)
+
+######### 다중 공선성 확인 과대적합 우려
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(15,15));
+sns.heatmap(df.drop(columns=['ID']).corr(), annot=True, cmap='coolwarm', center=0, fmt='.1f')
+plt.title('Correlation Matrix'); plt.show()
+
+===> BILL_ATM1~6까지 다중 공선성 우려 확인
+상관도가 높은 BILL_AMT1 ~ BILL_AMT6 까지 6개의 속성에 대하여 2개의 컴포넌트로 PCA 변환하고 변동성을 알아보기 위하여 explained_variance_ratio_ 계산
+
+# selected_columns = ['BILL_AMT1', 'BILL_AMT2', 'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6']
+# df_selected = df[selected_columns]
+df_selected = df[['BILL_AMT1', 'BILL_AMT2', 'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6']]
+df_selected.head()
+
+from sklearn.preprocessing import StandardScaler
+df_scaled = StandardScaler().fit_transform(df_selected)
+
+from sklearn.decomposition import PCA
+pca=PCA(n_components=2)
+
+df_pca=pca.fit_transform(df_scaled)
+print(df_pca.shape)
+print(type(df_pca))
+
+pca_columns = ['pca_component_1', 'pca_component_2']
+df_CD_pca = pd.DataFrame(df_pca, columns=pca_columns)
+df_CD_pca['target'] = df['default']
+df_CD_pca.head()
+
+
+print(df_CD_pca.pca_component_1.max(), df_CD_pca.pca_component_1.min())
+print(df_CD_pca.pca_component_2.max(), df_CD_pca.pca_component_2.min())
+print(df_CD_pca.pca_component_1.mean(), df_CD_pca.pca_component_1.std())
+print(df_CD_pca.pca_component_2.mean(), df_CD_pca.pca_component_2.std())
+
+markers=['s','o']
+
+for i, marker in enumerate(markers):
+  x_axis_data = df_CD_pca[df_CD_pca['target'] == i]['pca_component_1']
+  y_axis_data = df_CD_pca[df_CD_pca['target'] == i]['pca_component_2']
+  plt.scatter(x_axis_data, y_axis_data, marker=marker, label='class'+str(i))
+plt.legend()
+plt.xlabel('pca_component_1')
+plt.ylabel('pca_component_2')
+plt.show()
+
+pca.explained_variance_ratio_
+
+### 강사님
+## 강사님
+# 상관도가 높은 속성을 PCA로 변환한 뒤 explained_variance_ratio_ 속성으로 확인
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+# BILL_AMT1 ~ BILL_AMT6 까지 6개의 속성명 생성
+cols_bill = ['BILL_AMT'+str(i) for i in range(1,7)]
+print('대상 속성명:', cols_bill)
+
+# 6개의 속성을 2개의 컴포넌트로 PCA 변환하고 변동성을 알아보기 위하여 explained_variance_ratio_ 계산
+scaler = StandardScaler()
+df_cols_scaled = scaler.fit_transform(X_features[cols_bill])
+pca = PCA(n_components=2)
+pca.fit(df_cols_scaled)
+# 2개의 PCA 컴포넌트만으로도 6개 속성의 변동성을 약 95% 이상 설명
+print('PCA Component 별 변동성:', pca.explained_variance_ratio_)
+
+######################################################## Q. 신용카드 데이터셋 전체 23개 속성에 대하여 6개의 컴포넌트를 가진 PCA 변환을 수행하고 모델은 RF, cv=3, scoring='accuracy'을 적용하여 cross_val_score()로 분류 예측 수행: 7/30
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.decomposition import PCA
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+
+
+import openpyxl
+filepath='/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/credit_card.xls'
+df=pd.read_excel(filepath, header=1)
+print(df.info())
+df.head()
+
+# PAY_0 칼럼을 PAY_1으로 'default payment next month' 칼럼도 'default'로 칼럼명 변경. ID 삭제.
+df.rename(columns={'PAY_0':'PAY_1','default payment next month':'default'}, inplace=True)
+
+y = df['default']
+X = df.drop(['default','ID'], axis=1)
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 랜덤 포레스트 분류기 학습 및 평가 (원본 데이터)
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+original_scores = cross_val_score(rf, X_scaled, y, cv=3, scoring='accuracy')
+print("Original data RF accuracy:", np.mean(original_scores))
+
+# PCA로 6차원으로 축소
+pca = PCA(n_components=6)
+X_pca = pca.fit_transform(X_scaled)
+
+# PCA 성분 사용하여 랜덤 포레스트 분류기 학습 및 평가
+rf_pca = RandomForestClassifier(n_estimators=100, random_state=42)
+pca_scores = cross_val_score(rf_pca, X_pca, y, cv=3, scoring='accuracy')
+print("PCA transformed data RF accuracy:", np.mean(pca_scores))
+
+# 축소된 차원 수 및 설명된 분산 비율 출력
+print("Original number of features:", X.shape[1])
+print("Reduced number of features:", X_pca.shape[1])
+print("Explained variance ratio of each principal component:", pca.explained_variance_ratio_)
+print("Cumulative explained variance ratio:", np.cumsum(pca.explained_variance_ratio_))
+
+
+######################### 강사님
+# 원본 데이터 세트와 PCA 변환한 데이터 세트의 분류 예측 결과 비교
+
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+
+
+import openpyxl
+filepath='/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/credit_card.xls'
+df=pd.read_excel(filepath, header=1)
+print(df.info())
+df.head()
+
+# PAY_0 칼럼을 PAY_1으로 'default payment next month' 칼럼도 'default'로 칼럼명 변경. ID 삭제.
+df.rename(columns={'PAY_0':'PAY_1','default payment next month':'default'}, inplace=True)
+y_target = df['default']
+X_features = df.drop(['default','ID'], axis=1)
+
+
+rcf = RandomForestClassifier(n_estimators=300, random_state=150)
+scores = cross_val_score(rcf, X_features, y_target, scoring='accuracy', cv=3)
+
+print('CV=3 인 경우의 개별 Fold세트별 정확도:', scores)
+print('평균 정확도:{0:.4f}'.format(np.mean(scores)))
+
+# 원본 데이터 세트의 분류 예측 결과
+# 전체 23개 속성의 1/4 수준인 6개의 PCA 컴포넌트만으로도 원본 데이터를 기반으로 한 분류 예측결과 보다
+# 1~2% 정도의 예측 성능 저하만 발생
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+# 원본 데이터 세트에 StandardScaler 적용
+scaler = StandardScaler()
+df_scaled = scaler.fit_transform(X_features)
+rcf = RandomForestClassifier(n_estimators=300, random_state=150)
+
+# 6개의 컴포넌트를 가진 PCA 변환을 수행하고 cross_val_score()로 분류 예측 수행
+pca = PCA(n_components=6)
+df_pca = pca.fit_transform(df_scaled)
+scores_pca = cross_val_score(rcf, df_pca, y_target, scoring='accuracy', cv=3)
+
+print('CV=3인 경우의 PCA 변환된 개별 Fold 세트별 정확도:', scores_pca)
+print('PCA 변환 데이터 세트 평균 정확도:{0:.4f}'.format(np.mean(scores_pca)))
+
+# 6개의 컴포넌트로 PCA 변환한 데이터 세트에 대한 동일한 분류 예측
+
+######################################################## Q. iris 데이터셋에 대하여 n_components=2를 적용하고 TruncatedSVD를 사용하여 추출된 2개의 component로 품종을 구분하는 것을 시각화: 7/31
+- from sklearn.decomposition import TruncatedSVD
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.decomposition import TruncatedSVD
+from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report
+
+# 데이터 로드
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Truncated SVD로 차원 축소
+svd = TruncatedSVD(n_components=2, random_state=42)
+X_reduced = svd.fit_transform(X_scaled)
+
+# 데이터 분할
+X_train, X_test, y_train, y_test = train_test_split(X_reduced, y, test_size=0.2, random_state=42)
+
+# 결정 트리 분류기 학습
+clf = DecisionTreeClassifier(random_state=42)
+clf.fit(X_train, y_train)
+
+# 예측 및 평가
+y_pred = clf.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print(f'Accuracy: {accuracy}')
+print('Classification Report:')
+print(classification_rep)
+
+# 시각화
+plt.figure(figsize=(10, 6))
+
+# Train 데이터 시각화
+plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap='viridis', edgecolor='k', s=100, label='Train Data')
+plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap='coolwarm', edgecolor='k', s=100, marker='x', label='Test Data')
+
+# 경계 시각화
+x_min, x_max = X_reduced[:, 0].min() - 1, X_reduced[:, 0].max() + 1
+y_min, y_max = X_reduced[:, 1].min() - 1, X_reduced[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01), np.arange(y_min, y_max, 0.01))
+Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.contourf(xx, yy, Z, alpha=0.2, cmap='coolwarm')
+plt.xlabel('Component 1')
+plt.ylabel('Component 2')
+plt.title('Truncated SVD with Decision Tree Classifier on Iris Dataset')
+plt.legend()
+plt.show()
+
+
+## 강사님
+from sklearn.decomposition import TruncatedSVD, PCA
+from sklearn.datasets import load_iris
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+
+
+iris = load_iris()
+iris_ftrs = iris.data
+
+# iris 데이터를 StandardScaler로 변환
+scaler = StandardScaler()
+iris_scaled = scaler.fit_transform(iris_ftrs)
+
+# 2개의 주요 component로 TruncatedSVD 변환
+tsvd = TruncatedSVD(n_components=2)
+tsvd.fit(iris_scaled)
+iris_tsvd = tsvd.transform(iris_scaled)
+
+# Scatter plot 2차원으로 TruncatedSVD 변환 된 데이터 표현. 품종은 색깔로 구분
+plt.scatter(x=iris_tsvd[:,0], y= iris_tsvd[:,1], c= iris.target)
+plt.xlabel('TruncatedSVD Component 1')
+plt.ylabel('TruncatedSVD Component 2')
+plt.show()
+plt.close()
+
+######################################################## Q.  iris 데이터셋에 대하여 n_components=2를 적용하고 TruncatedSVD 경우와 PCA로 적용한 시각화 결과와 비교: 7/31
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report
+
+# 데이터 로드
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# PCA로 차원 축소
+pca = PCA(n_components=2)
+X_reduced = pca.fit_transform(X_scaled)
+
+# 데이터 분할
+X_train, X_test, y_train, y_test = train_test_split(X_reduced, y, test_size=0.2, random_state=42)
+
+# 결정 트리 분류기 학습
+clf = DecisionTreeClassifier(random_state=42)
+clf.fit(X_train, y_train)
+
+# 예측 및 평가
+y_pred = clf.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print(f'Accuracy: {accuracy}')
+print('Classification Report:')
+print(classification_rep)
+
+# 시각화
+plt.figure(figsize=(10, 6))
+
+# Train 데이터 시각화
+plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap='viridis', edgecolor='k', s=100, label='Train Data')
+plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap='coolwarm', edgecolor='k', s=100, marker='x', label='Test Data')
+
+# 경계 시각화
+x_min, x_max = X_reduced[:, 0].min() - 1, X_reduced[:, 0].max() + 1
+y_min, y_max = X_reduced[:, 1].min() - 1, X_reduced[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01), np.arange(y_min, y_max, 0.01))
+Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.contourf(xx, yy, Z, alpha=0.2, cmap='coolwarm')
+plt.xlabel('Component 1')
+plt.ylabel('Component 2')
+plt.title('PCA with Decision Tree Classifier on Iris Dataset')
+plt.legend()
+plt.show()
+
+### 강사님
+from sklearn.preprocessing import StandardScaler
+
+# iris 데이터를 StandardScaler로 변환
+scaler = StandardScaler()
+iris_scaled = scaler.fit_transform(iris_ftrs)
+
+# 스케일링된 데이터를 기반으로 TruncatedSVD 변환 수행
+tsvd = TruncatedSVD(n_components=2)
+tsvd.fit(iris_scaled)
+iris_tsvd = tsvd.transform(iris_scaled)
+
+# 스케일링된 데이터를 기반으로 PCA 변환 수행
+pca = PCA(n_components=2)
+pca.fit(iris_scaled)
+iris_pca = pca.transform(iris_scaled)
+
+# TruncatedSVD 변환 데이터를 왼쪽에, PCA변환 데이터를 오른쪽에 표현
+fig, (ax1, ax2) = plt.subplots(figsize=(16,6), ncols=2)
+ax1.scatter(x=iris_tsvd[:,0], y= iris_tsvd[:,1], c= iris.target)
+ax2.scatter(x=iris_pca[:,0], y= iris_pca[:,1], c= iris.target)
+ax1.set_title('Truncated SVD Transformed')
+ax2.set_title('PCA Transformed')
+plt.show()
+plt.close()
+
+######################################################## Q. 와인 품질 데이터셋을 사용하여 Truncated SVD를 통해 차원 축소를 수행 후, 로지스틱 회귀 모델을 학습 및 평가를 수행 7/31
+- 특성 및 레이블 분리: 데이터셋에서 와인의 화학적 특성(X)과 품질 레이블(y)을 분리합니다.
+- 레이블 변환: 와인 품질을 범주형 변수로 변환합니다. 구체적으로, 품질 점수가 3-5인 경우 'low', 6인 경우 'medium', 7-8인 경우 'high'로 변환합니다.
+- 데이터 정규화: StandardScaler를 사용하여 데이터의 특성을 정규화합니다.
+- 차원 축소: TruncatedSVD를 사용하여 데이터의 차원을 5로 축소합니다.
+- 데이터 분할: 데이터를 학습용과 테스트용으로 분할합니다.
+- 모델 학습: 로지스틱 회귀 모델을 학습합니다.
+- 모델 예측 및 평가: 테스트 데이터에 대한 예측을 수행하고, 정확도와 분류 보고서를 출력
+
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.decomposition import TruncatedSVD
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+
+# 특성(X) 및 레이블(y) 분리
+X = df.drop('quality', axis=1)
+y = df['quality']
+
+# 품질을 범주형 변수로 변환
+def quality_to_category(quality):
+    if quality >= 3 and quality <= 5:
+        return 'low'
+    elif quality == 6:
+        return 'medium'
+    elif quality >= 7 and quality <= 8:
+        return 'high'
+
+y = y.apply(quality_to_category)
+
+# 데이터 정규화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Truncated SVD를 사용하여 차원 축소
+svd = TruncatedSVD(n_components=5, random_state=42)
+X_reduced = svd.fit_transform(X_scaled)
+
+# 데이터를 학습용과 테스트용으로 분할
+X_train, X_test, y_train, y_test = train_test_split(X_reduced, y, test_size=0.2, random_state=42)
+
+# 로지스틱 회귀 모델 학습
+log_reg = LogisticRegression(multi_class='ovr', solver='lbfgs')
+log_reg.fit(X_train, y_train)
+
+# 테스트 데이터에 대한 예측
+y_pred = log_reg.predict(X_test)
+
+# 모델 평가
+accuracy = accuracy_score(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print(f'Accuracy: {accuracy}')
+print('Classification Report:')
+print(classification_rep)
+
+정확도가 너무 낮음.. ==> 랜덤 포레스트 모델로 학습 모델 변경, 하이퍼 파라미터 튜닝,
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import TruncatedSVD
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+
+# 특성(X) 및 레이블(y) 분리
+X = df.drop('quality', axis=1)
+y = df['quality']
+
+# 품질을 범주형 변수로 변환
+def quality_to_category(quality):
+    if quality >= 3 and quality <= 5:
+        return 'low'
+    elif quality == 6:
+        return 'medium'
+    elif quality >= 7 and quality <= 8:
+        return 'high'
+
+y = y.apply(quality_to_category)
+
+# 데이터 정규화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Truncated SVD를 사용하여 차원 축소
+svd = TruncatedSVD(n_components=5, random_state=42)
+X_reduced = svd.fit_transform(X_scaled)
+
+# 데이터를 학습용과 테스트용으로 분할
+X_train, X_test, y_train, y_test = train_test_split(X_reduced, y, test_size=0.2, random_state=42)
+
+# 랜덤 포레스트 모델 및 하이퍼파라미터 튜닝
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [None, 10, 20, 30],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+rf = RandomForestClassifier(random_state=42)
+grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=3, n_jobs=-1, verbose=2)
+grid_search.fit(X_train, y_train)
+
+# 최적 모델로 예측
+best_rf = grid_search.best_estimator_
+y_pred = best_rf.predict(X_test)
+
+# 모델 평가
+accuracy = accuracy_score(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print(f'Accuracy: {accuracy}')
+print('Classification Report:')
+print(classification_rep)
+
+## 강사님
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import TruncatedSVD
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
+from sklearn.preprocessing import label_binarize
+
+# 1. 데이터 로드
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
+data = pd.read_csv(url, sep=';')
+
+# 특성과 레이블 분리
+X = data.drop(columns='quality')
+y = data['quality']
+
+# 품질을 범주형 변수로 변환 (예: 3-5 -> low, 6 -> medium, 7-8 -> high)
+y = y.apply(lambda x: 'low' if x <= 5 else ('medium' if x == 6 else 'high'))
+
+# 2. 데이터 정규화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 3. TruncatedSVD를 사용하여 차원 축소
+n_components = 5  # 축소할 차원의 수
+svd = TruncatedSVD(n_components=n_components)
+X_svd = svd.fit_transform(X_scaled)
+
+# 4. 학습 및 테스트 데이터 분할
+X_train, X_test, y_train, y_test = train_test_split(X_svd, y, test_size=0.2, random_state=42)
+
+# 5. 로지스틱 회귀 모델 학습
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# 평가 사용자 함수 정의
+def evaluate_model(model, X_test, y_test):
+    # 예측 수행
+    y_pred = model.predict(X_test)
+
+    # 정확도 계산
+    accuracy = accuracy_score(y_test, y_pred)
+
+    # 분류 보고서 생성
+    report = classification_report(y_test, y_pred)
+
+    # ROC AUC 계산
+    y_test_binarized = label_binarize(y_test, classes=['low', 'medium', 'high'])
+    y_pred_prob = model.predict_proba(X_test)
+    roc_auc = roc_auc_score(y_test_binarized, y_pred_prob, multi_class='ovr')
+
+    # 결과 출력
+    print(f"Test Accuracy: {accuracy:.4f}")
+    print("\nClassification Report:")
+    print(report)
+    print(f"Test ROC AUC: {roc_auc:.4f}")
+
+# 6. 모델 평가
+evaluate_model(model, X_test, y_test)
+
+
+######################################################## Q. make_blobs를 통해 clustering을 위한 4개의 클러스터 중심의 500개 2차원 데이터 셋 생성:09
+
+from sklearn.datasets import make_blobs
+X, y=make_blobs(n_samples=500, n_features=2, centers=4, cluster_std=1, center_box=(-10.0, 10.0), shuffle=True, random_state=1)
+
+# 클러스터 개수를 2,3,4,5개일 때의 클러스터별 실루엣 계수 평균값을 시각화
+## 4개의 군집일 때 가장 최적
+visualize_silhouette([2,3,4,5], X)
+
+######################################################## Q. 붓꽃 데이터를 이용해 K-means 수행 시 최적의 군집 개수를 실루엣 계수의 시각화 8/1
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.datasets import load_iris
+
+# 붓꽃 데이터 로드
+iris = load_iris()
+Feature_names = ['sepal_length','sepal_width','petal_length','petal_width']
+df_iris = pd.DataFrame(data=iris.data, columns=Feature_names)
+display(df_iris)
+# 클러스터 개수를 2,3,4,5개일 때의 클러스터별 실루엣 계수 평균값을 시각화
+## 4개의 군집일 때 가장 최적
+visualize_silhouette([2,3,4,5,7,10, 15], df_iris)
+
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.datasets import load_iris
+
+# 붓꽃 데이터 로드
+iris = load_iris()
+iris_data = iris.data
+
+# 군집 개수 후보 설정
+range_n_clusters = list(range(2, 17))
+
+# # 시각화를 위한 subplot 설정
+# fig, ax1 = plt.subplots(1, 1)
+# fig.set_size_inches(18, 7)
+
+silhouette_avg_scores = []
+
+for n_clusters in range_n_clusters:
+    # K-means 모델 초기화 및 학습
+    kmeans = KMeans(n_clusters=n_clusters, random_state=10)
+    cluster_labels = kmeans.fit_predict(iris_data)
+
+    # 실루엣 점수 계산
+    silhouette_avg = silhouette_score(iris_data, cluster_labels)
+    silhouette_avg_scores.append(silhouette_avg)
+
+    # 각 샘플의 실루엣 계수 계산
+    sample_silhouette_values = silhouette_samples(iris_data, cluster_labels)
+
+    # y_lower = 10
+    # for i in range(n_clusters):
+    #     ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == i]
+    #     ith_cluster_silhouette_values.sort()
+
+    #     size_cluster_i = ith_cluster_silhouette_values.shape[0]
+    #     y_upper = y_lower + size_cluster_i
+
+    #     color = plt.cm.nipy_spectral(float(i) / n_clusters)
+    #     ax1.fill_betweenx(np.arange(y_lower, y_upper),
+    #                       0, ith_cluster_silhouette_values,
+    #                       facecolor=color, edgecolor=color, alpha=0.7)
+
+    #     ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+
+    #     y_lower = y_upper + 10
+
+    # ax1.set_title("The silhouette plot for the various clusters.")
+    # ax1.set_xlabel("The silhouette coefficient values")
+    # ax1.set_ylabel("Cluster label")
+
+    # ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
+    # ax1.set_yticks([])
+    # ax1.set_xticks(np.arange(-0.1, 1.1, 0.1))
+
+# plt.show()
+
+# 실루엣 평균 점수 시각화
+plt.figure(figsize=(10, 6))
+plt.plot(range_n_clusters, silhouette_avg_scores, marker='o')
+plt.title("Silhouette scores for various number of clusters")
+plt.xlabel("Number of clusters")
+plt.ylabel("Silhouette score")
+plt.show()
+
+######################################################## Q. Surprise 패키지에서 제공하는 MovieLens 100k 데이터셋으로부터 
+raw_rating 속성을 기반 추천: 10
+
+1. NormalPredictor:
+import pandas as pd
+from surprise import Dataset
+
+## 데이터셋 로드
+data = Dataset.load_builtin('ml-100k')
+
+# raw ratings 속성을 사용하여 데이터 확인
+raw_ratings = data.raw_ratings
+
+# 데이터프레임으로 변환
+df=pd.DataFrame(raw_ratings, columns=['user_id', 'item_id', 'rating', 'timestamp'])
+
+print(raw_ratings[:10])
+df.head()
+
+from surprise import NormalPredictor, Dataset
+from surprise.model_selection import train_test_split
+from surprise import accuracy
+
+## 데이터셋 로드
+data = Dataset.load_builtin('ml-100k')
+trainset, testset = train_test_split(data, test_size=.25)
+
+# Normal predictor 모델
+algo=NormalPredictor()
+
+# 학습
+algo.fit(trainset)
+
+# 예측
+predictions = algo.test(testset)
+
+# 평가
+print("Normal Preictor RMSE: ", accuracy.rmse(predictions, verbose=False))
+
+2. KNNBasic:
+from surprise import KNNBasic, Dataset
+from surprise.model_selection import train_test_split
+from surprise import accuracy
+
+## 알고리즘
+algo_knnbasic = KNNBasic()
+algo_knnbasic.fit(trainset)
+
+# 예측
+predictions = algo_knnbasic.test(testset)
+
+# 평가
+print("KNNBasic RMSE: ", accuracy.rmse(predictions, verbose=False))
+
+3. KNNWithMeans
+from surprise import KNNWithMeans
+from surprise.model_selection import train_test_split
+from surprise import accuracy
+
+## 알고리즘
+algo = KNNWithMeans()
+algo.fit(trainset)
+
+# 예측
+predictions = algo.test(testset)
+
+# 평가
+print("RMSE: ", accuracy.rmse(predictions, verbose=False))
+
+4. 
+from surprise import SVD
+from surprise.model_selection import train_test_split
+from surprise import accuracy
+
+## 알고리즘
+algo = SVD()
+algo.fit(trainset)
+
+# 예측
+predictions = algo.test(testset)
+
+# 평가
+print("RMSE: ", accuracy.rmse(predictions, verbose=False))
+
+
+
+
+from surprise import NMF
+from surprise.model_selection import train_test_split
+from surprise import accuracy
+
+## 알고리즘
+algo = NMF()
+algo.fit(trainset)
+
+# 예측
+predictions = algo.test(testset)
+
+
+# 평가
+print("RMSE: ", accuracy.rmse(predictions, verbose=False))
+
+
+######################################################## Q. 무비 추천 시스템 제작 using : 10
+import pandas as pd
+from surprise import Dataset
+
+## 데이터셋 로드
+data = Dataset.load_builtin('ml-100k')
+
+# 학습/테스트 셋
+trainset, testset = train_test_split(data, test_size=.25)
+
+## KNN 알고리즘
+algo = KNNBasic()
+algo.fit(trainset)
+
+# 예측
+predictions = algo.test(testset)
+
+# 평가
+print("RMSE: ", accuracy.rmse(predictions, verbose=False))
+
+
+## 모든 영화에 대해 예측
+user_id='196'
+items=trainset.all_items()
+inner_id_list = [iid for iid in items]
+raw_id_list = [trainset.to_raw_iid(iid) for iid in inner_id_list]
+
+predictions = [algo.predict(user_id, raw_id) for raw_id in raw_id_list]
+
+## 예측된 평점 순으로 정렬
+predictions.sort(key=lambda x: x.est, reverse=True)
+
+# 상위10개 추천 영화 출력
+top_n=10
+for pred in predictions[:top_n]:
+    print(f"Movie ID: {pred.iid}, Estimated Rating: {pred.est}")
+    
+algo = SVD()
+algo.fit(trainset)
+
+
+######################################################## Q. SVD를 사용한 영화 추천 시스템 구현: 10
+import pandas as pd
+from surprise import SVD, Dataset, Reader, accuracy
+from surprise.dataset import DatasetAutoFolds
+from google.colab import drive
+
+# Google Drive 마운트
+drive.mount('/content/drive')
+
+# CSV 파일 경로 설정
+ratings_file_path = '/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/ml-latest-small/ratings.csv'
+movies_file_path = '/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/ml-latest-small/movies.csv'
+
+# ratings 데이터 로드
+ratings = pd.read_csv(ratings_file_path)
+
+# DatasetAutoFolds 클래스를 ratings.csv 파일 기반으로 생성
+reader = Reader(line_format='user item rating timestamp', sep=',', rating_scale=(0.5, 5.0))
+data_folds = DatasetAutoFolds(ratings_file='/content/drive/MyDrive/KITA_2024/M5_MachineLearning/dataset/ml-latest-small/ratings_noh.csv', reader=reader)
+
+# 전체 데이터를 학습 데이터로 생성
+trainset = data_folds.build_full_trainset()
+algo = SVD(n_epochs=20, n_factors=50, random_state=0)
+algo.fit(trainset)
+
+# movies 데이터 로드
+movies = pd.read_csv(movies_file_path)
+
+# userId=9 의 movieId 데이터 추출하여 movieId=42 데이터가 있는지 확인
+movieIds = ratings[ratings['userId'] == 9]['movieId']
+
+if movieIds[movieIds == 42].count() == 0:
+    print('사용자 아이디 9는 영화 아이디 42의 평점 없음')
+
+print(movies[movies['movieId'] == 42])
+
+uid = str(9)
+iid = str(42)
+
+pred = algo.predict(uid, iid, verbose=True)
+print(ratings[ratings['userId'] == 9]['movieId'].tolist())
+
+# 사용자가 보지 않은 영화 목록 생성 함수
+def get_unseen_surprise(ratings, movies, userId):
+    seen_movies = ratings[ratings['userId'] == userId]['movieId'].tolist()
+    total_movies = movies['movieId'].tolist()
+    unseen_movies = [movie for movie in total_movies if movie not in seen_movies]
+    print('평점 매긴 영화수:', len(seen_movies), '추천대상 영화수:', len(unseen_movies), '전체 영화수:', len(total_movies))
+    return unseen_movies
+
+unseen_movies = get_unseen_surprise(ratings, movies, 9)
+
+# 영화 추천 함수
+def recomm_movie_by_surprise(algo, userId, unseen_movies, top_n=10):
+    predictions = [algo.predict(str(userId), str(movieId)) for movieId in unseen_movies]
+
+    def sortkey_est(pred):
+        return pred.est
+
+    predictions.sort(key=sortkey_est, reverse=True)
+    top_predictions = predictions[:top_n]
+
+    top_movie_ids = [int(pred.iid) for pred in top_predictions]
+    top_movie_rating = [pred.est for pred in top_predictions]
+    top_movie_titles = movies[movies.movieId.isin(top_movie_ids)]['title']
+    top_movie_preds = [(id, title, rating) for id, title, rating in zip(top_movie_ids, top_movie_titles, top_movie_rating)]
+
+    return top_movie_preds
+
+unseen_movies = get_unseen_surprise(ratings, movies, 9)
+top_movie_preds = recomm_movie_by_surprise(algo, 9, unseen_movies, top_n=10)
+
+print('##### Top-10 추천 영화 리스트 #####')
+for top_movie in top_movie_preds:
+    print(top_movie[1], ":", top_movie[2])
+
+######################################################## Q. 
+
+
+

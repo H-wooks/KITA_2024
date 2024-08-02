@@ -1,9 +1,6 @@
-
-
 #####################################################################################################
 #############################################   OverView  ###########################################
 ##################################################################################################### 
-
 [분류 모델과 회귀모델 차이]
 분류 모델 (Classification Model)
 목적: 분류 모델은 데이터 포인트를 서로 다른 클래스 또는 범주로 분류하는 것이 목적. 이메일이 스팸인지 아닌지, 이미지가 고양이인지 개인지 구분하는 작업 등
@@ -32,8 +29,251 @@
 평가 지표: 평균 제곱 오차 (Mean Squared Error), 평균 절대 오차 (Mean Absolute Error), R² 점수 (R² Score) 등.
 
 #####################################################################################################
-#############################################  Data Load  ###########################################
+################################## 다양한 회귀 모델과 하이퍼 파라미터 ###############################
+##################################################################################################### 
+############################################## 1. Linear Regression (선형 회귀)
+하이퍼 파라미터: 일반적으로 선형 회귀는 하이퍼 파라미터가 없습니다.
+
+############################################## 2. Ridge Regression (릿지 회귀)
+하이퍼 파라미터
+alpha: 정규화 강도 (예: [0.1, 1.0, 10.0])
+
+############################################## 3. Lasso Regression (라쏘 회귀)
+하이퍼 파라미터
+alpha: 정규화 강도 (예: [0.1, 1.0, 10.0])
+
+############################################## 4. ElasticNet (엘라스틱넷 회귀)
+하이퍼 파라미터
+alpha: 정규화 강도 (예: [0.1, 1.0, 10.0])
+l1_ratio: L1과 L2의 비율 (예: [0.1, 0.5, 0.9])
+
+############################################## 5. Decision Tree Regression (의사결정나무 회귀)
+하이퍼 파라미터
+max_depth: 최대 깊이 (예: [None, 10, 20, 30])
+min_samples_split: 분할을 위한 최소 샘플 수 (예: [2, 10, 20])
+min_samples_leaf: 리프 노드의 최소 샘플 수 (예: [1, 5, 10])
+
+############################################## 6. Random Forest Regression (랜덤 포레스트 회귀)
+하이퍼 파라미터
+n_estimators: 트리의 개수 (예: [50, 100, 200])
+max_depth: 최대 깊이 (예: [None, 10, 20])
+min_samples_split: 분할을 위한 최소 샘플 수 (예: [2, 10])
+min_samples_leaf: 리프 노드의 최소 샘플 수 (예: [1, 5])
+
+############################################## 7. Support Vector Regression (서포트 벡터 회귀, SVR)
+하이퍼 파라미터
+C: 정규화 매개변수 (예: [0.1, 1, 10])
+kernel: 커널 종류 (예: ['linear', 'poly', 'rbf', 'sigmoid'])
+degree: 다항 커널의 차수 (예: [3, 5, 7])
+gamma: 커널 계수 (예: ['scale', 'auto'])
+
+############################################## 8. K-Nearest Neighbors Regression (K-최근접 이웃 회귀, KNN)
+하이퍼 파라미터
+n_neighbors: 이웃의 수 (예: [3, 5, 7, 9])
+weights: 가중치 함수 (예: ['uniform', 'distance'])
+algorithm: 이웃 검색 알고리즘 (예: ['auto', 'ball_tree', 'kd_tree', 'brute'])
+
+############################################## 9. Gradient Boosting Regression (그라디언트 부스팅 회귀)
+하이퍼 파라미터
+n_estimators: 트리의 개수 (예: [50, 100, 200])
+learning_rate: 학습률 (예: [0.01, 0.1, 0.5])
+max_depth: 최대 깊이 (예: [3, 5, 10])
+min_samples_split: 분할을 위한 최소 샘플 수 (예: [2, 10])
+min_samples_leaf: 리프 노드의 최소 샘플 수 (예: [1, 5])
+
+############################################## 10. XGBoost Regression (XGBoost 회귀)
+하이퍼 파라미터
+n_estimators: 트리의 개수 (예: [50, 100, 200])
+learning_rate: 학습률 (예: [0.01, 0.1, 0.5])
+max_depth: 최대 깊이 (예: [3, 5, 10])
+gamma: 분할을 위한 최소 손실 감소 (예: [0, 0.1, 0.2])
+subsample: 샘플링 비율 (예: [0.8, 0.9, 1.0])
+
+############################################## 11. LightGBM Regression (LightGBM 회귀)
+하이퍼 파라미터
+n_estimators: 트리의 개수 (예: [50, 100, 200])
+learning_rate: 학습률 (예: [0.01, 0.1, 0.5])
+num_leaves: 최대 리프 노드 수 (예: [31, 62, 124])
+max_depth: 최대 깊이 (예: [-1, 10, 20])
+subsample: 샘플링 비율 (예: [0.8, 0.9, 1.0])
+
+############################################## 12. CatBoost Regression (CatBoost 회귀)
+하이퍼 파라미터
+iterations: 반복 수 (예: [100, 200, 500])
+learning_rate: 학습률 (예: [0.01, 0.1, 0.5])
+depth: 트리 깊이 (예: [3, 5, 7, 10])
+l2_leaf_reg: L2 정규화 계수 (예: [1, 3, 5, 7])
+
+############################################# 모델 정의 방법
+from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from catboost import CatBoostRegressor
+
+models_hyperparams = {
+    "Ridge": {
+        "model": Ridge(),
+        "params": {
+            "alpha": [0.1, 1.0, 10.0]
+        }
+    },
+    "Lasso": {
+        "model": Lasso(),
+        "params": {
+            "alpha": [0.1, 1.0, 10.0]
+        }
+    },
+    "ElasticNet": {
+        "model": ElasticNet(),
+        "params": {
+            "alpha": [0.1, 1.0, 10.0],
+            "l1_ratio": [0.1, 0.5, 0.9]
+        }
+    },
+    "Decision Tree": {
+        "model": DecisionTreeRegressor(),
+        "params": {
+            "max_depth": [None, 10, 20, 30],
+            "min_samples_split": [2, 10, 20],
+            "min_samples_leaf": [1, 5, 10]
+        }
+    },
+    "Random Forest": {
+        "model": RandomForestRegressor(),
+        "params": {
+            "n_estimators": [50, 100, 200],
+            "max_depth": [None, 10, 20],
+            "min_samples_split": [2, 10],
+            "min_samples_leaf": [1, 5]
+        }
+    },
+    "SVR": {
+        "model": SVR(),
+        "params": {
+            "C": [0.1, 1, 10],
+            "kernel": ["linear", "poly", "rbf", "sigmoid"],
+            "degree": [3, 5, 7],
+            "gamma": ["scale", "auto"]
+        }
+    },
+    "KNN": {
+        "model": KNeighborsRegressor(),
+        "params": {
+            "n_neighbors": [3, 5, 7, 9],
+            "weights": ["uniform", "distance"],
+            "algorithm": ["auto", "ball_tree", "kd_tree", "brute"]
+        }
+    },
+    "Gradient Boosting": {
+        "model": GradientBoostingRegressor(),
+        "params": {
+            "n_estimators": [50, 100, 200],
+            "learning_rate": [0.01, 0.1, 0.5],
+            "max_depth": [3, 5, 10],
+            "min_samples_split": [2, 10],
+            "min_samples_leaf": [1, 5]
+        }
+    },
+    "XGBoost": {
+        "model": XGBRegressor(),
+        "params": {
+            "n_estimators": [50, 100, 200],
+            "learning_rate": [0.01, 0.1, 0.5],
+            "max_depth": [3, 5, 10],
+            "gamma": [0, 0.1, 0.2],
+            "subsample": [0.8, 0.9, 1.0]
+        }
+    },
+    "LightGBM": {
+        "model": LGBMRegressor(),
+        "params": {
+            "n_estimators": [50, 100, 200],
+            "learning_rate": [0.01, 0.1, 0.5],
+            "num_leaves": [31, 62, 124],
+            "max_depth": [-1, 10, 20],
+            "subsample": [0.8, 0.9, 1.0]
+        }
+    },
+    "CatBoost": {
+        "model": CatBoostRegressor(verbose=0),
+        "params": {
+            "iterations": [100, 200, 500],
+            "learning_rate": [0.01, 0.1, 0.5],
+            "depth": [3, 5, 7, 10],
+            "l2_leaf_reg": [1, 3, 5, 7]
+        }
+    }
+}
+
+for model_name, model_info in models_hyperparams.items():
+    print(f"Model: {model_name}")
+    print("Hyperparameters:")
+    for param, values in model_info["params"].items():
+        print(f"  {param}: {values}")
+    print("="*60)
+
 #####################################################################################################
+############################################## 경사하강법 ###########################################
+#####################################################################################################
+##################### 경사 하강법의 개념 시각화
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 비용 함수와 그 기울기 정의
+def cost_function(w):
+    return w ** 2
+
+def gradient(w):
+    return 2 * w
+
+# 초기 가중치 설정
+w = 4
+learning_rate = 0.1
+iterations = 20
+
+# 가중치 업데이트 기록을 저장할 리스트
+weights = [w]
+costs = [cost_function(w)]
+
+# 경사하강법 수행
+for _ in range(iterations):
+    grad = gradient(w)
+    w = w - learning_rate * grad
+    weights.append(w)
+    costs.append(cost_function(w))
+
+# 시각화
+plt.figure(figsize=(10, 5))
+
+# 비용 함수 시각화
+plt.subplot(1, 2, 1)
+w_values = np.linspace(-4, 4, 100)
+cost_values = cost_function(w_values)
+plt.plot(w_values, cost_values, label='Cost Function')
+plt.scatter(weights, costs, color='red')
+for i in range(len(weights)):
+    plt.annotate(f'{i}', (weights[i], costs[i]))
+plt.xlabel('Weight (w)')
+plt.ylabel('Cost')
+plt.title('Cost Function and Gradient Descent')
+plt.legend()
+
+# 가중치 업데이트 시각화
+plt.subplot(1, 2, 2)
+plt.plot(weights, label='Weight (w)')
+plt.xlabel('Iteration')
+plt.ylabel('Weight')
+plt.title('Weight Update over Iterations')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
 
 
 
@@ -41,21 +281,84 @@
 ##############################################  검증방법  ###########################################
 #####################################################################################################
 
+################################################################# 5-fold 교차 검증 
+##### 각 폴드가 한 번씩 테스트 세트로 사용되고, 나머지 4개의 폴드가 학습 세트로 사용 총 5번의 모델 학습 및 평가 진행
+mse = mean_squared_error(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
 
-#####################################################################################################
-########################################## 분류: DecisionTree #######################################
-##################################################################################################### 
+# 수정 결정계수 : 독립 변수의 수와 표본 크기에 따라 조정한 값
+n = X_test.shape[0]  #데이터 포인트의 수
+p = X_test.shape[1]  #독립 변수의 수
 
-#####################################################################################################
-########################################## 분류: 로지스틱 회귀 ######################################
-##################################################################################################### 
+adjusted_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1)
+
+#Cross Validation
+#MSE와 같은 손실 함수의 경우 값을 최소화하는 것이 좋다 (MSE가 작을수록 좋다)
+#이를 점수가 높을 수록 더 좋은 scikit-learn의 프레임워크에 맞추기 위해 MSE에 -1을 곱하여 음수 값으로 변환
+cv_scores = cross_val_score(model, X, y, cv=5, scoring='neg_mean_squared_error')
+cv_rmse = np.sqrt(-cv_scores).mean()
 
 
 
 
-#####################################################################################################
-######################################## 분류: 다양한 algorithms ####################################
-##################################################################################################### 
+
+################################################################# 과적합되었는지 sampling해서 살펴보기
+######################################################## 1. 학습 후 Feature의 중요도 Review 후 Parameters 선정
+rf_reg = RandomForestRegressor(n_estimators=1000);                          ## xgb = XGBRegressor(n_estimators=1000)
+## 앞 예제에서 만들어진 X_data, y_target 학습.
+rf_reg.fit(X_data, y_target);                                               ## xgb.fit(X_data, y_target)
+feature_series = pd.Series(data=rf_reg.feature_importances_, index=X_data.columns )
+## feature_series = pd.Series(data=xgb.feature_importances_, index=X_data.columns )
+feature_series = feature_series.sort_values(ascending=False)
+sns.barplot(x= feature_series, y=feature_series.index)
+######################################################## 2.선정된 주요 Parameters에 대해 TEST set 생성
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# 선형 회귀와 결정 트리 기반의 Regressor 생성. DecisionTreeRegressor의 max_depth는 각각 2, 7
+lr_reg = LinearRegression()
+dt_reg2 = DecisionTreeRegressor(max_depth=2)
+dt_reg7 = DecisionTreeRegressor(max_depth=7)
+
+# 실제 예측을 적용할 테스트용 데이터 셋을 4.5 ~ 8.5 까지 100개 데이터 셋 생성.
+X_test = np.arange(4.5, 8.5, 0.04).reshape(-1, 1)
+
+# 보스턴 주택가격 데이터에서 시각화를 위해 피처는 RM만, 그리고 결정 데이터인 PRICE 추출
+X_feature = bostonDF_sample['RM'].values.reshape(-1,1)
+y_target = bostonDF_sample['PRICE'].values.reshape(-1,1)
+
+# 학습과 예측 수행.
+lr_reg.fit(X_feature, y_target)
+dt_reg2.fit(X_feature, y_target)
+dt_reg7.fit(X_feature, y_target)
+
+pred_lr = lr_reg.predict(X_test)
+pred_dt2 = dt_reg2.predict(X_test)
+pred_dt7 = dt_reg7.predict(X_test)
+
+######################################################## 3. 시각화 해서 검증
+fig , (ax1, ax2, ax3) = plt.subplots(figsize=(10,3), ncols=3)
+
+# X축값을 4.5 ~ 8.5로 변환하며 입력했을 때, 선형 회귀와 결정 트리 회귀 예측 선 시각화
+# 선형 회귀로 학습된 모델 회귀 예측선
+ax1.set_title('Linear Regression')
+ax1.scatter(bostonDF_sample.RM, bostonDF_sample.PRICE, c="darkorange")
+ax1.plot(X_test, pred_lr,label="linear", linewidth=2 )
+
+# DecisionTreeRegressor의 max_depth를 2로 했을 때 회귀 예측선
+ax2.set_title('Decision Tree Regression: \n max_depth=2')
+ax2.scatter(bostonDF_sample.RM, bostonDF_sample.PRICE, c="darkorange")
+ax2.plot(X_test, pred_dt2, label="max_depth:2", linewidth=2 )
+
+# DecisionTreeRegressor의 max_depth를 7로 했을 때 회귀 예측선
+ax3.set_title('Decision Tree Regression: \n max_depth=7')
+ax3.scatter(bostonDF_sample.RM, bostonDF_sample.PRICE, c="darkorange")
+ax3.plot(X_test, pred_dt7, label="max_depth:7", linewidth=2)
+
+
+
+
 
 #####################################################################################################
 ########################################## 하이퍼 파라미터 튜닝 #####################################
@@ -63,45 +366,1050 @@
 
 
 
-##################################################################### XXXX
-
-####################################### XXX
-#####################################################################################################
-############################################### Encoding ############################################
-##################################################################################################### 
-
-
-
-
 #####################################################################################################
 ################################################# EXAMPLES ##########################################
 ##################################################################################################### 
 
-######################################################## Q. 
+######################################################## Q. Linear Regression 선형 회귀 모델: 06
+import numpy as np
+import pandas as pd
+X = np.linspace(500, 1000, 100)  #x축 만들기 좋음
+pd.Series(X).describe()
+data = {"Size": np.linspace(500, 1000, 100)}  # 딕셔너리 형태로 데이터를 만들어줌
+df = pd.DataFrame(data)
+noise = np.random.normal(0, 10, 1000000000)
+pd.Series(noise).describe()
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from matplotlib import pyplot as plt
 
-######################################################## Q. 
+#  Example dataset
+data = {'Size': np.linspace(500, 1000, 100)} #딕셔너리 형태로 데이터를 만들어줌
+df = pd.DataFrame(data) #데이터 프레임으로 만들어줌 키가 컬럼이름이 됨, 밸류가 컬럼의 값이 됨, 리스트일 경우 컬럼값 따로 줘야함
 
-######################################################## Q. 
 
-######################################################## Q. 
+np.random.seed(42)
+noise = np.random.normal(0, 10, len(df['Size']))  #평균이 0이고 표준편차가 10인 정규분포를 따르는 난수 생성
 
-######################################################## Q. 
+df['Price'] = df['Size'] * 0.2 + noise
 
-######################################################## Q. 
+# X는 데이터의 특성을 나타내는 이차원 배열이고 여러 특성을 포함할 수 있는 구조를 갖는 반면
+# y는 예측하고자 하는 타겟 변수를 나타내는 일차원 배열로 가 데이터 포인트에 대한 단일 출력값을 갖는다.
+# 이러한 구조는 대부분의 머신러닝 라이브러리에서 표준적으로 사용되며 데이터의 구조를 명확하겍 하곡
+# 모델링 과정을  간소화하는 데 도움이 된다.
+X = df[['Size']]  #Predictor variable
+y = df['Price']  #Target variable
 
-######################################################## Q. 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-######################################################## Q. 
+lr = LinearRegression()
+lr.fit(X_train, y_train)
 
-######################################################## Q. 
+y_pred = lr.predict(X_test)
 
-######################################################## Q. 
+print('Coefficients:', lr.coef_)
+print('Mean Squared Error:', mean_squared_error(y_test, y_pred))
+print('R^2 Score:', r2_score(y_test, y_pred))  #모델의 설명력 94점
 
-######################################################## Q. 
+plt.scatter(X_test, y_test, color='black')
+plt.plot(X_test, y_pred, color='blue', linewidth=3)
+plt.xlabel('Size')
+plt.ylabel('Price')
+plt.title('Linear Regression')
+plt.show()
 
-######################################################## Q. 
 
-######################################################## Q. 
+==> Coefficients: [0.20259144]
+Mean Squared Error: 55.48631384865904
+R^2 Score: 0.9393867391106524
+
+######################################################## Q. 선형 회귀로 캘리포니아 하우징 회귀 모델 학습 평가:06
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+
+housing = fetch_california_housing()
+X = housing.data
+y = housing.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+mse = mean_squared_error(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+# 수정 결정계수 : 독립 변수의 수와 표본 크기에 따라 조정한 값
+n = X_test.shape[0]  #데이터 포인트의 수
+p = X_test.shape[1]  #독립 변수의 수
+
+adjusted_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1)
+
+#Cross Validation
+#MSE와 같은 손실 함수의 경우 값을 최소화하는 것이 좋다 (MSE가 작을수록 좋다)
+#이를 점수가 높을 수록 더 좋은 scikit-learn의 프레임워크에 맞추기 위해 MSE에 -1을 곱하여 음수 값으로 변환
+cv_scores = cross_val_score(model, X, y, cv=5, scoring='neg_mean_squared_error')
+cv_rmse = np.sqrt(-cv_scores).mean()
+
+print(f'Mean Squared Error: {mse:.4f}')
+print(f'Mean Absolute Error: {mae:.4f}')
+print(f'R^2 Score: {r2:.4f}')
+print(f'Adjusted R^2 Score: {adjusted_r2:.4f}')
+print(f'Cross Validation RMSE: {cv_rmse:.4f}')
+==> Mean Squared Error: 0.5306
+Mean Absolute Error: 0.5272
+R^2 Score: 0.5958
+Adjusted R^2 Score: 0.5952
+Cross Validation RMSE: 0.7459
+######################################################## Q. 캘리포니아 하우징 데이터 셋의  다중공선성, 표준화, 로그변환, 이상치 탐지, 교차검증 선형 회귀 학습 평가 :06
+MedInc: 블록 그룹의 중간 소득 (단위: $10,000)
+HouseAge: 블록 그룹 내 주택의 중간 연령
+AveRooms: 가구당 평균 방 수
+AveBedrms: 가구당 평균 침실 수
+Population: 블록 그룹 내 인구 수
+AveOccup: 가구당 평균 인원 수
+Latitude: 블록 그룹의 위도
+Longitude: 블록 그룹의 경도
+Target: MedHouseVal: 블록 그룹의 중간 주택 가격 (단위: $100,000)
+import numpy as np
+import pandas as pd
+from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import StandardScaler
+
+housing = fetch_california_housing()
+X = housing.data
+y = housing.target
+
+df = pd.DataFrame(X, columns=housing.feature_names)
+df['Target'] = y
+df['Target'].describe()
+
+from matplotlib import pyplot as plt
+
+# 박스 플롯을 그릴 열 리스트
+num_columns = len(df.columns) - 1  # target 열 제외
+
+# 그래프 크기 결정
+plt.figure(figsize=(15, 20))
+
+# 각 열 이름 저장
+columns = df.columns.drop('Target')
+nocols = 5  # 한 행에 그릴 그래프 수
+nrows = (num_columns + nocols - 1) // nocols  # 전체 행 수 계산
+
+fig, axes = plt.subplots(nrows=nrows, ncols=nocols, figsize=(15, 20))
+
+# 각 열에 대해 박스플롯 그리기
+for i, col in enumerate(columns):
+# for i, col in enumerate(columns_to_plot):
+    row, col_idx = divmod(i, nocols)
+    ax = axes[row, col_idx]
+    df.boxplot(column=col, ax=ax)
+    ax.set_title(f"Box plot of {col}")
+
+# 나머지 빈 그래프를 숨기기
+for j in range(i + 1, nrows * nocols):
+    fig.delaxes(axes.flatten()[j])
+
+fig.suptitle('Box plots of features', fontsize=16)
+plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+plt.show()
+
+cdf = df[["MedInc","HouseAge","AveRooms","AveBedrms","Population","AveOccup","Latitude","Longitude"]]
+corr = cdf.corr()
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 10))
+sns.heatmap(corr, annot=True, cmap='coolwarm')
+==> 평균 방수와 평균 침실수의 강한 양의 상관관계가 있고 , 위도와 경도도 강한 음의 상관관계 ==> 다중공선성 : 과대적합 가능성
+
+## Target의 분포를 Histogram으로 확인 ==> 로그를 취해서 정규 분포에 가깝도록 
+# histplot
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+fig, axs = plt.subplots(figsize=(12,5), ncols=2, nrows=1)
+
+sns.histplot(df['Target'], ax=axs[0])
+axs[0].set_title('Original price Distribution')
+
+y_log = np.log1p(df['Target'])
+sns.histplot(y_log, ax=axs[1])
+axs[1].set_title('Log Transformed Price Distribution')
+print(y_log.shape)
+plt.tight_layout()
+plt.show()
+
+# Target은 로그변환하고 X 변수들을 표준화한 후 모델 학습 및 평가
+
+import numpy as np
+import pandas as pd
+from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.preprocessing import StandardScaler
+
+housing = fetch_california_housing()
+X = housing.data
+y = housing.target
+
+df = pd.DataFrame(X, columns=housing.feature_names)
+df["Target"] = y
+
+y_log = np.log1p(df["Target"])
+
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y_log, test_size=0.3, random_state=42
+)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = LinearRegression()
+
+model.fit(X_train, y_train)
+
+pred = model.predict(X_test)
+mse = mean_squared_error(y_test, pred)
+rmse=np.sqrt(mse)
+mae = mean_absolute_error(y_test, pred)
+r2 = r2_score(y_test, pred)
+
+print('계수', model.coef_)
+print('절편', model.intercept_)
+print(f'Mean Squated Error: {mse:.4f}')
+print(f'Mean Absolute Error: {mae:.4f}')
+print(f'RMSE: {rmse:.4f}')
+print(f'R^2 Score: {r2:.4f}')
+==> 
+계수 [ 0.24251433  0.02633085 -0.07319502  0.09137491  0.00379248 -0.01208328
+ -0.34474011 -0.32851972]
+절편 1.05611661559713
+Mean Squated Error: 0.0485
+Mean Absolute Error: 0.1665
+RMSE: 0.2203
+R^2 Score: 0.6151
+#################################### Target의 이상치 제거 후 로그 변환한 다음 학습/평가: 06
+# Calculate IQR for the target variable
+Q1 = df['Target'].quantile(0.25)
+Q3 = df['Target'].quantile(0.75)
+IQR = Q3 - Q1
+
+# Define the bounds for outliers
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+# Identify the outliers
+outliers = df[(df['Target'] < lower_bound) | (df['Target'] > upper_bound)]
+
+# Output the observations corresponding to outliers
+print(len(outliers)); print(lower_bound); print(upper_bound)
+df_no_outliers=df[(df['Target']>=lower_bound) & (df['Target']<=upper_bound)]
+df_no_outliers.info()               ### ## 20640-1071 = 19569
+
+X = df_no_outliers.drop(['Target'], axis=1)
+# X = df_no_outliers.drop(['Target','Latitude'], axis=1)
+y = df_no_outliers['Target']
+
+# 타겟 변수에 로그 변환 적용
+y_log = np.log1p(y)
+
+# 데이터셋을 DataFrame으로 변환
+df = pd.DataFrame(X, columns=housing.feature_names)
+
+# 특성 스케일링
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 훈련 데이터와 테스트 데이터 분할
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_log, test_size=0.2, random_state=0)
+
+# 선형 회귀 모델 생성 및 훈련
+lin_reg = LinearRegression()
+lin_reg.fit(X_train, y_train)
+
+# 테스트 데이터에 대한 예측 및 성능 평가
+y_pred = lin_reg.predict(X_test)
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)  # Calculate RMSE
+r2 = r2_score(y_test, y_pred)  # Calculate R² score
+
+print("계수:", lin_reg.coef_)
+print("절편:", lin_reg.intercept_)
+print("평균 제곱 오차(MSE):", round(mse,2))
+print("Root Mean Square Error (RMSE):", round(rmse,2))
+print("R² Score:", round(r2,2))
+
+==> 계수: [ 0.22215106  0.02632994 -0.08906435  0.11029448  0.0058401  -0.01191286
+ -0.31453419 -0.29994792]
+절편: 1.016939473521205
+평균 제곱 오차(MSE): 0.04
+Root Mean Square Error (RMSE): 0.21
+R² Score: 0.59
+
+
+
+######################################################## Q. 붓꽃 iris 데이터 셋으로 로지스틱 회귀 Logistic Regression 모델로 cross_val_score 확인: 06
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+
+model = LogisticRegression(max_iter=200)
+scores = cross_val_score(model, X, y, cv=5)
+print(f'Cross Validation Score: {scores}')
+print(f'Mean Score: {scores.mean():.4f}')
+
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Test set Accuracy: {accuracy:.4f}')
+
+######################################################## Q. 보스톤 주택 가격 릿지 회기:06 & 7/29
+CRIM: 도시별 1인당 범죄율
+ZN: 25,000 평방피트를 초과하는 주거 지역의 비율
+INDUS: 비소매상업지역 토지 비율
+CHAS: 찰스강에 대한 더미 변수 (강의 경계에 위치하면 1, 아니면 0)
+NOX: 산화질소 농도 (천만 분의 일)
+RM: 주택 1가구당 평균 방의 개수
+AGE: 1940년 이전에 건축된 소유주택의 비율
+DIS: 보스턴의 5개 고용 센터까지의 가중 거리
+RAD: 방사형 도로까지의 접근성 지수
+TAX: 10,000달러 당 재산세율
+PTRATIO: 도시별 학생-교사 비율
+B: 1000(Bk - 0.63)^2 여기서 Bk는 도시별 흑인의 비율을 의미
+LSTAT: 인구 중 하위 계층의 비율(%)
+target-MEDV: 본인 소유의 주택 가격(중앙값) (단위: $1000)
+
+from sklearn.datasets import fetch_openml
+
+boston = fetch_openml(name="Boston", version=1, parser="auto")
+boston_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+boston_df['PRICE'] = boston.target
+boston_df.head()
+
+# 특징 이름 출력
+feature_names = boston.feature_names
+print("Feature Names:")
+print(feature_names)
+
+# 설명 출력
+description = boston.DESCR
+print("\nDescription:")
+print(description)
+
+# 필요한 feature 이면 dtype 변환
+for col in boston_df.columns:
+    if boston_df[col].dtype.name == 'category':
+        # 카테고리형 데이터를 숫자로 변환 -> 범주형 데이터는 모델에 직접 사용할 수 없기 때문에 수치형으로 변환
+        boston_df[col] = boston_df[col].cat.codes           ## 카테고리형 데이터를 각 카테고리에 할당된 숫자로 변환
+        boston_df[col] = boston_df[col].astype(float)
+        
+# 릿지 회귀
+import numpy as np
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import cross_val_score
+
+X_data = boston_df.drop('PRICE', axis=1, inplace=False)
+y_target = boston_df['PRICE']
+
+ridge = Ridge(alpha=10)
+#오차는 적을수록 좋기 때문에 neg_mean_squared_error를 사용
+neg_mse_scores = cross_val_score(ridge, X_data, y_target, scoring='neg_mean_squared_error', cv=5)
+# 양수로 전환하기 위해 -1을 곱함
+rmse_scores = np.sqrt(-1 * neg_mse_scores)
+avg_rmse = np.mean(rmse_scores)
+print('5 folds의 개별 Negative MSE scores:', np.round(neg_mse_scores, 3))
+print('5 folds의 개별 RMSE scores:', np.round(rmse_scores, 3))
+print('5 folds의 평균 RMSE: {0:.3f}'.format(avg_rmse))
+
+# 알파에 따른 5 folds의 RMSE
+alphas = [0, 0.1, 1, 10, 100]
+for alpha in alphas:
+  ridge = Ridge(alpha=alpha)
+  neg_mse_scores = cross_val_score(ridge, X_data, y_target, scoring='neg_mean_squared_error', cv=5)
+  avg_rmse = np.mean(np.sqrt(-1*neg_mse_scores))
+  print('alpha {0}일 때 5 folds의 평균 RMSE: {1:.3f}'.format(alpha, avg_rmse))
+  
+# alpha 값이 증가하면서 회귀 계수가 지속적으로 작아짐 ==> 다중공선성 : 과대적합 가능성을 감소시키고 제한.
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+fig, axs = plt.subplots(figsize=(22,4), nrows=1, ncols=5)
+coeff_df = pd.DataFrame()
+
+for pos, alpha in enumerate(alphas):
+    ridge = Ridge(alpha=alpha)
+    ridge.fit(X_data,y_target)
+
+    coeff = pd.Series(data=ridge.coef_, index=X_data.columns)
+    colname = 'alpha:'+str(alpha)
+    coeff_df[colname] = coeff
+
+    coeff = coeff.sort_values(ascending=False)
+    axs[pos].set_title(colname)
+    axs[pos].set_xlim(-3,4)
+    sns.barplot(x=coeff.values, y=coeff.index, ax=axs[pos])
+plt.tight_layout()
+plt.show()
+
+ridge_alphas=[0,0.01,0.1,1,10,100]
+sort_column='alpha:'+str(ridge_alphas[2])
+coeff_df.sort_values(by=sort_column,ascending=False)
+
+######################################################## Q. 보스톤 주택 가격 라쏘 회기:06
+## 라쏘 회귀
+## alpha=0일때는  Lasso 회귀가 제대로 수렴하지 않음 alpha=0일 때는 LinearRegression 사용하는 것이
+from sklearn.linear_model import Lasso
+
+boston = fetch_openml(name="Boston", version=1, parser="auto")
+boston_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+boston_df['PRICE'] = boston.target
+boston_df.head()
+
+# 특징 이름 출력
+feature_names = boston.feature_names
+print("Feature Names:")
+print(feature_names)
+
+# 설명 출력
+description = boston.DESCR
+print("\nDescription:")
+print(description)
+
+# 필요한 feature 이면 dtype 변환
+for col in boston_df.columns:
+    if boston_df[col].dtype.name == 'category':
+        # 카테고리형 데이터를 숫자로 변환 -> 범주형 데이터는 모델에 직접 사용할 수 없기 때문에 수치형으로 변환
+        boston_df[col] = boston_df[col].cat.codes           ## 카테고리형 데이터를 각 카테고리에 할당된 숫자로 변환
+        boston_df[col] = boston_df[col].astype(float)
+        
+
+X_data = boston_df.drop("PRICE", axis=1, inplace=False)
+y_target = boston_df["PRICE"]
+alphas = [0, 0.1, 1, 10, 100]
+
+for alpha in alphas:
+    lasso = Lasso(alpha=alpha)
+    neg_mse_scores = cross_val_score(lasso, X_data, y_target, scoring="neg_mean_squared_error", cv=5)
+    avg_rmse = np.mean(np.sqrt(-1*neg_mse_scores))
+    print('alpha {}일 때 5 folds의 평균 RMSE : {:.3f}'.format(alpha, avg_rmse))
+
+fig, axs = plt.subplots(figsize=(22,4), nrows=1, ncols=5)
+coeff_df = pd.DataFrame()
+
+for pos, alpha in enumerate(alphas):
+    lasso = Lasso(alpha=alpha)
+    lasso.fit(X_data, y_target)
+
+    coeff = pd.Series(data=lasso.coef_, index=X_data.columns)
+    colname = 'alpha:'+str(alpha)
+    coeff_df[colname] = coeff
+
+    coeff = coeff.sort_values(ascending=False)
+    axs[pos].set_title(colname)
+    #axs[pos].set_xlim(-3, 4)
+    sns.barplot(x=coeff.values, y=coeff.index, ax=axs[pos])
+
+plt.tight_layout()
+plt.show()
+
+lasso_alphas = [0, 0.01, 0.1, 1, 10, 100]
+sort_column = 'alpha:'+str(lasso_alphas[2])
+coeff_df.sort_values(by=sort_column, ascending=False)
+
+######################################################## Q. 보스톤 주택 가격 함수 정의후 릿지/라쏘/엘라스틱넷 회기 5 folds 검증:06
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
+
+def get_linear_reg_eval(model_name, params=None, X_data_n=None, y_target_n=None, verbose=True):
+    coeff_df = pd.DataFrame()
+    if verbose : print('######', model_name, '######')
+    for param in params:
+        if model_name =='Ridge': model = Ridge(alpha=param)
+        elif model_name =='Lasso': model = Lasso(alpha=param)
+        elif model_name =='ElasticNet': model = ElasticNet(alpha=param, l1_ratio=0.7)
+        neg_mse_scores = cross_val_score(model, X_data_n, y_target_n, scoring="neg_mean_squared_error", cv=5)
+        avg_rmse = np.mean(np.sqrt(-1 * neg_mse_scores))
+        print(f'alpha {param}일 때 5 folds의 평균 RMSE : {avg_rmse}')
+        model.fit(X_data_n, y_target_n)
+        coeff=pd.Series(data=model.coef_, index=X_data_n.columns)
+        colname='alpha:'+str(param)
+        coeff_df[colname]=coeff
+    return coeff_df
+
+
+lasso_alphas=[0.07, 0.1, 0.5, 1,3]
+coeff_lasso_df=get_linear_reg_eval('Lasso', params=lasso_alphas, X_data_n=X_data, y_target_n=y_target)
+coeff_lasso_df
+
+## 엘라스틱넷 회귀
+elastic_alphas=[0.07, 0.1, 0.5, 1,3]
+coeff_elastic_df=get_linear_reg_eval('ElasticNet', params=elastic_alphas, X_data_n=X_data, y_target_n=y_target)
+coeff_elastic_df
+
+## 릿지 회귀
+ridge_alphas=[0, 0.1, 1, 10, 100]
+coeff_ridge_df=get_linear_reg_eval('Ridge', params=ridge_alphas, X_data_n=X_data, y_target_n=y_target)
+coeff_ridge_df
+######################################################## Q. 보스톤 주택 가격 랜덤 포레스트 RandomForest 회기:06
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+from math import sqrt
+
+X_data = boston_df.drop('PRICE', axis=1, inplace=False)
+y_target = boston_df['PRICE']
+X_train, X_test, y_train, y_test = train_test_split(X_data, y_target, test_size=0.2, random_state=42)
+rf=RandomForestRegressor(random_state=0, n_estimators=1000)
+rf_reg=rf.fit(X_train, y_train)
+pred_rf=rf_reg.predict(X_test)
+
+mse_rf=mean_squared_error(y_test, pred_rf)
+rmse_rf=sqrt(mse_rf)
+r2=r2_score(y_test, pred_rf)
+print('MSE: %.2f' % mse_rf)
+print('RMSE: %.2f' %  rmse_rf)
+print('R2: %.2f' % r2)
+
+##############################  5 folds 교차 검증
+from sklearn.model_selection import cross_val_score
+
+y_target=boston_df['PRICE']
+X_data=boston_df.drop('PRICE', axis=1, inplace=False)
+
+rf_reg=RandomForestRegressor(random_state=0, n_estimators=1000)
+neg_mse_scores=cross_val_score(rf_reg, X_data, y_target, scoring='neg_mean_squared_error', cv=5)
+rmse_scores=np.sqrt(-1*neg_mse_scores)
+avg_rmse=np.mean(rmse_scores)
+
+print('5 folds의 개별 Negative MSE scores:', np.round(neg_mse_scores, 2))
+print('5 folds의 개별 RMSE scores:', np.round(rmse_scores, 2))
+print('5 folds의 평균 RMSE: {0:.3f}'.format(avg_rmse))
+
+######################################################## Q. 보스톤 주택가격을 이용 회귀트리 모델들에 대한 교차검증을 수행 07/30
+### 추가로 중요 특징 파라미터 선정, 검증하고 다중공선성 : 과대적합 가능성 확인
+dt_reg = DecisionTreeRegressor(random_state=0, max_depth=4)
+rf_reg = RandomForestRegressor(random_state=0, n_estimators=1000)
+gb_reg = GradientBoostingRegressor(random_state=0, n_estimators=1000)
+xgb_reg = XGBRegressor(n_estimators=1000)
+lgb_reg = LGBMRegressor(n_estimators=1000, verbose=-1)
+
+import pandas as pd
+import numpy as np
+from sklearn.datasets import fetch_openml
+from sklearn.model_selection import cross_val_score
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+boston = fetch_openml(name="Boston", version=1, parser="auto")
+boston_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+boston_df["PRICE"] = boston.target
+print(boston_df.info())
+boston_df.head()
+
+for col in boston_df.columns:
+    if boston_df[col].dtype.name == "category":
+        # 카테고리형 데이터를 숫자로 변환 -> 범주형 데이터는 모델에 직접 사용할 수 없기 때문에 수치형으로 변환
+        boston_df[col] = boston_df[col].cat.codes
+        boston_df[col] = boston_df[col].astype(float)
+        
+for col in boston_df.columns:
+    if boston_df[col].dtype.name == "category":
+        boston_df[col] = boston_df[col].cat.codes
+        boston_df[col] = boston_df[col].astype(float)
+
+X_data = boston_df.drop("PRICE", axis=1)
+y_target = boston_df["PRICE"]
+
+# 데이터 표준화
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_data)
+
+# 교차 검증 함수 정의
+def perform_cross_validation(model, X, y, cv=5):
+    scores = cross_val_score(model, X, y, scoring='neg_mean_squared_error', cv=cv)
+    rmse_scores = np.sqrt(-scores)
+    return rmse_scores
+
+# 모델들 정의
+dt_reg = DecisionTreeRegressor(random_state=0, max_depth=4)
+rf_reg = RandomForestRegressor(random_state=0, n_estimators=1000)
+gb_reg = GradientBoostingRegressor(random_state=0, n_estimators=1000)
+xgb_reg = XGBRegressor(n_estimators=1000)
+lgb_reg = LGBMRegressor(n_estimators=1000, verbose=-1)
+
+# 모델 리스트
+models = [("DecisionTree", dt_reg),
+          ("RandomForest", rf_reg),
+          ("GradientBoosting", gb_reg),
+          ("XGBoost", xgb_reg),
+          ("LightGBM", lgb_reg)]
+
+# 각 모델에 대한 교차 검증 수행 및 결과 출력
+for model_name, model in models:
+    rmse_scores = perform_cross_validation(model, X_scaled, y_target, cv=5)
+    print(f"{model_name} 모델의 5-fold 교차 검증 평균 RMSE: {np.mean(rmse_scores):.3f}")
+    print(f"{model_name} 모델의 5-fold 교차 검증 RMSE 점수: {rmse_scores}\n")
+
+# PCA로 2차원으로 축소
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+# PCA 성분을 사용하여 각 모델에 대한 교차 검증 수행 및 결과 출력
+for model_name, model in models:
+    rmse_scores = perform_cross_validation(model, X_pca, y_target, cv=5)
+    print(f"{model_name} 모델의 PCA 적용 5-fold 교차 검증 평균 RMSE: {np.mean(rmse_scores):.3f}")
+    print(f"{model_name} 모델의 PCA 적용 5-fold 교차 검증 RMSE 점수: {rmse_scores}\n")
+
+
+### 강사님
+def get_model_cv_prediction(model, X_data, y_target):
+    neg_mse_scores = cross_val_score(model, X_data, y_target, scoring="neg_mean_squared_error", cv = 5)
+    rmse_scores  = np.sqrt(-1 * neg_mse_scores)
+    avg_rmse = np.mean(rmse_scores)
+    print('##### ',model.__class__.__name__ , ' #####')
+    print(' 5 교차 검증의 평균 RMSE : {0:.3f} '.format(avg_rmse))
+
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+
+dt_reg = DecisionTreeRegressor(random_state=0, max_depth=4)
+rf_reg = RandomForestRegressor(random_state=0, n_estimators=1000)
+gb_reg = GradientBoostingRegressor(random_state=0, n_estimators=1000)
+xgb_reg = XGBRegressor(n_estimators=1000)
+lgb_reg = LGBMRegressor(n_estimators=1000, verbose=-1)
+
+# 트리 기반의 회귀 모델을 반복하면서 평가 수행
+models = [dt_reg, rf_reg, gb_reg, xgb_reg, lgb_reg]
+for model in models:
+    get_model_cv_prediction(model, X_data, y_target)
+
+### 강사님
+import seaborn as sns
+
+rf_reg = RandomForestRegressor(n_estimators=1000)
+
+# 앞 예제에서 만들어진 X_data, y_target 데이터 셋을 적용하여 학습합니다.
+rf_reg.fit(X_data, y_target)
+
+feature_series = pd.Series(data=rf_reg.feature_importances_, index=X_data.columns )
+feature_series = feature_series.sort_values(ascending=False)
+sns.barplot(x= feature_series, y=feature_series.index)
+
+## 강사님
+import seaborn as sns
+
+xgb = XGBRegressor(n_estimators=1000)
+
+# 앞 예제에서 만들어진 X_data, y_target 데이터 셋을 적용하여 학습합니다.
+xgb.fit(X_data, y_target)
+
+feature_series = pd.Series(data=xgb.feature_importances_, index=X_data.columns )
+feature_series = feature_series.sort_values(ascending=False)
+sns.barplot(x= feature_series, y=feature_series.index)
+
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# 선형 회귀와 결정 트리 기반의 Regressor 생성. DecisionTreeRegressor의 max_depth는 각각 2, 7
+lr_reg = LinearRegression()
+dt_reg2 = DecisionTreeRegressor(max_depth=2)
+dt_reg7 = DecisionTreeRegressor(max_depth=7)
+
+# 실제 예측을 적용할 테스트용 데이터 셋을 4.5 ~ 8.5 까지 100개 데이터 셋 생성.
+X_test = np.arange(4.5, 8.5, 0.04).reshape(-1, 1)
+
+# 보스턴 주택가격 데이터에서 시각화를 위해 피처는 RM만, 그리고 결정 데이터인 PRICE 추출
+X_feature = bostonDF_sample['RM'].values.reshape(-1,1)
+y_target = bostonDF_sample['PRICE'].values.reshape(-1,1)
+
+# 학습과 예측 수행.
+lr_reg.fit(X_feature, y_target)
+dt_reg2.fit(X_feature, y_target)
+dt_reg7.fit(X_feature, y_target)
+
+pred_lr = lr_reg.predict(X_test)
+pred_dt2 = dt_reg2.predict(X_test)
+pred_dt7 = dt_reg7.predict(X_test)
+
+
+fig , (ax1, ax2, ax3) = plt.subplots(figsize=(10,3), ncols=3)
+
+# X축값을 4.5 ~ 8.5로 변환하며 입력했을 때, 선형 회귀와 결정 트리 회귀 예측 선 시각화
+# 선형 회귀로 학습된 모델 회귀 예측선
+ax1.set_title('Linear Regression')
+ax1.scatter(bostonDF_sample.RM, bostonDF_sample.PRICE, c="darkorange")
+ax1.plot(X_test, pred_lr,label="linear", linewidth=2 )
+
+# DecisionTreeRegressor의 max_depth를 2로 했을 때 회귀 예측선
+ax2.set_title('Decision Tree Regression: \n max_depth=2')
+ax2.scatter(bostonDF_sample.RM, bostonDF_sample.PRICE, c="darkorange")
+ax2.plot(X_test, pred_dt2, label="max_depth:2", linewidth=2 )
+
+# DecisionTreeRegressor의 max_depth를 7로 했을 때 회귀 예측선
+ax3.set_title('Decision Tree Regression: \n max_depth=7')
+ax3.scatter(bostonDF_sample.RM, bostonDF_sample.PRICE, c="darkorange")
+ax3.plot(X_test, pred_dt7, label="max_depth:7", linewidth=2)
+
+######################################################## Q. 난수로 만들어진 data에 대하여 회귀 모델을 사용하여 에너지 사용량을 예측하는 모델을 Xgbregressor, Lightgbmregressor 모델을 이용하여 모델링 및 평가 (MAE, MSE, RMSE)를 수행: 06
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+
+# 가상의 데이터 생성
+np.random.seed(42)
+data_size = 1000
+data = {
+    'area': np.random.uniform(1000, 3000, data_size),
+    'type': np.random.randint(0, 2, data_size),
+    'location': np.random.randint(0, 3, data_size),
+    'energy_usage': np.random.uniform(200, 600, data_size)  # kWh
+}
+df = pd.DataFrame(data)
+df.head()
+X = df[['area', 'type', 'location']]
+y = df['energy_usage']
+
+# 데이터 분할
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# XGBoost 모델 훈련
+# objective 매개변수는 모델이 최소화하려는 손실함수나 최적화할 목표
+# xgb_regressor = XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
+xgb_regressor = XGBRegressor(objective='reg:squarederror', n_estimators=100, learning_rate=0.1, random_state=42)
+xgb_regressor.fit(X_train, y_train)
+
+# LightGBM 모델 훈련
+# lgbm_regressor = LGBMRegressor(n_estimators=100, learning_rate=0.1, random_state=42, verbose=-1)
+lgbm_regressor = LGBMRegressor(objective='regression', n_estimators=100, learning_rate=0.1, random_state=42, verbose=-1)
+lgbm_regressor.fit(X_train, y_train)
+
+# 예측 및 평가
+y_pred_xgb = xgb_regressor.predict(X_test)
+mae_xgb = mean_absolute_error(y_test, y_pred_xgb)
+mse_xgb = mean_squared_error(y_test, y_pred_xgb)
+rmse_xgb = np.sqrt(mean_squared_error(y_test, y_pred_xgb))
+
+print(f'XGBoost MAE: {mae_xgb:.2f}')
+print(f'XGBoost MSE: {mse_xgb:.2f}')
+print(f'XGBoost RMSE: {rmse_xgb:.2f}')
+
+y_pred_lgbm = lgbm_regressor.predict(X_test)
+mae_lgbm = mean_absolute_error(y_test, y_pred_lgbm)
+mse_lgbm = mean_squared_error(y_test, y_pred_lgbm)
+rmse_lgbm = np.sqrt(mean_squared_error(y_test, y_pred_lgbm))
+
+print(f'LightGBM MAE: {mae_lgbm:.2f}')
+print(f'LightGBM MSE: {mse_lgbm:.2f}')
+print(f'LightGBM RMSE: {rmse_lgbm:.2f}')
+
+######################################################## Q. California_housing 데이터셋으로 아래사항을 참조하여 주택가격을 예측하는 회귀모델을 개발하세요 (파이프라인 사용 가능): 회귀 실습과제
+- 전체 회귀모델을 적용 (9개 이상)
+- 각 모델별 최적 하이퍼파라미터 - GridSearchCV 활용
+- 평가지수 MSE 기준으로 가장 성능이 좋은 모델과 파라미터를 적용하여 평가 결과를 출력
+
+# 1. 데이터 로드
+from sklearn.datasets import fetch_california_housing
+import pandas as pd
+housing = fetch_california_housing()
+df = pd.DataFrame(housing.data, columns=housing.feature_names)
+df['MedHouseVal'] = housing.target
+housing.feature_names
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+fig, axs = plt.subplots(figsize=(12, 5), ncols=2, nrows=1)
+
+sns.histplot(df['MedHouseVal'], ax=axs[0])
+axs[0].set_title('Original Price Distribution')
+
+y_log = np.log1p(df['MedHouseVal'])
+sns.histplot(y_log, ax=axs[1])
+axs[1].set_title('Log Transformed Price Distribution')
+
+plt.tight_layout()
+plt.show()
+
+cdf = df[
+    [
+        "MedInc",
+        "HouseAge",
+        "AveRooms",
+        "AveBedrms",
+        "Population",
+        "AveOccup",
+        "Latitude",
+        "Longitude",
+    ]
+]
+
+corr = cdf.corr()
+
+plt.figure(figsize=(10, 10))
+sns.heatmap(corr, annot=True, cmap='coolwarm')
+
+## 이상치 확인
+housing=fetch_california_housing()
+y=housing.target
+# box plot
+plt.figure(figsize=(8,6))
+plt.boxplot(y)
+plt.title("Box Plot of Target Variable")
+plt.ylabel("Housing Price")
+plt.show()
+
+### 아웃라이어 제거
+import numpy as np
+import pandas as pd
+from sklearn.datasets import fetch_california_housing
+
+# Load the California housing dataset
+housing = fetch_california_housing()
+X = housing.data
+y = housing.target
+
+# Convert to a DataFrame for easier manipulation
+df = pd.DataFrame(X, columns=housing.feature_names)
+df['Target'] = y  # Add the target variable to the DataFrame
+
+# Calculate IQR for the target variable
+Q1 = df['Target'].quantile(0.25)
+Q3 = df['Target'].quantile(0.75)
+IQR = Q3 - Q1
+
+# Define the bounds for outliers
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+# Identify the outliers
+outliers = df[(df['Target'] < lower_bound) | (df['Target'] > upper_bound)]
+
+# Output the observations corresponding to outliers
+print(len(outliers))
+print(lower_bound)
+print(upper_bound)
+outliers[:5]
+
+## Outlier 제거 후
+## 20640-1071 = 19569
+
+df_no_outliers=df[(df['Target']>=lower_bound) & (df['Target']<=upper_bound)]
+df_no_outliers.info()
+
+
+
+import pandas as pd
+import numpy as np
+from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor
+from sklearn.svm import SVR
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+
+warnings.filterwarnings('ignore')
+
+# 1. 데이터
+
+# 파생 변수 생성
+df_no_outliers['BedroomsPerRoom'] = df_no_outliers['AveBedrms'] / df_no_outliers['AveRooms']
+
+X = df_no_outliers.drop(['Target'], axis=1)
+y = df_no_outliers['Target']
+
+# 데이터셋을 학습 세트와 테스트 세트로 분리
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 수치형 피처 목록
+numerical_features = X.columns.tolist()
+
+# 전처리기
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', StandardScaler(), numerical_features)
+    ])
+
+# 모델과 하이퍼파라미터 그리드 딕셔너리
+models = {
+    "Linear Regression": {
+        "model": LinearRegression(),
+        "params": {}
+    },
+    "Ridge": {
+        "model": Ridge(random_state=42),
+        "params": {
+            "classifier__alpha": [0.01, 0.1, 1, 10, 100]
+        }
+    },
+    "Lasso": {
+        "model": Lasso(random_state=42),
+        "params": {
+            "classifier__alpha": [0.01, 0.1, 1, 10, 100]
+        }
+    },
+    "Elastic Net": {
+        "model": ElasticNet(random_state=42),
+        "params": {
+            "classifier__alpha": [0.01, 0.1, 1, 10, 100],
+            "classifier__l1_ratio": [0.1, 0.5, 0.9]
+        }
+    },
+    "Decision Tree": {
+        "model": DecisionTreeRegressor(random_state=42),
+        "params": {
+            "classifier__max_depth": [None, 10, 20, 30],
+            "classifier__min_samples_split": [2, 10, 20],
+            "classifier__min_samples_leaf": [1, 5, 10]
+        }
+    },
+    "Random Forest": {
+        "model": RandomForestRegressor(random_state=42),
+        "params": {
+            "classifier__n_estimators": [50, 100, 200],
+            "classifier__max_depth": [None, 10, 20],
+            "classifier__min_samples_split": [2, 10],
+            "classifier__min_samples_leaf": [1, 5]
+        }
+    },
+    "SVR": {
+        "model": SVR(),
+        "params": {
+            "classifier__C": [0.1, 1, 10],
+            "classifier__kernel": ['linear', 'rbf']
+        }
+    },
+    "Gradient Boosting": {
+        "model": GradientBoostingRegressor(random_state=42),
+        "params": {
+            "classifier__n_estimators": [50, 100, 200],
+            "classifier__learning_rate": [0.01, 0.1, 0.5],
+            "classifier__max_depth": [3, 5, 10]
+        }
+    },
+    "AdaBoost": {
+        "model": AdaBoostRegressor(random_state=42),
+        "params": {
+            "classifier__n_estimators": [50, 100, 200],
+            "classifier__learning_rate": [0.01, 0.1, 0.5]
+        }
+    },
+    "XGBoost": {
+        "model": XGBRegressor(random_state=42),
+        "params": {
+            "classifier__n_estimators": [50, 100, 200],
+            "classifier__learning_rate": [0.01, 0.1, 0.5],
+            "classifier__max_depth": [3, 5, 10]
+        }
+    },
+    "LightGBM": {
+        "model": LGBMRegressor(random_state=42),
+        "params": {
+            "classifier__n_estimators": [50, 100, 200],
+            "classifier__learning_rate": [0.01, 0.1, 0.5],
+            "classifier__num_leaves": [31, 62, 124]
+        }
+    }
+}
+
+# 모델 학습 및 평가
+def evaluate_model(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    return mse, r2
+
+best_estimators = {}
+results = []
+
+for model_name, model_info in models.items():
+    pipeline = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('classifier', model_info["model"])
+    ])
+
+    grid_search = GridSearchCV(estimator=pipeline, param_grid=model_info["params"], cv=5, n_jobs=-1, scoring='neg_mean_squared_error')
+    grid_search.fit(X_train, y_train)
+
+    best_estimators[model_name] = grid_search.best_estimator_
+    mse, r2 = evaluate_model(grid_search.best_estimator_, X_test, y_test)
+
+    results.append({
+        'Model': model_name,
+        'Best Params': grid_search.best_params_,
+        'MSE': mse,
+        'R2': r2
+    })
+
+    print(f"모델: {model_name}")
+    print(f"최적 하이퍼파라미터: {grid_search.best_params_}")
+    print(f"MSE: {mse:.2f}")
+    print(f"R2: {r2:.2f}")
+    print("="*60)
+
+
+results_df = pd.DataFrame(results).sort_values(by='MSE', ascending=True)
+print("Regression Model Results")
+display(results_df)
+
+# 최적 모델을 사용한 예측 시각화
+results_df = pd.DataFrame(results).sort_values(by='MSE', ascending=True)
+best_model_name = results_df.iloc[0]['Model']
+best_model = best_estimators[best_model_name]
+
+# 최적 모델로 예측
+y_pred_best = best_model.predict(X_test)
+
+# 예측 시각화
+plt.figure(figsize=(10, 7))
+plt.scatter(y_test, y_pred_best, alpha=0.3)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--')
+plt.xlabel('Actual Prices')
+plt.ylabel('Predicted Prices')
+plt.title(f'Actual vs Predicted Prices - {best_model_name}')
+plt.show()
 
 ######################################################## Q. 
 
