@@ -1,0 +1,1683 @@
+#####################################################################################################
+#############################################   OverView  ###########################################
+##################################################################################################### 
+#################################################################### 퍼셉트론의 한계(XOR)
+import matplotlib.pyplot as plt
+
+
+# XOR 데이터 포인트
+points = [(0, 0, 0), (0, 1, 1), (1, 0, 1), (1, 1, 0)]
+
+# 그래프 그리기
+for x1, x2, label in points:
+    color = 'red' if label == 1 else 'blue'
+    plt.scatter(x1, x2, color=color)
+
+# 축 레이블
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.title('XOR datapoint')
+
+# 레전드 추가
+red_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='red', markersize=10, label='1')
+blue_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='0')
+plt.legend(handles=[red_patch, blue_patch])
+
+# 그래프 표시
+plt.grid(True)
+plt.show()
+
+#################################################################### XOR문제 해결을 위한 다중 퍼셉트론(은닉층)
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 시그모이드 함수
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# XOR 입력과 목표 값
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([0, 1, 1, 0])
+
+# 가중치 초기화
+np.random.seed(42)
+w_h = np.random.randn(2, 2)  # 은닉층 가중치
+b_h = np.random.randn(2)     # 은닉층 편향
+w_o = np.random.randn(2)     # 출력층 가중치
+b_o = np.random.randn()      # 출력층 편향
+
+# 순방향 전달 예시
+def forward(X):
+    h = sigmoid(np.dot(X, w_h) + b_h)
+    o = sigmoid(np.dot(h, w_o) + b_o)
+    return h, o
+
+# 은닉층 및 출력 계산
+h, o = forward(X)
+
+# 결과 시각화
+plt.figure(figsize=(10, 5))
+
+# 입력 데이터
+plt.subplot(1, 2, 1)
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap='bwr')
+plt.title('XOR Input Data')
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.grid(True)
+
+# 은닉층 출력
+plt.subplot(1, 2, 2)
+plt.scatter(h[:, 0], h[:, 1], c=y, cmap='bwr')
+plt.title('Hidden Layer Output')
+plt.xlabel('h1')
+plt.ylabel('h2')
+plt.grid(True)
+
+plt.show()
+#################################################################### XOR문제 해결을 위한 다중 퍼셉트론(은닉층)
+import numpy as np
+
+# 가중치와 바이어스
+w11=np.array([-2, -2])
+w12=np.array([2, 2])
+w2=np.array([1, 1])
+b1=3
+b2=-1
+b3=-1
+
+# 퍼셉트론 함수 정의 (르누)
+# 활성화 함수는 계단 함수 정용 (특정 임계값 0을 기준으로 출력을 0 또는 1로 결정)
+def MLP(x, w, b):
+    y=np.sum(w*x)+b
+    if y<=0:
+        return 0
+    else:
+        return 1
+
+
+def NAND(x1, x2):
+    return MLP(np.array([x1, x2]), w11, b1)
+
+def OR(x1, x2):
+    return MLP(np.array([x1, x2]), w12, b2)
+
+def AND(x1, x2):
+    return MLP(np.array([x1, x2]), w2, b3)
+
+def XOR(x1, x2):
+    return AND(NAND(x1, x2), OR(x1, x2))
+
+for x in [(0,0), (1,0), (0,1), (1,1)]:
+    y=XOR(x[0], x[1])
+    print("입력 값: "+str(x)+" 출력 값: "+str(y))
+
+#################################################################### 경가하강법 개념 flow
+# 필요한 라이브러리 임포트
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 폰트 및 마이너스 기호 설정
+plt.rc('font', size=12)  # 로컬 환경에 따라 'family' 설정 필요
+plt.rcParams['axes.unicode_minus'] = False
+
+# 주어진 함수와 도함수 정의
+def f(x):
+    """주어진 함수 f(x) = x^2"""
+    return x**2
+
+def f_prime(x):
+    """함수 f의 도함수 f'(x) = 2x"""
+    return 2*x
+
+def tangent_line(f_prime, x, x1, y1):
+    """점 (x1, y1)에서 함수 f의 접선의 방정식 y = mx + b에서 x = x-x1, b = y1 (x=>x1일 때 y=>y1)"""
+    return f_prime(x1) * (x - x1) + y1
+
+def plot_function_and_tangents(x, x_points):
+    """함수와 접선들을 그리는 함수, x_points에서의 접선 계산 및 그리기 로직 포함"""
+    fig = plt.figure(figsize=(6, 6))
+    plt.scatter(x_points, [f(x1) for x1 in x_points], c='k')  # 점들 표시
+    plt.plot(x, f(x), 'k', label='$f(x) = x^2$')  # 함수 f(x) 그래프
+
+    # 각 x_points에서의 접선 계산 및 그리기
+    for x1 in x_points:
+        y1 = f(x1)
+        tangent = tangent_line(f_prime, x, x1, y1)  # 접선 계산
+        plt.plot(x, tangent, label=f'Tangent at x={x1}')  # 접선 그리기
+
+    plt.axhline(0, lw=2, color='k')  # x축
+    plt.axvline(0, lw=2, color='k')  # y축
+    plt.ylim(-1, 9)
+    plt.xlim(-3, 3)
+    plt.xlabel('x', fontsize=14)
+    plt.ylabel('y', fontsize=14)
+    plt.grid(lw=1)
+    plt.legend()
+    plt.show()
+
+# x 좌표 배열과 접선을 그릴 x의 점들 정의
+x = np.linspace(-3, 3, 100)
+x_points = [1, 2]  # 접선을 추가할 x의 점들
+plot_function_and_tangents(x, x_points)
+
+#################################################################### 함수의 미분
+from scipy.misc import derivative
+import warnings
+warnings.filterwarnings('ignore')
+
+f = lambda x: x**2
+
+print(derivative(f,0,dx=1e-10))
+print(derivative(f,1,dx=1e-6))
+print(derivative(f,2,dx=1e-10))
+
+#################################################################### 편미분 & 심볼 (레이텍)
+!pip install sympy
+import sympy
+sympy.init_printing(use_latex='mathjax')
+
+import sympy as sp
+x,y =sp.symbols('x y')
+g=sp.exp(x+y)+sp.sin(x*y)
+## x에 대한 편미분
+partial_gx=sp.diff(g,x)
+## y에 대한 편미분
+partial_gy=sp.diff(g,y)
+display(g)
+
+display(partial_gx)
+display(partial_gy)
+#################################################################### 오차 역전파의 기본 개념 
+오차 역전파는 두 단계로 이루어진다: 순전파(Forward Pass)와 역전파(Backward Pass).
+
+순전파(Forward Pass):
+입력 데이터는 신경망의 각 층을 순차적으로 통과하면서, 각 뉴런의 가중치와 활성화 함수를 통해 처리.
+마지막 층에서의 출력값은 신경망의 예측값이 된다.
+역전파(Backward Pass):
+신경망의 예측값과 실제 값 사이의 오차를 계산.
+이 오차를 바탕으로, 오차 함수의 기울기(미분값)를 계산하고, 이 기울기 정보를 신경망을 거슬러 올라가며 전달.
+각 층의 가중치는 계산된 기울기를 사용하여 조정. 이 과정은 신경망의 예측 오차를 줄이는 방향으로 가중치를 업데이트.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+y=np.array([81, 93, 91, 97])
+x=np.array([2, 4, 6, 8])
+
+a=0
+b=0
+
+lr=0.03
+
+epochs=2001
+n=len(x)
+
+for i in range(epochs):
+  y_pred=a*x+b
+  error=y-y_pred
+  a_diff=(2/n)*sum(-x*(error))     # 오차 함수를 a로 편미분
+  b_diff=(2/n)*sum(-(error))         # 오차 함수를 b로 편미분
+
+  a=a-lr*a_diff
+  b=b-lr*b_diff
+
+  if i % 100 ==0:
+    print("epoch=%.f, 기울기=%.04f, 절편=%.04f" % (i, a, b))
+    #print("MSE=%.04f" % (np.mean(np.square(error))))
+
+##### 
+
+#####################################################################################################
+###################################   Sequential vs. 함수형 API 방식  ###############################
+##################################################################################################### 
+
+[Sequential 방식과 함수형 API 방식의 차이]
+    - TensorFlow/Keras에서 모델을 구현할 때, 두 가지 주요 방식: Sequential 방식 vs.  함수형 API 방식.
+    - 두 가지 방식은 모델을 정의하는 방식과 복잡한 모델 구조를 구현하는 능력에 차이
+
+<Sequential 방식>
+    - Sequential 방식은 레이어를 순차적으로 쌓아 나가는 방식. 
+    - 레이어가 하나의 순서대로 연결되어 있으며, 매우 직관적이고 간단한 모델을 구현할 때 유용
+
+#### EX: Sequential 방식
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+
+model = Sequential([
+    Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    MaxPooling2D((2, 2)),
+    Conv2D(64, (3, 3), activation='relu'),
+    MaxPooling2D((2, 2)),
+    Conv2D(64, (3, 3), activation='relu'),
+    Flatten(),
+    Dense(64, activation='relu'),
+    Dense(10, activation='softmax')
+])
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.summary()
+
+<함수형 API 방식>
+    - 함수형 API 방식은 더 복잡한 모델을 정의할 수 있는 유연성을 제공
+    - 입력 레이어와 출력 레이어를 명시적으로 정의
+    - 여러 입력과 출력을 처리 가능; 레이어를 병렬로 쌓거나 재사용할 수 있어 복잡한 모델을 설계할 때 유리
+
+#### EX: 함수형 API 방식
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Flatten, Dense
+
+inputs = Input(shape=(28, 28, 1))
+x = Conv2D(32, (3, 3), activation='relu')(inputs)
+x = MaxPooling2D((2, 2))(x)
+x = Conv2D(64, (3, 3), activation='relu')(x)
+x = MaxPooling2D((2, 2))(x)
+x = Conv2D(64, (3, 3), activation='relu')(x)
+x = Flatten()(x)
+x = Dense(64, activation='relu')(x)
+outputs = Dense(10, activation='softmax')(x)
+
+model = Model(inputs, outputs)
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.summary()
+
+<차이점>
+- 구현 방식:
+    - Sequential 방식: 레이어를 순차적으로... 단순하고 직관적
+    - 함수형 API 방식: 레이어를 그래프 구조로 연결. 여러 입력과 출력을 지원하며, 복잡한 네트워크를 구성 가능
+- 유연성:
+    - Sequential 방식: 단순한 순차적인 모델에 적합. 병렬 레이어나 다양한 입력/출력을 처리하기 어려움
+    - 함수형 API 방식: 복잡한 모델 구조를 지원. 다중 입력/출력, 병렬 레이어, 공유 레이어 등을 쉽게 구현
+- 사용 사례:
+    - Sequential 방식: 간단한 신경망 (예: 단순한 CNN, MLP 등).
+    - 함수형 API 방식: 복잡한 모델 (예: 잔차 네트워크, 다중 입력/출력 모델 등).
+<결과 차이>
+    결과적으로, 두 방식 모두 동일한 모델 구조를 구현할 수 있지만, 함수형 API는 더 복잡한 모델을 만들 수 있는 유연성을 제공. 예를 들어, 잔차 네트워크(ResNet)나 인셉션 네트워크 같은 복잡한 구조는 함수형 API를 사용해야만 구현 가능
+    성능 측면에서, 동일한 네트워크 구조를 구현한다면 두 방식의 학습 결과는 동일. 차이는 모델을 정의하는 방식과 그에 따른 코드의 가독성과 유지 보수성에서 발생
+
+[Wrap-up]
+- Sequential 방식: 간단하고 직관적인 모델을 구현할 때 유용
+- 함수형 API 방식: 복잡한 모델, 다중 입력/출력 모델, 공유 레이어 등을 구현할 때 유용
+##################################################################################################### END
+###################################   Sequential vs. 함수형 API 방식  ###############################
+##################################################################################################### 
+
+#####################################################################################################
+########################################   Conv2D & MaxPooling2D   ##################################
+##################################################################################################### 
+Conv2D와 MaxPooling2D에 대한 설명
+
+Conv2D:
+역할: Conv2D 레이어는 이미지에서 특징(feature)을 추출합니다. 2차원 필터(커널)를 사용하여 입력 이미지와 합성곱을 수행합니다.
+작동 방식: 필터가 입력 이미지 위를 이동하면서 이미지의 특정 부분과 연산을 수행하여 새로운 이미지(특징 맵)를 만듭니다.
+예시: Conv2D(32, (3, 3), activation='relu')는 32개의 3x3 필터를 사용하여 입력 이미지와 합성곱을 수행하고, ReLU 활성화 함수를 적용합니다.
+
+MaxPooling2D:
+역할: MaxPooling2D 레이어는 다운샘플링을 통해 특징 맵의 크기를 줄이고 계산량을 감소시키며, 가장 중요한 특징만을 남깁니다.
+작동 방식: 각 필터에 대해 윈도우(영역)를 이동시키면서 해당 영역 내에서 가장 큰 값을 선택합니다.
+예시: MaxPooling2D((2, 2))는 2x2 크기의 윈도우를 사용하여 다운샘플링을 수행합니다.
+필터 개수, 필터 사이즈, 윈도우 크기의 의미
+Conv2D(32, (3, 3)):
+필터 개수: 32 - 입력 이미지에서 특징을 추출하기 위해 사용하는 필터(커널)의 수입니다. 각 필터는 하나의 특징 맵을 생성합니다.
+필터 사이즈: (3, 3) - 각 필터의 크기입니다. 필터는 3x3 크기의 행렬로, 입력 이미지의 부분과 합성곱 연산을 수행합니다.
+MaxPooling2D((2, 2)):
+윈도우 크기: (2, 2) - 풀링 영역의 크기입니다. 2x2 크기의 윈도우를 사용하여 입력 특징 맵을 다운샘플링합니다. 윈도우 내의 최대 값을 선택하여 새로운 다운샘플링된 특징 맵을 만듭니다.
+##################################################################################################### END
+########################################   Conv2D & MaxPooling2D   ##################################
+##################################################################################################### 
+
+#####################################################################################################
+#####################################   model.compile 메서드의 옵션   ###############################
+##################################################################################################### 
+## model.compile 메서드의 옵션
+- 1. optimizer: 최적화 알고리즘을 지정.
+    - 문자열로 지정할 최적화 알고리즘:
+      - 'sgd', 'rmsprop', 'adam', 'adadelta', 'adagrad', 'adamax', 'nadam', 'ftrl'
+    - 클래스 인스턴스로 지정할 수 있는 최적화 알고리즘:
+      - from tensorflow.keras.optimizers import SGD, Adam
+      - optimizer = SGD(learning_rate=0.01)
+      - optimizer = Adam(learning_rate=0.001)
+
+- 2. loss: 손실 함수를 지정합니다.
+  - 문자열로 지정할 수 있는 손실 함수:
+    - 'mean_squared_error', 'mean_absolute_error', 'mean_absolute_percentage_error', 'mean_squared_logarithmic_error', 'squared_hinge', 'hinge', 'categorical_hinge', 'logcosh', 'huber_loss', 'categorical_crossentropy', 'sparse_categorical_crossentropy', 'binary_crossentropy', 'kullback_leibler_divergence', 'poisson', 'cosine_proximity'
+  - 클래스 인스턴스로 지정할 수 있는 손실 함수:
+    - from tensorflow.keras.losses import MeanSquaredError, BinaryCrossentropy
+    - loss = MeanSquaredError()
+    - loss = BinaryCrossentropy()
+    
+- 3. metrics: 모델 평가에 사용할 메트릭을 지정합니다.
+    - 문자열로 지정할 수 있는 메트릭:
+      - 'accuracy', 'binary_accuracy', 'categorical_accuracy', 'top_k_categorical_accuracy', 'sparse_top_k_categorical_accuracy', 'AUC', 'Precision', 'Recall'
+    - 클래스 인스턴스로 지정할 수 있는 메트릭:
+      - from tensorflow.keras.metrics import AUC, Precision
+      - metrics = [AUC(), Precision()]
+      
+- 4. loss_weights: 모델의 손실에 대한 가중치를 지정합니다. 여러 출력이 있는 모델의 경우 사용할 수 있습니다.
+
+- 5. weighted_metrics: 가중치가 부여된 평가 메트릭을 지정합니다.
+
+- 6. run_eagerly: True로 설정하면, 모델을 즉시 실행 모드에서 실행합니다.
+
+##################################################################################################### END
+#####################################   model.compile 메서드의 옵션   ###############################
+##################################################################################################### 
+
+
+##################################################################################################### 
+########################################   손실 함수 Loss Function   ################################
+##################################################################################################### 
+
+#### 손실 함수 (Loss Functions)
+- 손실 함수는 모델의 예측 값과 실제 값 간의 차이를 측정.
+- 모델이 얼마나 잘 학습하고 있는지 평가하는 데 사용
+  1. mean_squared_error (MSE):예측 값과 실제 값의 차이를 제곱하여 평균을 구한 값. 회귀 문제에서 자주 사용
+
+  2. mean_absolute_error (MAE):예측 값과 실제 값의 차이의 절대값의 평균.회귀 문제에서 사용되며, 이상치에 덜 민감합니다.
+
+  3. mean_absolute_percentage_error (MAPE):예측 값과 실제 값의 차이의 절대값을 실제 값으로 나누어 백분율로 표현한 값: 상대적인 오차를 측정하는 데 유용
+
+  4. mean_squared_logarithmic_error (MSLE):예측 값과 실제 값의 차이의 로그를 제곱하여 평균을 구한 값: 로그 스케일에서의 차이를 측정하며, 큰 값의 차이에 덜 민감
+
+  5. squared_hinge: SVM에서 사용되는 힌지 손실의 제곱: 분류 문제에서 사용
+
+  6. hinge: SVM에서 사용되는 힌지 손실: 분류 문제에서 사용
+
+  7. categorical_hinge: 다중 클래스 분류를 위한 힌지 손실: 다중 클래스 분류 문제에서 사용
+
+  8. logcosh: 로그 코사인 제곱 손실 함수: 회귀 문제에서 사용되며, MSE와 MAE의 장점을 결합
+
+  9. huber_loss: Huber 손실 함수는 MSE와 MAE의 장점을 결합하여 이상치에 덜 민감: 회귀 문제에서 사용
+
+  10. categorical_crossentropy:다중 클래스 분류를 위한 크로스 엔트로피 손실: 다중 클래스 분류 문제에서 사용
+
+  11. sparse_categorical_crossentropy: 다중 클래스 분류를 위한 크로스 엔트로피 손실, 레이블이 원-핫 인코딩이 아닌 경우 사용: 다중 클래스 분류 문제에서 사용
+
+  12. binary_crossentropy: 이진 분류를 위한 크로스 엔트로피 손실: 이진 분류 문제에서 사용
+
+  13. kullback_leibler_divergence (KLD): 두 확률 분포 간의 차이를 측정: 확률 분포 간의 차이를 측정하는 데 사용
+
+  14. poisson: 포아송 회귀 손실: 포아송 분포를 따르는 데이터를 다루는 데 사용
+
+  15. cosine_proximity: 두 벡터 간의 코사인 유사성을 측정: 벡터 간의 유사성을 측정하는 데 사용
+
+##################################################################################################### END 
+########################################   손실 함수 Loss Function   ################################
+##################################################################################################### 
+
+#####################################################################################################
+#############################################   메트릭 Metirc   #####################################
+##################################################################################################### 
+#### 메트릭 (Metrics)
+- 메트릭은 모델의 성능을 평가하는 데 사용
+  1. accuracy: 정확도. 전체 예측 중 맞게 예측한 비율: 분류 문제에서 자주 사용
+
+  2. binary_accuracy: 이진 분류 문제에서의 정확도: 이진 분류 문제에서 사용
+
+  3. categorical_accuracy: 다중 클래스 분류 문제에서의 정확도: 다중 클래스 분류 문제에서 사용
+
+  4. top_k_categorical_accuracy: 예측 값이 k번째 안에 있는 경우 정확도로 간주: 다중 클래스 분류 문제에서 사용
+    - tf.keras.metrics.top_k_categorical_accuracy(y_true, y_pred, k=5)
+
+  5. sparse_top_k_categorical_accuracy: 원-핫 인코딩을 사용하지 않는 다중 클래스 분류 문제에서의 정확도: 다중 클래스 분류 문제에서 사용.
+    - tf.keras.metrics.sparse_top_k_categorical_accuracy(y_true, y_pred, k=5)
+
+  6. AUC: ROC 곡선 아래의 영역 (Area Under the Curve): 이진 분류 문제에서 사용
+    - tf.keras.metrics.AUC()
+
+  7. Precision: 정밀도. 양성 예측의 정확도: 분류 문제에서 사용
+    - tf.keras.metrics.Precision()
+
+  8. Recall: 재현율. 실제 양성 샘플 중에서 정확히 예측한 비율: 분류 문제에서 사용
+    - tf.keras.metrics.Recall()
+
+  9. TruePositives, TrueNegatives, FalsePositives, FalseNegatives: 각각 참 양성, 참 음성, 거짓 양성, 거짓 음성의 수를 계산: 분류 문제에서 더 구체적인 성능 평가를 위해 사용
+    - tf.keras.metrics.TruePositives(), tf.keras.metrics.TrueNegatives(), tf.keras.metrics.FalsePositives(), tf.keras.metrics.FalseNegatives()
+
+  10. MeanSquaredError (MSE): 평균 제곱 오차: 회귀 문제에서 사용
+    - tf.keras.metrics.MeanSquaredError()
+
+  11. MeanAbsoluteError (MAE): 평균 절대 오차: 회귀 문제에서 사용
+    - tf.keras.metrics.MeanAbsoluteError()
+
+  12. MeanAbsolutePercentageError (MAPE): 평균 절대 백분율 오차: 회귀 문제에서 사용
+    - tf.keras.metrics.MeanAbsolutePercentageError()
+
+  13. MeanSquaredLogarithmicError (MSLE): 평균 제곱 로그 오차: 회귀 문제에서 사용
+    - tf.keras.metrics.MeanSquaredLogarithmicError()
+
+  14. cosine_proximity: 코사인 유사성. 두 벡터 간의 코사인 유사성을 측정: 벡터 간의 유사성을 측정하는 데 사용
+    - tf.keras.metrics.CosineProximity()
+##################################################################################################### END 
+#############################################   메트릭 Metirc   #####################################
+##################################################################################################### 
+
+
+#####################################################################################################
+########################################   model.fit 메서드의 옵션   ################################
+##################################################################################################### 
+### model.fit 메서드의 옵션
+- 1. x: 입력 데이터. Numpy 배열, TensorFlow tensor, Pandas dataframe 또는 Keras Sequence 객체.
+- 2. y: 타겟 데이터. Numpy 배열, TensorFlow tensor, Pandas dataframe 또는 Keras Sequence 객체.
+- 3. batch_size: 배치 크기를 지정합니다. (기본값: 32)
+- 4. epochs: 에포크 수를 지정합니다. (기본값: 1)
+- 5. verbose: 학습 과정의 출력을 설정합니다. 0 (출력 없음), 1 (진행 막대), 2 (미니배치 출력을 위한 한 줄) 중 선택.
+- 6. callbacks: 학습 중 특정 시점에 호출되는 콜백 목록입니다.
+- 7. validation_split: 검증을 위해 훈련 데이터에서 분리할 데이터의 비율입니다. (0과 1 사이의 값)
+- 8. validation_data: 검증 데이터. (x_val, y_val) 또는 (x_val, y_val, val_sample_weights)의 형태.
+- 9. shuffle: 에포크마다 훈련 데이터를 섞을지 여부입니다. True, False, 'batch' 중 선택.
+- 10. class_weight: 클래스의 가중치를 지정합니다. 클래스 불균형 문제를 해결하는 데 사용됩니다.
+- 11. sample_weight: 각 샘플의 가중치를 지정합니다.
+- 12. initial_epoch: 학습을 시작할 초기 에포크 인덱스입니다. (기본값: 0)
+- 13. steps_per_epoch: 에포크마다 실행할 스텝 수를 지정합니다. 배치의 수가 아니라 데이터셋을 얼마나 잘라서 할 것인지 결정합니다.
+- 14. validation_steps: 검증 단계마다 실행할 스텝 수를 지정합니다.
+- 15. validation_batch_size: 검증 배치 크기를 지정합니다.
+- 16. validation_freq: 지정된 에포크 간격마다 검증을 수행합니다. 정수 또는 정수의 리스트로 지정합니다.
+- 17. max_queue_size: fit_generator에서 사용됩니다. 큐의 최대 크기.
+- 18. workers: fit_generator에서 사용됩니다. 사용될 프로세스 수.
+- 19. use_multiprocessing: fit_generator에서 사용됩니다. 멀티프로세싱을 사용할지 여부.
+
+
+<예제 코드>
+
+# 모델 컴파일
+model.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
+
+# 모델 학습
+history = model.fit(
+    X_train, y_train,
+    epochs=100,
+    batch_size=32,
+    validation_split=0.2,
+    verbose=1,
+    callbacks=[...],  # 콜백 예: ModelCheckpoint, EarlyStopping
+    shuffle=True,
+    class_weight={0: 1., 1: 50.},
+    sample_weight=None,
+    initial_epoch=0,
+    steps_per_epoch=None,
+    validation_steps=None,
+    validation_batch_size=None,
+    validation_freq=1
+)
+
+##################################################################################################### END
+########################################   model.fit 메서드의 옵션   ################################
+##################################################################################################### 
+
+#####################################################################################################
+###########################################   모델 평가 Evaluate   ##################################
+##################################################################################################### 
+테스트 데이터를 사용하여 모델을 평가
+옵션:
+- x: 입력 데이터.
+- y: 타겟 데이터.
+- batch_size: 배치 크기.
+- verbose: 평가 과정의 출력을 설정합니다. 0 (출력 없음), 1 (출력 있음).
+- sample_weight: 각 샘플의 가중치를 지정합니다.
+- steps: 평가할 총 스텝 수.
+- callbacks: 평가 중 호출되는 콜백 목록.
+- max_queue_size: 큐의 최대 크기.
+- workers: 사용될 프로세스 수.
+- use_multiprocessing: 멀티프로세싱을 사용할지 여부.
+사용 예:
+loss, accuracy = model.evaluate(X_test, y_test)
+print(f"Test loss: {loss}, Test accuracy: {accuracy}")
+
+##################################################################################################### END
+###########################################   모델 평가 Evaluate   ##################################
+##################################################################################################### 
+
+#####################################################################################################
+###########################################   모델 서머리 Summary   #################################
+##################################################################################################### 
+설명: 모델의 구조를 요약하여 출력, 각 레이어의 출력 형태와 파라미터 수를 포함
+옵션:
+line_length: 요약의 줄 길이.
+positions: 각 필드의 위치.
+print_fn: 출력할 함수.
+사용 예:
+model.summary()
+##################################################################################################### END
+###########################################   모델 서머리 Summary   #################################
+##################################################################################################### 
+
+
+#####################################################################################################
+################################################# EXAMPLES ##########################################
+##################################################################################################### 
+
+
+#################################################################### Q. DL 모델 Sequential + Add 를 통해 모델 구축
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.utils import to_categorical
+
+# 데이터 로드
+(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+# Reshape the images to have a single color channel and normalize pixel values
+train_images = train_images.reshape((60000, 28, 28, 1)).astype('float32') / 255
+test_images= test_images.reshape((10000, 28, 28, 1)).astype('float32') / 255
+
+
+#convert the labels to one-hot encoded vectors
+train_labels = to_categorical(train_labels)
+test_labels = to_categorical(test_labels)
+
+# 모델 구성하기
+model = models.Sequential()
+
+# 32개의 필터, 각 필터의 크기는 3x3, 28X28 픽셀의 흑백 이미지
+model.add(layers.InputLayer(shape=(28,28,1)))
+model.add(layers.Conv2D(32, (3, 3), activation='relu'))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3,3), activation='relu'))
+
+
+# add dense layers on top
+model.add(layers.Flatten())   # Flatten the 3D outputs to 1D before adding the dense layers
+model.add(layers.Dense(64, activation='relu'))
+model.add(layers.Dense(10, activation='softmax')) # 10 classes for digits 0-9
+
+# 모델 컴파일하기 - 옵티마이저, 손실함수, 평가 지표 설정
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+########## 모델 훈련
+
+model.fit(train_images, train_labels, epochs=5, batch_size=64)  # 60000개 데이터를 64개씩 나누어서 훈련
+
+########## 평가
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print(f'테스트 정확도: {test_acc}')
+
+model.summary()
+
+
+
+
+
+
+
+
+
+
+
+#################################################################### Q. Fashion MNINS 데이터셋에 대하여 Sequential 방식으로 모델 생성 및 평가
+입력 계층 layers.InputLayer(input_shape=(28*28,)),
+첫 번째 Dense 계층 : 출력 512, activation='relu'
+두 번째 Dense 계층 : 출력 256, activation='relu'
+출력 계층 : 출력 10, activation='softmax'
+모델 컴파일 : optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy']
+모델 학습 : epochs=10, batch_size=64
+데이터셋: Fashion MNIST
+########################################################################################
+
+
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import layers, models
+
+# Load and prepare the Fashion MNIST dataset
+(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
+
+# Reshape the images to have a single color channel and normalize pixel values
+train_images = train_images/255
+test_images = test_images/255
+
+# Convert the labels to one-hot encoded vectors
+train_labels = to_categorical(train_labels)
+test_labels = to_categorical(test_labels)
+
+# 이미지 차원 변경 (모델에 맞게 차원 추가)
+train_images=train_images.reshape((60000, 28, 28, 1))
+test_images=test_images.reshape((10000,28,28,1))
+
+model=models.Sequential([
+    layers.InputLayer(shape=(28,28,1)),
+    layers.Conv2D(32,(3,3), activation='relu'),
+    layers.MaxPooling2D((2,2)),
+    layers.Conv2D(64,(3,3), activation='relu'),
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+
+
+# 모델 컴파일
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+model.fit(train_images, train_labels, epochs=5, batch_size=64)
+
+# Evaluate the model
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print(f"Test accuracy: {test_acc}")
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 예측 생성
+predictions = model.predict(test_images)
+
+# 예측된 레이블을 원래의 형태로 변환
+predicted_labels = np.argmax(predictions, axis=1)
+
+# 원래의 테스트 레이블도 원래의 형태로 변환
+true_labels = np.argmax(test_labels, axis=1)
+
+# 이미지와 예측된 레이블, 실제 레이블을 시각화하는 함수
+def plot_image(predictions_array, true_label, img):
+    plt.grid(False)
+    plt.xticks([])
+    plt.yticks([])
+
+    plt.imshow(img, cmap=plt.cm.binary)
+
+    predicted_label = np.argmax(predictions_array)
+    if predicted_label == true_label:
+        color = 'blue'
+    else:
+        color = 'red'
+
+    plt.xlabel(f"{predicted_label} ({true_label})", color=color)
+
+def plot_value_array(predictions_array, true_label):
+    plt.grid(False)
+    plt.xticks(range(10))
+    plt.yticks([])
+    thisplot = plt.bar(range(10), predictions_array, color="#777777")
+    plt.ylim([0, 1])
+    predicted_label = np.argmax(predictions_array)
+
+    thisplot[predicted_label].set_color('red')
+    thisplot[true_label].set_color('blue')
+
+# 테스트 이미지 중에서 처음 10개 이미지를 시각화
+num_images = 10
+plt.figure(figsize=(2 * 2 * num_images, 4 * 2))
+
+for i in range(num_images):
+    plt.subplot(2, num_images, 2 * i + 1)
+    plot_image(predictions[i], true_labels[i], test_images[i].reshape(28, 28))
+    plt.subplot(2, num_images, 2 * i + 2)
+    plot_value_array(predictions[i], true_labels[i])
+
+plt.tight_layout()
+plt.show()
+
+#################################################################### Q. MNIST 데이터셋에 대해서 함수형 API로 아래와 같이 ConvNet 레이어를 추가하여 모델을 구성하고 학습 및 평가 수행
+ConvNet은 Conv2D 3개, MaxPooling2D 2개로 구성. 필터개수는 32, 64, 64개로 필터사이즈는 (3,3), MaxPooling2D의 윈도우 크기는 (2,2) 활성화 함수는 relu
+#################################################################### 
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.optimizers import Adam
+
+# 데이터 로드 및 전처리
+(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+# 이미지 데이터 차원 변경 및 정규화
+train_images = train_images.reshape((60000, 28, 28, 1)).astype('float32') / 255
+test_images = test_images.reshape((10000, 28, 28, 1)).astype('float32') / 255
+
+# 레이블 원-핫 인코딩
+train_labels = to_categorical(train_labels)
+test_labels = to_categorical(test_labels)
+
+# 모델 구성
+inputs = Input(shape=(28, 28, 1))
+
+# Conv2D 및 MaxPooling2D 레이어 추가
+x = Conv2D(32, (3, 3), activation='relu')(inputs)
+x = MaxPooling2D((2, 2))(x)
+x = Conv2D(64, (3, 3), activation='relu')(x)
+x = MaxPooling2D((2, 2))(x)
+x = Conv2D(64, (3, 3), activation='relu')(x)
+
+##### 위와 같이 해도 문제는 없다.. 
+#### 다만 중간 결과를 보고자 한다면 
+# x1 = Conv2D(32, (3, 3), activation='relu')(inputs)
+# x2 = MaxPooling2D((2, 2))(x1)
+# x3 = Conv2D(64, (3, 3), activation='relu')(x2)
+# x4 = MaxPooling2D((2, 2))(x3)
+# x5 = Conv2D(64, (3, 3), activation='relu')(x4)
+
+# Flatten 및 Dense 레이어 추가
+x = Flatten()(x)
+x = Dense(64, activation='relu')(x)
+outputs = Dense(10, activation='softmax')(x)
+
+# 모델 생성
+model = Model(inputs, outputs)
+
+# 모델 컴파일
+model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
+
+# 모델 요약
+model.summary()
+
+# 모델 학습
+history = model.fit(train_images, train_labels, epochs=5, batch_size=64, validation_split=0.2)
+
+# 모델 평가
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print(f"Test accuracy: {test_acc}")
+
+# 학습 과정 시각화 (Loss 및 Accuracy 그래프)
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='validation loss')
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(history.history['accuracy'], label='train accuracy')
+plt.plot(history.history['val_accuracy'], label='validation accuracy')
+plt.title('Model Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# 예측 및 시각화
+predictions = model.predict(test_images)
+
+# 예측된 레이블과 실제 레이블 비교 시각화
+num_images = 15
+plt.figure(figsize=(15, 10))
+
+for i in range(num_images):
+    plt.subplot(3, 5, i + 1)
+    plt.imshow(test_images[i].reshape(28, 28), cmap='gray')
+    plt.title(f"True: {np.argmax(test_labels[i])}, Pred: {np.argmax(predictions[i])}")
+    plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+
+#################################################################### Q. 텐서플로/케라스에서 실행하는 선형 회귀 모델
+# 텐서플로/케라스에서 실행하는 선형 회귀 모델
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 텐서플로의 케라스 API에서 필요한 함수들을 불러온다
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+x = np.array([2, 4, 6, 8])  # 공부 시간
+y = np.array([81, 93, 91, 97])  # 성적
+
+# 모델 생성
+model = Sequential()
+
+# 출력 값, 입력 변수, 분석 방법에 맞게끔 모델을 설정
+model.add(Dense(1, input_dim=1, activation='linear'))
+
+# 오차 수정을 위해 경사 하강법 (sgd)을, 오차의 정도를 판단하기 위해 평균 제곱 오차(mse)를 사용
+model.compile(optimizer='sgd', loss='mse')
+
+# 오차를 최소화하는 과정을 20번 반복
+model.fit(x, y, epochs=20, verbose=0)
+
+# 예측 값 시각화
+hour = 7
+prediction = model.predict(np.array([hour]).reshape(-1, 1))
+print(f"예상 점수: {prediction[0][0]:.2f}점")
+
+# 전체 데이터와 예측 결과 시각화
+plt.scatter(x, y, color='blue', label='Actual Data')
+plt.plot(x, model.predict(x.reshape(-1, 1)), color='red', label='Fitted Line')
+plt.scatter([hour], prediction, color='green', marker='x', s=100, label='Prediction')
+plt.title('Study Hours vs. Scores')
+plt.xlabel('Hours of Study')
+plt.ylabel('Score')
+plt.legend()
+plt.show()
+
+#################################################################### Q. house_train.csv 데이터셋으로 주택가격 예측 모델을 학습시키고 평가 (DL)
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# 데이터 로드
+df = pd.read_csv('/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/house_train.csv')
+
+# 데이터 확인
+print(df.head())
+print(df.info())
+
+# 결측치 처리
+# 수치형 자료와 비수치형 자료를 분리하여 결측치를 처리
+numerical_features = df.select_dtypes(include=[np.number]).columns.tolist()
+categorical_features = df.select_dtypes(exclude=[np.number]).columns.tolist()
+
+# 수치형 자료의 결측치를 평균으로 대체
+df[numerical_features] = df[numerical_features].fillna(df[numerical_features].mean())
+
+# 비수치형 자료의 결측치를 최빈값으로 대체
+for feature in categorical_features:
+    df[feature] = df[feature].fillna(df[feature].mode()[0])
+
+# 숫자형 변수 선택
+numerical_features = df.select_dtypes(include=[np.number]).columns.tolist()
+
+# 타겟 변수 및 피처 선택
+target = 'SalePrice'
+features = [col for col in numerical_features if col != target]
+
+# 타겟과 피처의 상관 관계 확인
+correlations = df[features + [target]].corr()
+correlation_target = correlations[target].sort_values(ascending=False)
+
+# 상위 10개 피처 선택
+key_features = correlation_target.index[1:11].tolist()
+print("Key features:", key_features)
+
+# 키 피처에 대한 박스 플롯 시각화
+plt.figure(figsize=(12, 10))
+for i, feature in enumerate(key_features):
+    plt.subplot(5, 2, i + 1)
+    sns.boxplot(x=df[feature])
+    plt.title(f'Box plot of {feature}')
+plt.tight_layout()
+plt.show()
+
+# 이상치 제거
+def remove_outliers(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
+for feature in key_features:
+    df = remove_outliers(df, feature)
+df=remove_outliers(df,target)
+
+# 이상치 제거 후의 키 피처에 대한 박스 플롯 시각화
+plt.figure(figsize=(12, 10))
+for i, feature in enumerate(key_features):
+    plt.subplot(5, 2, i + 1)
+    sns.boxplot(x=df[feature])
+    plt.title(f'Box plot of {feature} (outliers removed)')
+plt.tight_layout()
+plt.show()
+
+# 데이터 분할
+X = df[key_features]
+y = df[target]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 모델 생성
+model = Sequential()
+model.add(Dense(64, input_dim=len(key_features), activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1))
+
+# 모델 컴파일
+model.compile(optimizer='adam', loss='mse')
+
+# 모델 학습
+history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
+
+# 모델 평가
+loss = model.evaluate(X_test, y_test)
+print(f"Test loss (MSE): {loss}")
+
+# 학습 과정 시각화 (Loss 그래프)
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='validation loss')
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+# 예측 값과 실제 값 비교
+y_pred = model.predict(X_test)
+plt.scatter(y_test, y_pred)
+plt.xlabel('Actual Prices')
+plt.ylabel('Predicted Prices')
+plt.title('Actual vs Predicted Prices')
+plt.show()
+
+
+#### 처음 25개의 실제값과 예측값 비교
+### Deep Learning 결과 plot
+### 예측값, 실제값, 실행번호가 담길 빈리스트 생성
+real_prices=[]
+pred_prices=[]
+X_num=[]
+
+# 25개의 sample을 뽑아 실제 값, 예측값을 출력
+n_iter=0
+Y_prediction=model.predict(X_test).flatten()
+for i in range(25):
+  real=y_test.iloc[i]
+  pred=Y_prediction[i]
+  print(f"실제가격: {real:.2f}, 예측가격: {pred:.2f}")
+  real_prices.append(real)
+  pred_prices.append(pred)
+  X_num.append(n_iter)
+  n_iter+=1
+
+plt.plot(X_num, real_prices, label='Real Prices')
+plt.plot(X_num, pred_prices, label='Predicted Prices')
+plt.legend()
+plt.xlabel('Sample Number')
+plt.ylabel('Price')
+plt.title('Real Prices vs. Predicted Prices')
+plt.show()
+
+
+#################################################################### Q. house_train.csv 데이터셋으로 주택가격 예측 모델을 학습시키고 평가 (ML)
+##### ML 학습
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error
+
+# 데이터 로드
+df = pd.read_csv('/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/house_train.csv')
+
+# 데이터 확인
+print(df.head())
+print(df.info())
+
+# 결측치 처리
+numerical_features = df.select_dtypes(include=[np.number]).columns.tolist()
+categorical_features = df.select_dtypes(exclude=[np.number]).columns.tolist()
+
+# 수치형 자료의 결측치를 평균으로 대체
+df[numerical_features] = df[numerical_features].fillna(df[numerical_features].mean())
+
+# 비수치형 자료의 결측치를 최빈값으로 대체
+for feature in categorical_features:
+    df[feature] = df[feature].fillna(df[feature].mode()[0])
+
+# 타겟 변수 및 피처 선택
+target = 'SalePrice'
+features = [col for col in numerical_features if col != target]
+
+# 타겟과 피처의 상관 관계 확인
+correlations = df[features + [target]].corr()
+correlation_target = correlations[target].sort_values(ascending=False)
+
+# 상위 10개 피처 선택
+key_features = correlation_target.index[1:11].tolist()
+print("Key features:", key_features)
+
+# 이상치 제거
+def remove_outliers(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
+for feature in key_features:
+    df = remove_outliers(df, feature)
+df=remove_outliers(df,target)
+
+# 데이터 분할
+X = df[key_features]
+y = df[target]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 회귀 모델 목록
+models = {
+    'Linear Regression': LinearRegression(),
+    'Decision Tree': DecisionTreeRegressor(random_state=42),
+    'Random Forest': RandomForestRegressor(random_state=42),
+    'Gradient Boosting': GradientBoostingRegressor(random_state=42)
+}
+
+# 모델 학습 및 평가
+results = {}
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    results[name] = mse
+    print(f"{name} Test MSE: {mse}")
+
+# 결과 비교
+plt.figure(figsize=(10, 5))
+plt.bar(results.keys(), results.values())
+plt.ylabel('Mean Squared Error')
+plt.title('Comparison of Regression Models')
+plt.show()
+
+# 최적 모델 및 MSE 출력
+best_model_name = min(results, key=results.get)
+best_model_mse = results[best_model_name]
+print(f"Best Model: {best_model_name} with MSE: {best_model_mse}")
+
+### Machine Learning 결과 plot
+### 예측값, 실제값, 실행번호가 담길 빈리스트 생성
+import matplotlib.pyplot as plt
+
+# 최적 모델로 예측값 생성
+best_model = models[best_model_name]
+y_pred = best_model.predict(X_test)
+
+# 실제값, 예측값, 실행번호가 담길 빈 리스트 생성
+real_prices = []
+pred_prices = []
+X_num = []
+
+# 25개의 샘플을 뽑아 실제값과 예측값 출력 및 저장
+n_iter = 0
+for i in range(25):
+    real = y_test.iloc[i]
+    pred = y_pred[i]
+    print(f"실제가격: {real:.2f}, 예측가격: {pred:.2f}")
+    real_prices.append(real)
+    pred_prices.append(pred)
+    X_num.append(n_iter)
+    n_iter += 1
+
+# Plotting
+plt.figure(figsize=(15, 10))
+plt.plot(X_num, real_prices, 'k--', label='Real Prices')
+plt.plot(X_num, pred_prices, 'r', label='Predicted Prices')
+plt.legend()
+plt.xlabel('Sample Number')
+plt.ylabel('Price')
+plt.title(f'Real Prices vs. Predicted Prices by {best_model_name}')
+plt.show()
+#################################################################### Q.wine.csv로 와의 품종을 예측하는 모델을 텐서플로/케라스로 아래와 같이 생성하고 학습 및 평가를 수행
+입력층 : Input 레이어 shape=(12,)
+첫번째층 : 30, activation='relu'
+두번째층 :12, activation='relu'
+세번째층 :8, activation='relu'
+출력층 :1, activation='sigmoid'
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# 데이터 로드
+df = pd.read_csv('/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/wine.csv')
+
+# 컬럼 네임 생성
+column_names = [
+    'fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar', 
+    'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide', 'density', 
+    'pH', 'sulphates', 'alcohol', 'quality', 'class'
+]
+
+# 컬럼 네임 지정
+df.columns = column_names
+
+# 데이터 확인
+print(df.head())
+print(df.info())
+
+# 결측치 처리
+# 수치형 자료와 비수치형 자료를 분리하여 결측치를 처리
+numerical_features = df.select_dtypes(include=[np.number]).columns.tolist()
+categorical_features = df.select_dtypes(exclude=[np.number]).columns.tolist()
+
+# 수치형 자료의 결측치를 평균으로 대체
+df[numerical_features] = df[numerical_features].fillna(df[numerical_features].mean())
+
+# 비수치형 자료의 결측치를 최빈값으로 대체
+for feature in categorical_features:
+    df[feature] = df[feature].fillna(df[feature].mode()[0])
+
+# 숫자형 변수 선택
+numerical_features = df.select_dtypes(include=[np.number]).columns.tolist()
+
+# 타겟 변수 및 피처 선택
+target = 'class'
+features = [col for col in numerical_features if col != target]
+
+# 타겟과 피처의 상관 관계 확인
+correlations = df[features + [target]].corr()
+correlation_target = correlations[target].sort_values(ascending=False)
+
+# 상위 20개 피처 선택
+key_features = correlation_target.index[1:21].tolist()
+print("Key features:", key_features)
+
+# 키 피처에 대한 박스 플롯 시각화
+plt.figure(figsize=(12, 10))
+for i, feature in enumerate(key_features):
+    plt.subplot(5, 4, i + 1)
+    sns.boxplot(x=df[feature])
+    plt.title(f'Box plot of {feature}')
+plt.tight_layout()
+plt.show()
+
+# 이상치 제거
+def remove_outliers(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
+for feature in key_features:
+    df = remove_outliers(df, feature)
+# df=remove_outliers(df,target)
+
+# # 이상치 제거 후의 키 피처에 대한 박스 플롯 시각화
+# plt.figure(figsize=(12, 10))
+# for i, feature in enumerate(key_features):
+#     plt.subplot(5, 2, i + 1)
+#     sns.boxplot(x=df[feature])
+#     plt.title(f'Box plot of {feature} (outliers removed)')
+# plt.tight_layout()
+# plt.show()
+
+# 데이터 분할
+X = df[key_features]
+y = df[target]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 입력층 : Input 레이어 shape=(12,)
+# 첫번째층 : 30, activation='relu'
+# 두번째층 :12, activation='relu'
+# 세번째층 :8, activation='relu'
+# 출력층 :1, activation='sigmoid'
+
+
+# 모델 생성
+model = Sequential()
+model.add(Dense(30, input_dim=len(key_features), activation='relu'))
+model.add(Dense(12, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+
+# 모델 컴파일
+model.compile(optimizer='adam', loss='mse')
+
+# 모델 학습
+history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
+
+# 모델 평가
+loss = model.evaluate(X_test, y_test)
+print(f"Test loss (MSE): {loss}")
+
+# 학습 과정 시각화 (Loss 그래프)
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='validation loss')
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+# 예측 값과 실제 값 비교
+y_pred = model.predict(X_test)
+plt.scatter(y_test, y_pred)
+plt.xlabel('Actual Prices')
+plt.ylabel('Predicted Prices')
+plt.title('Actual vs Predicted Prices')
+plt.show()
+
+#################################################################### Q. 강사님 wine.csv로 와의 품종을 예측하는 모델을 텐서플로/케라스로 아래와 같이 생성하고 학습 및 평가를 수행
+입력층 : Input 레이어 shape=(12,)
+첫번째층 : 30, activation='relu'
+두번째층 :12, activation='relu'
+세번째층 :8, activation='relu'
+출력층 :1, activation='sigmoid'
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Input
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import random as python_random
+
+tf.random.set_seed(123)
+np.random.seed(123)
+python_random.seed(123)
+
+# 데이터 로드
+df = pd.read_csv('/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/wine.csv')
+
+# 컬럼 네임 생성
+column_names = [
+    'fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar', 
+    'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide', 'density', 
+    'pH', 'sulphates', 'alcohol', 'quality', 'class'
+]
+
+# 컬럼 네임 지정
+df.columns = column_names
+
+column_names.remove('class')
+
+# 이상치 제거
+def remove_outliers(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
+for feature in column_names:
+    df = remove_outliers(df, feature)
+
+X = df.iloc[:, 0:12]
+y = df.iloc[:, 12]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=0)
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 모델 생성
+model = Sequential()
+model.add(Input(shape=(12,)))       # 첫번째 레이어로 input layer
+model.add(Dense(30, activation='relu'))
+model.add(Dense(12, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+# 모델 컴파일
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# 모델 학습
+history = model.fit(X_train, y_train, epochs=1000, batch_size=200, validation_split=0.2, verbose=1)
+
+# 모델 평가
+loss, accuracy = model.evaluate(X_test, y_test)
+print(f"Test loss: {loss}, Test accuracy: {accuracy}")
+
+# 학습 과정 시각화 (Loss 그래프)
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='validation loss')
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+
+import matplotlib.pyplot as plt
+
+# 예측값, 실제값, 실행번호가 담길 빈 리스트 생성
+real_class = []
+pred_class = []
+X_num = []
+
+# 25개의 샘플을 뽑아 실제값과 예측값 출력 및 저장
+n_iter = 0
+Y_prediction = model.predict(X_test).flatten()
+for i in range(25):
+    real = y_test.iloc[i]
+    pred = Y_prediction[i]
+    print(f"실제값: {real:.2f}, 예측값: {pred:.2f}")
+    real_class.append(real)
+    pred_class.append(pred)
+    X_num.append(n_iter)
+    n_iter += 1
+
+# Plotting
+plt.figure(figsize=(15, 10))
+
+# 실제값은 큰 원형 마커로 표시
+plt.scatter(X_num, real_class, facecolors='none', edgecolors='b', label='Real Class', s=100, marker='o')
+
+# 예측값은 작은 별표 마커로 표시
+plt.scatter(X_num, pred_class, facecolors='none', edgecolors='r', label='Predicted Class', s=50, marker='*')
+
+plt.legend()
+plt.xlabel('Sample Number')
+plt.ylabel('Class')
+plt.title('Real Class vs. Predicted Class')
+plt.show()
+
+#################################################################### Q. 위 과정에 history 저장 기능 추가
+### history에 저장을 해놓고, 추가 학습도 가능하며 에포크 증가에 따라 validation accuracy 가 증가하지 않거나, loss가 감소하지 않는 다면, 
+### 그 이상의 에포크에서는 과대적합이 일어날 확률이 증가
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Input
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import random as python_random
+
+tf.random.set_seed(123)
+np.random.seed(123)
+python_random.seed(123)
+
+# 데이터 로드
+df = pd.read_csv('/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/wine.csv')
+
+# 컬럼 네임 생성
+column_names = [
+    'fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar', 
+    'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide', 'density', 
+    'pH', 'sulphates', 'alcohol', 'quality', 'class'
+]
+
+# 컬럼 네임 지정
+df.columns = column_names
+
+column_names.remove('class')
+
+# 이상치 제거
+def remove_outliers(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
+for feature in column_names:
+    df = remove_outliers(df, feature)
+
+X = df.iloc[:, 0:12]
+y = df.iloc[:, 12]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=0)
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 모델 생성
+model = Sequential()
+model.add(Input(shape=(12,)))       # 첫번째 레이어로 input layer
+model.add(Dense(30, activation='relu'))
+model.add(Dense(12, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+# 모델 컴파일
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# 모델 체크포인트 저장 & 모델 학습
+from tensorflow.keras.callbacks import ModelCheckpoint
+modelpath="/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/model/all/{epoch:02d}-{val_loss:.4f}.keras"
+checkpointer = ModelCheckpoint(filepath=modelpath, verbose=1)
+history = model.fit(X_train, y_train, epochs=1000, batch_size=500, validation_split=0.2, verbose=0, callbacks=[checkpointer])
+
+## hist_df: ['accuracy', 'loss', 'val_accuracy', 'val_loss']
+##  accuracy와 val_accuracy, loss와 val_loss는 각각 훈련 데이터와 검증 데이터에서의 모델 성능을 
+hist_df = pd.DataFrame(history.history)
+
+# 모델 평가
+loss, accuracy = model.evaluate(X_test, y_test)
+print(f"Test loss: {loss}, Test accuracy: {accuracy}")
+
+# 학습 과정 시각화 (Loss 그래프)
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='validation loss')
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+# 학습 과정 시각화 (Accuracy 그래프)
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.title('Model Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+# 예측값, 실제값, 실행번호가 담길 빈 리스트 생성
+real_class = []
+pred_class = []
+X_num = []
+
+# 25개의 샘플을 뽑아 실제값과 예측값 출력 및 저장
+n_iter = 0
+Y_prediction = model.predict(X_test).flatten()
+for i in range(25):
+    real = y_test.iloc[i]
+    pred = Y_prediction[i]
+    print(f"실제값: {real:.2f}, 예측값: {pred:.2f}")
+    real_class.append(real)
+    pred_class.append(pred)
+    X_num.append(n_iter)
+    n_iter += 1
+
+# Plotting
+plt.figure(figsize=(15, 10))
+
+# 실제값은 큰 원형 마커로 표시
+plt.scatter(X_num, real_class, facecolors='none', edgecolors='b', label='Real Class', s=100, marker='o')
+
+# 예측값은 작은 별표 마커로 표시
+plt.scatter(X_num, pred_class, facecolors='none', edgecolors='r', label='Predicted Class', s=50, marker='*')
+
+plt.legend()
+plt.xlabel('Sample Number')
+plt.ylabel('Class')
+plt.title('Real Class vs. Predicted Class')
+plt.show()
+
+#################################################################### Q. 위 코드에서 학습의 자동 중단 최적화 모델 저장 + 재 로딩
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Input
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import random as python_random
+
+tf.random.set_seed(123)
+np.random.seed(123)
+python_random.seed(123)
+
+# 데이터 로드
+df = pd.read_csv('/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/wine.csv')
+
+# 컬럼 네임 생성
+column_names = [
+    'fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar', 
+    'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide', 'density', 
+    'pH', 'sulphates', 'alcohol', 'quality', 'class'
+]
+
+# 컬럼 네임 지정
+df.columns = column_names
+
+column_names.remove('class')
+
+# 이상치 제거
+def remove_outliers(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
+for feature in column_names:
+    df = remove_outliers(df, feature)
+
+X = df.iloc[:, 0:12]
+y = df.iloc[:, 12]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=0)
+
+# 데이터 스케일링
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 모델 생성
+model = Sequential()
+model.add(Input(shape=(12,)))       # 첫번째 레이어로 input layer
+model.add(Dense(30, activation='relu'))
+model.add(Dense(12, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+# 모델 컴파일
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# 모델 체크포인트 저장 & 모델 학습
+from tensorflow.keras.callbacks import ModelCheckpoint
+# modelpath="/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/model/all/{epoch:02d}-{val_loss:.4f}.keras"
+# checkpointer = ModelCheckpoint(filepath=modelpath, verbose=1)
+# history = model.fit(X_train, y_train, epochs=1000, batch_size=500, validation_split=0.2, verbose=0, callbacks=[checkpointer])
+
+# 학습 중단 로직 설정 loss 기준으로 30번의 에포크에서 개선이 없으면 중단
+early_stopping_callback = EarlyStopping(monitor='val_loss', patience=30)
+# 최적화 모델이 저장될 폴더 모델이름 지정 (best 모델 기준으로만 저장)
+modelpath="/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/model/bestmodel.keras"
+# 최적화 모델을 업데이트하고 저장
+checkpointer = ModelCheckpoint(filepath=modelpath, monitor='val_loss', verbose=1, save_best_only=True)
+# 모델 학습 실행
+history=model.fit(X_train, y_train, validation_split=0.25, epochs=500, batch_size=500, verbose=1, callbacks=[early_stopping_callback, checkpointer])
+
+
+## hist_df: ['accuracy', 'loss', 'val_accuracy', 'val_loss']
+##  accuracy와 val_accuracy, loss와 val_loss는 각각 훈련 데이터와 검증 데이터에서의 모델 성능을 
+hist_df = pd.DataFrame(history.history)
+
+# 모델 평가
+loss, accuracy = model.evaluate(X_test, y_test)
+print(f"Test loss: {loss}, Test accuracy: {accuracy}")
+
+# 학습 과정 시각화 (Loss 그래프)
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='validation loss')
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+# 학습 과정 시각화 (Accuracy 그래프)
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.title('Model Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+# 예측값, 실제값, 실행번호가 담길 빈 리스트 생성
+real_class = []
+pred_class = []
+X_num = []
+
+# 25개의 샘플을 뽑아 실제값과 예측값 출력 및 저장
+n_iter = 0
+Y_prediction = model.predict(X_test).flatten()
+for i in range(25):
+    real = y_test.iloc[i]
+    pred = Y_prediction[i]
+    print(f"실제값: {real:.2f}, 예측값: {pred:.2f}")
+    real_class.append(real)
+    pred_class.append(pred)
+    X_num.append(n_iter)
+    n_iter += 1
+
+# Plotting
+plt.figure(figsize=(15, 10))
+
+# 실제값은 큰 원형 마커로 표시
+plt.scatter(X_num, real_class, facecolors='none', edgecolors='b', label='Real Class', s=100, marker='o')
+
+# 예측값은 작은 별표 마커로 표시
+plt.scatter(X_num, pred_class, facecolors='none', edgecolors='r', label='Predicted Class', s=50, marker='*')
+
+plt.legend()
+plt.xlabel('Sample Number')
+plt.ylabel('Class')
+plt.title('Real Class vs. Predicted Class')
+plt.show()
+
+
+######################## 저장된 모델을 다시 불러들임
+## 저장된 모델을 로드 (이 파일을 로드하면 추가 학습에 사용 가능)
+from tensorflow.keras.models import load_model
+
+## 저장된 모델 로드
+model = load_model('/content/drive/MyDrive/KITA_2024/M6_DeepLearning/DATA/model/bestmodel.keras')
+
+# 모델 서머리 출력
+model.summary()
+
+#################################################################### Q.
+
+#################################################################### Q.
