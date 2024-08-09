@@ -1,0 +1,17 @@
+DROP DATABASE IF EXISTS movies_db;
+CREATE DATABASE movies_db;
+USE movies_db;
+
+CREATE TABLE movies (
+    movieId INT PRIMARY KEY,
+    title VARCHAR(255),
+    genres VARCHAR(255)
+);
+
+CREATE TABLE ratings (
+    userId INT,
+    movieId INT,
+    rating FLOAT,
+    timestamp INT,
+    PRIMARY KEY (userId, movieId)
+);

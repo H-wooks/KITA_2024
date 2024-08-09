@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+{% block header %}영화 추천 Application{% endblock %}
+{% block content %}
+    <form action="{{ url_for('recommend') }}" method="POST" class="mt-4">
+        <div class="form-group">
+            <label for="user_id">User ID</label>
+            <input type="text" id="user_id" name="user_id" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Recommend Movies</button>
+    </form>
+    <form action="{{ url_for('similar') }}" method="POST" class="mt-4">
+        <div class="form-group">
+            <label for="movie_id">Movie ID</label>
+            <input type="text" id="movie_id" name="movie_id" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-secondary">Find Similar Movies</button>
+    </form>
+{% endblock %}

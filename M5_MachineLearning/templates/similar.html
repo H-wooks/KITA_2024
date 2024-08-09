@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Similar Movies{% endblock %}
+{% block header %}유사 영화 추천{% endblock %}
+{% block content %}
+    <h2>Top-10 Movies Similar to {{ movie_title }}</h2>
+    {% if similar_movies.empty %}
+        <p>No similar movies found.</p>
+    {% else %}
+        <ul>
+        {% for idx, row in similar_movies.iterrows() %}
+            <li>{{ row.title }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <a href="{{ url_for('index') }}" class="btn btn-success">Back to Home</a>
+{% endblock %}

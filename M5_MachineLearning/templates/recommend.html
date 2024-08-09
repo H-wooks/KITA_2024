@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendations{% endblock %}
+{% block header %}영화 추천{% endblock %}
+{% block content %}
+    <h2>Top-10 Recommendations</h2>
+    <ul>
+    {% for title, rating in recommendations %}
+        <li>{{ title }} - Rating: {{ rating }}</li>
+    {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}" class="btn btn-success">Back to Home</a>
+{% endblock %}
