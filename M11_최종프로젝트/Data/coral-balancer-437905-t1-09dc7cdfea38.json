@@ -1,8 +1,8 @@
 {
   "type": "service_account",
   "project_id": "coral-balancer-437905-t1",
-  "private_key_id": "09dc7cdfea38ffc026125a6e67147b15dabd9161",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDBFurOYPH8mY+p\nqbptgurruKaAWhrlypsmheTzzKOj5swvY0OxD7f7WR9UY2S+6e5RffnPNJMPSTzw\nLl33I8dcvD6xOsL0Cucu7QeGaoKNEdQBiK6p+XqQuH1aulczhRQ1vaC1Ql55vFQi\njzLA6rDmgeoemcaUtc8usNvzl1aeRuFxgacX3LkWyJBsnJ3ZhT+7B9A9fLFI5BAD\nBSoaSedROy5wb/nNGcrDynvoxSPiXkAsYCVagZ98esRdqQFozUkKS0X21PoHS4XL\nvOKE1ziEFTBnOqW6dWSWAKKX17vekHFVMcpA6nYyiZzY4bv9crmqLwRQKoBx7ZAm\nAjAmOMdhAgMBAAECggEACicgVZW3Y6bXbP5ltRhrLdXZu2oBfA+5NL9ZmJAsEpQy\nLFO13XuMGwVGpnNLetZmF5beKc0D5ovdTmvBuRsCgpfLXBpQ4fAo08jW2nSDRNOp\nKCN9u6ZIkY+B1+FwcF8Q/vpnluBUg2Yprl+FNauhfZ1bKBzB2lPs/vGBvz836L6N\n8E8IidQiTD1FuTxM+p/4Ii+o/Az3+b52MWEmUU3tVvsGkOBxrdSOFNE7s+NhO3p6\nFsu6MTwptkwrAXyqiwE0NX4EAdcFdbS81A2AejyD2+EUA8vOkfb2Ls9m7VqmFUf8\na97vcg9+ph3tCkwNJF1uvYpXR1QAOmv7JxJEsHAiWQKBgQDuNyLvEWQiv17pB82x\nltXXlKkj5o7DF+/T89BAfhZ+qMd+68SFZErMZj7v5zCxD2/DkGx+tMsxYeeZE9Nd\nlNMBOvBxb6PH0q+/6sd/NJzowT3hXKh8xGtqCSJXZixJYMg4USnq7/my/Xk+9HXx\nQz7bMPpz+J972sfRlQJKuZ0NHwKBgQDPgVFutlZnqQOVYMt9Wj0YDgSyTd6f/Hk3\ndxyReDoMBsWV+FZHOKbiVK5skqkEg+jfd7ZdB5ljEyemfDoTlUvohQyRFZok7ZLR\njsU1kh9pb5FWG6uwLyCzP++MXRYE/pgbA3v2a51bh1VenlwVlGvNBH3AgX7eE8n0\nbAvy5HMbfwKBgAQmpc8wqGQKnabF4gm0LSnCh2f+voIbyqwQ1ZIqIE44trE5foUs\niDkjlvkrOCf9st7fh2R11gyYPibmt4or67lbw5DWdy4mN7XKa4uF6S4NH/zrVmxG\nJ/EDE7weJatpqlOA5pAXemxqClDUhbGckF3VbqfSr0TDPTQjupR+w4PVAoGBAMw5\nlWDmWlH5mUpKktwTlS94lIy8cRB6lv7M3zQY5OBzRcHdQWUlT7JP779x9KE6Blbx\n5mzXDtLgxlRnzWz6slPtprmgTi5sF+ThpByebQYDRUI/R5HGQGPK2EQIVaSiwidM\nHZQgxCWSI6ZVK4Idqp+D/RQbHzcIuOoz8OqkhtmXAoGARn1SDKuVwBSg3La7rOaK\nfrlZ5P1QaZiGvNQYPugVx0Hz2hR2O/yOaUMtsFWdu7MvLg9z4fnXAQZbF7hPdorR\nIYoPyMxQLghomHQtIlK6/5c8CZBb2MgAaaUsKcKAJPQPszSIw+krS6iJexT/g/k0\nusNQLCSX0pYR2f60vrp0RF8=\n-----END PRIVATE KEY-----\n",
+  "private_key_id": "",
+  "private_key": "",
   "client_email": "myacademy@coral-balancer-437905-t1.iam.gserviceaccount.com",
   "client_id": "113476200001802396648",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
